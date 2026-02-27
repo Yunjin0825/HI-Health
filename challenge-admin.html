@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HI Health | 챌린지 참가자 관리</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4F46E5; --primary-dark: #3730A3; --primary-light: #EEF2FF;
+      --green: #10B981; --green-light: #D1FAE5;
+      --amber: #F59E0B; --amber-light: #FEF3C7;
+      --red: #EF4444; --red-light: #FEE2E2;
+      --sky: #0EA5E9; --sky-light: #E0F2FE;
+      --text: #111827; --text-2: #374151; --text-3: #6B7280;
+      --border: #E5E7EB; --bg: #F3F4F6; --card: #fff;
+      --radius: 12px; --radius-sm: 8px;
+      --shadow: 0 2px 10px rgba(0,0,0,0.07);
+      --shadow-md: 0 6px 20px rgba(0,0,0,0.1);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Noto Sans KR',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+    /* ── LOGIN ── */
+    .login-screen {
+      min-height: 100vh; display:flex; align-items:center; justify-content:center;
+      background: linear-gradient(135deg, #1e1b4b 0%, #4338ca 100%);
+      padding: 20px;
+    }
+    .login-card {
+      background:#fff; border-radius:20px; padding:44px 36px;
+      width:100%; max-width:380px; box-shadow:0 20px 60px rgba(0,0,0,0.25); text-align:center;
+    }
+    .login-icon { font-size:48px; margin-bottom:14px; }
+    .login-title { font-size:22px; font-weight:700; margin-bottom:5px; }
+    .login-sub { font-size:13px; color:var(--text-3); margin-bottom:28px; }
+    .login-input {
+      width:100%; padding:13px 16px; border:1.5px solid var(--border);
+      border-radius:var(--radius-sm); font-family:inherit; font-size:14px;
+      outline:none; text-align:center; letter-spacing:4px; margin-bottom:14px;
+      transition:border-color 0.2s;
+    }
+    .login-input:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(79,70,229,0.1); }
+    .login-input.error { border-color:var(--red); background:var(--red-light); letter-spacing:normal; }
+    .login-btn {
+      width:100%; padding:13px; background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+      color:#fff; border:none; border-radius:var(--radius-sm); font-family:inherit;
+      font-size:15px; font-weight:700; cursor:pointer; transition:all 0.2s;
+    }
+    .login-btn:hover { transform:translateY(-1px); box-shadow:0 6px 18px rgba(79,70,229,0.35); }
+    .login-err { font-size:13px; color:var(--red); margin-top:8px; display:none; }
+    .login-hint { font-size:11px; color:var(--text-3); margin-top:16px; }
+
+    /* ── ADMIN LAYOUT ── */
+    #admin { display:none; min-height:100vh; }
+    .admin-header {
+      background: linear-gradient(135deg, #1e1b4b, #4338ca);
+      color:#fff; padding:0 24px; height:62px;
+      display:flex; align-items:center; justify-content:space-between;
+      position:sticky; top:0; z-index:100; box-shadow:0 2px 12px rgba(0,0,0,0.2);
+    }
+    .ah-logo { display:flex; align-items:center; gap:10px; font-size:17px; font-weight:700; }
+    .ah-logo-icon { width:32px; height:32px; background:rgba(255,255,255,0.2); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:16px; }
+    .ah-right { display:flex; align-items:center; gap:12px; }
+    .ah-badge { background:rgba(255,255,255,0.15); padding:5px 13px; border-radius:20px; font-size:12px; font-weight:600; }
+    .ah-logout { background:none; border:1px solid rgba(255,255,255,0.3); color:#fff; padding:7px 14px; border-radius:20px; font-family:inherit; font-size:12px; cursor:pointer; transition:all 0.2s; }
+    .ah-logout:hover { background:rgba(255,255,255,0.15); }
+
+    .admin-body { padding:24px; max-width:1400px; margin:0 auto; }
+
+    /* ── STAT CARDS ── */
+    .stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; margin-bottom:22px; }
+    .stat-card { background:var(--card); border-radius:var(--radius); padding:18px; box-shadow:var(--shadow); }
+    .stat-label { font-size:12px; color:var(--text-3); font-weight:600; margin-bottom:6px; display:flex; align-items:center; gap:5px; }
+    .stat-value { font-size:28px; font-weight:700; line-height:1; }
+    .stat-sub   { font-size:11px; color:var(--text-3); margin-top:4px; }
+    .stat-card.blue  { border-top:3px solid var(--primary); }
+    .stat-card.green { border-top:3px solid var(--green); }
+    .stat-card.amber { border-top:3px solid var(--amber); }
+    .stat-card.red   { border-top:3px solid var(--red); }
+    .stat-card.sky   { border-top:3px solid var(--sky); }
+
+    /* ── DEPT CHART ── */
+    .dept-card { background:var(--card); border-radius:var(--radius); padding:18px; box-shadow:var(--shadow); margin-bottom:22px; }
+    .dept-title { font-size:15px; font-weight:700; margin-bottom:14px; display:flex; align-items:center; gap:6px; }
+    .dept-bars { display:grid; gap:8px; }
+    .dept-row { display:grid; grid-template-columns:100px 1fr 36px; align-items:center; gap:10px; }
+    .dept-name { font-size:12px; font-weight:500; text-align:right; color:var(--text-2); }
+    .dept-bar-bg { background:var(--border); border-radius:4px; height:10px; overflow:hidden; }
+    .dept-bar-fill { height:100%; background:linear-gradient(90deg,var(--primary),var(--sky)); border-radius:4px; transition:width 0.6s ease; }
+    .dept-cnt { font-size:12px; font-weight:700; color:var(--text-2); }
+
+    /* ── CONTROLS ── */
+    .controls { background:var(--card); border-radius:var(--radius); padding:16px; box-shadow:var(--shadow); margin-bottom:16px; display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+    .ctrl-search { flex:1; min-width:200px; padding:9px 14px; border:1.5px solid var(--border); border-radius:var(--radius-sm); font-family:inherit; font-size:13px; outline:none; background:var(--bg); transition:border-color 0.2s; }
+    .ctrl-search:focus { border-color:var(--primary); background:#fff; }
+    .ctrl-select { padding:9px 32px 9px 12px; border:1.5px solid var(--border); border-radius:var(--radius-sm); font-family:inherit; font-size:13px; outline:none; background:var(--bg); cursor:pointer; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 8px center; background-size:16px; }
+    .ctrl-btn { padding:9px 16px; border-radius:var(--radius-sm); border:none; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; gap:6px; }
+    .ctrl-btn.primary { background:var(--primary); color:#fff; }
+    .ctrl-btn.primary:hover { background:var(--primary-dark); }
+    .ctrl-btn.green { background:var(--green); color:#fff; }
+    .ctrl-btn.green:hover { filter:brightness(0.9); }
+    .ctrl-btn.outline { background:none; border:1.5px solid var(--border); color:var(--text-2); }
+    .ctrl-btn.outline:hover { border-color:var(--primary); color:var(--primary); }
+    .ctrl-count { font-size:13px; color:var(--text-3); font-weight:600; }
+
+    /* ── TABLE ── */
+    .table-wrap { background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden; margin-bottom:22px; }
+    .table-scroll { overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; min-width:900px; }
+    thead { background:#F9FAFB; }
+    th { padding:11px 14px; text-align:left; font-size:12px; font-weight:700; color:var(--text-3); white-space:nowrap; border-bottom:1px solid var(--border); cursor:pointer; user-select:none; }
+    th:hover { color:var(--primary); }
+    th .sort-icon { margin-left:4px; opacity:0.4; }
+    th.sorted .sort-icon { opacity:1; color:var(--primary); }
+    td { padding:12px 14px; font-size:13px; border-bottom:1px solid var(--border); vertical-align:middle; }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:#FAFAFA; }
+    .td-num { font-size:11px; color:var(--text-3); font-weight:600; }
+    .td-name { font-weight:600; }
+    .td-id { font-size:11px; color:var(--text-3); margin-top:2px; }
+
+    .status-badge { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:20px; font-size:11px; font-weight:700; white-space:nowrap; }
+    .status-pending   { background:var(--amber-light); color:#92400E; }
+    .status-confirmed { background:var(--green-light);  color:#065F46; }
+    .status-cancelled { background:var(--red-light);    color:#991B1B; }
+
+    .family-badge { background:var(--sky-light); color:#0369A1; padding:3px 8px; border-radius:10px; font-size:11px; font-weight:600; }
+
+    .action-btn { padding:5px 11px; border-radius:6px; border:none; font-family:inherit; font-size:11px; font-weight:600; cursor:pointer; transition:all 0.2s; }
+    .action-btn:hover { transform:scale(1.05); }
+    .btn-confirm  { background:var(--green-light);  color:#065F46; }
+    .btn-cancel   { background:var(--red-light);    color:#991B1B; }
+    .btn-pending  { background:var(--amber-light);  color:#92400E; }
+    .btn-detail   { background:var(--primary-light);color:var(--primary); }
+    .btn-delete   { background:var(--red-light);    color:var(--red); }
+    .action-group { display:flex; gap:5px; flex-wrap:wrap; }
+
+    .empty-table { padding:52px; text-align:center; color:var(--text-3); }
+    .empty-table .ei { font-size:48px; margin-bottom:12px; }
+
+    /* ── MODAL ── */
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:300; align-items:center; justify-content:center; padding:20px; }
+    .modal-overlay.open { display:flex; }
+    .modal { background:#fff; border-radius:20px; padding:28px; max-width:560px; width:100%; max-height:90vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,0.3); animation:modalIn 0.25s ease; }
+    @keyframes modalIn { from{opacity:0;transform:scale(0.95)} to{opacity:1;transform:scale(1)} }
+    .modal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+    .modal-title { font-size:18px; font-weight:700; }
+    .modal-close { background:none; border:none; font-size:22px; cursor:pointer; color:var(--text-3); padding:4px; }
+    .modal-close:hover { color:var(--text); }
+    .detail-row { display:grid; grid-template-columns:110px 1fr; gap:8px; padding:10px 0; border-bottom:1px solid var(--border); }
+    .detail-row:last-of-type { border-bottom:none; }
+    .detail-label { font-size:12px; font-weight:700; color:var(--text-3); }
+    .detail-value { font-size:13px; font-weight:500; }
+    .modal-note-input { width:100%; padding:10px 13px; border:1.5px solid var(--border); border-radius:var(--radius-sm); font-family:inherit; font-size:13px; resize:vertical; min-height:70px; outline:none; margin-top:12px; }
+    .modal-note-input:focus { border-color:var(--primary); }
+    .modal-actions { display:flex; gap:10px; margin-top:20px; flex-wrap:wrap; }
+    .modal-btn { padding:10px 20px; border-radius:var(--radius-sm); border:none; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; transition:all 0.2s; }
+    .modal-btn.primary { background:var(--primary); color:#fff; }
+    .modal-btn.success { background:var(--green); color:#fff; }
+    .modal-btn.danger  { background:var(--red); color:#fff; }
+    .modal-btn.outline { background:none; border:1.5px solid var(--border); color:var(--text-2); }
+
+    /* ── TOAST ── */
+    .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(10px); background:#1A1F36; color:#fff; padding:11px 24px; border-radius:30px; font-size:13px; font-weight:500; z-index:400; opacity:0; transition:all 0.3s; pointer-events:none; white-space:nowrap; }
+    .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+    /* ── MISC ── */
+    .section-title { font-size:16px; font-weight:700; margin-bottom:14px; display:flex; align-items:center; gap:7px; }
+    .page-meta { font-size:12px; color:var(--text-3); }
+    @media(max-width:640px){ .admin-body{ padding:14px; } .stat-grid{ grid-template-columns:repeat(2,1fr); } }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="login-screen">
+  <div class="login-card">
+    <div class="login-icon">🔒</div>
+    <h2 class="login-title">관리자 로그인</h2>
+    <p class="login-sub">HI Health 챌린지 참가자 관리 시스템</p>
+    <input type="password" class="login-input" id="pw-input" placeholder="비밀번호 입력" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">로그인</button>
+    <div class="login-err" id="login-err">비밀번호가 올바르지 않습니다</div>
+    <p class="login-hint">기본 비밀번호: health2026</p>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="admin">
+
+  <!-- Header -->
+  <header class="admin-header">
+    <div class="ah-logo">
+      <div class="ah-logo-icon">💙</div>
+      HI Health · 참가자 관리
+    </div>
+    <div class="ah-right">
+      <span class="ah-badge" id="last-updated">-</span>
+      <button class="ah-logout" onclick="logout()">로그아웃</button>
+    </div>
+  </header>
+
+  <div class="admin-body">
+
+    <!-- Stat cards -->
+    <div class="stat-grid" id="stat-grid"></div>
+
+    <!-- Dept chart + Shoe chart -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:22px">
+      <div class="dept-card">
+        <div class="dept-title">🏢 부서별 신청 현황</div>
+        <div class="dept-bars" id="dept-bars"></div>
+      </div>
+      <div class="dept-card">
+        <div class="dept-title">👟 신발 사이즈 현황</div>
+        <div class="dept-bars" id="shoe-bars"></div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <input class="ctrl-search" id="search-input" placeholder="🔍 이름, 사번, 부서 검색..." oninput="renderTable()">
+      <select class="ctrl-select" id="filter-dept" onchange="renderTable()">
+        <option value="">전체 부서</option>
+      </select>
+      <select class="ctrl-select" id="filter-status" onchange="renderTable()">
+        <option value="">전체 상태</option>
+        <option value="pending">신청완료</option>
+        <option value="confirmed">선정</option>
+        <option value="cancelled">미선정</option>
+      </select>
+      <select class="ctrl-select" id="filter-family" onchange="renderTable()">
+        <option value="">가족 참여 전체</option>
+        <option value="yes">가족 참여</option>
+        <option value="no">본인만</option>
+      </select>
+      <span class="ctrl-count" id="filter-count">0명</span>
+      <div style="display:flex;gap:8px;margin-left:auto;flex-wrap:wrap">
+        <button class="ctrl-btn primary" onclick="confirmAll()">✅ 전체 선정</button>
+        <button class="ctrl-btn green" onclick="exportCSV()">📥 CSV 내보내기</button>
+        <button class="ctrl-btn outline" onclick="clearAllData()">🗑️ 전체 삭제</button>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th onclick="sortBy('idx')">#<span class="sort-icon" id="sort-idx">↕</span></th>
+              <th onclick="sortBy('name')">이름<span class="sort-icon" id="sort-name">↕</span></th>
+              <th onclick="sortBy('empId')">사번<span class="sort-icon" id="sort-empId">↕</span></th>
+              <th onclick="sortBy('dept')">부서<span class="sort-icon" id="sort-dept">↕</span></th>
+              <th>연락처</th>
+              <th onclick="sortBy('shoeSize')">신발<span class="sort-icon" id="sort-shoeSize">↕</span></th>
+              <th>가족</th>
+              <th onclick="sortBy('status')">상태<span class="sort-icon" id="sort-status">↕</span></th>
+              <th onclick="sortBy('registeredAt')">신청일<span class="sort-icon" id="sort-registeredAt">↕</span></th>
+              <th>관리</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <p class="page-meta" style="text-align:center;margin-bottom:24px">
+      데이터는 이 기기의 브라우저에 저장됩니다 · CSV로 내보내어 안전하게 백업하세요
+    </p>
+  </div>
+</div>
+
+<!-- Detail Modal -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <h3 class="modal-title" id="modal-title">참가자 상세</h3>
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+const REG_KEY  = 'hi_health_registrations_v2';
+const AUTH_KEY = 'hi_health_admin_auth';
+const PASSWORD = 'health2026';
+
+let sortKey = 'registeredAt';
+let sortDir = -1; // -1 = desc
+
+/* ═══ AUTH ═══ */
+function doLogin() {
+  const pw = document.getElementById('pw-input').value;
+  if (pw === PASSWORD) {
+    sessionStorage.setItem(AUTH_KEY, '1');
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin').style.display = 'block';
+    loadAdmin();
+  } else {
+    const inp = document.getElementById('pw-input');
+    inp.classList.add('error'); inp.value = '';
+    inp.placeholder = '비밀번호가 틀렸습니다';
+    document.getElementById('login-err').style.display = 'block';
+    setTimeout(() => { inp.classList.remove('error'); inp.placeholder = '비밀번호 입력'; }, 2000);
+  }
+}
+function logout() {
+  sessionStorage.removeItem(AUTH_KEY);
+  location.reload();
+}
+function checkAuth() {
+  if (sessionStorage.getItem(AUTH_KEY) === '1') {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin').style.display = 'block';
+    loadAdmin();
+  }
+}
+
+/* ═══ DATA ═══ */
+function getRegs() { return JSON.parse(localStorage.getItem(REG_KEY) || '[]'); }
+function saveRegs(regs) { localStorage.setItem(REG_KEY, JSON.stringify(regs)); }
+
+/* ═══ LOAD ═══ */
+function loadAdmin() {
+  renderStats();
+  renderCharts();
+  renderDeptFilter();
+  renderTable();
+  const now = new Date();
+  document.getElementById('last-updated').textContent = '최근 업데이트: ' + now.toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'});
+}
+
+/* ═══ STATS ═══ */
+function renderStats() {
+  const regs = getRegs();
+  const pending   = regs.filter(r => r.status === 'pending').length;
+  const confirmed = regs.filter(r => r.status === 'confirmed').length;
+  const cancelled = regs.filter(r => r.status === 'cancelled').length;
+  const family    = regs.filter(r => r.familyParticipation).length;
+  const totalPpl  = regs.reduce((s,r) => s + 1 + (r.familyCount||0), 0);
+  document.getElementById('stat-grid').innerHTML = `
+    <div class="stat-card blue">
+      <div class="stat-label">📋 전체 신청</div>
+      <div class="stat-value">${regs.length}</div>
+      <div class="stat-sub">총 ${totalPpl}명 (가족 포함)</div>
+    </div>
+    <div class="stat-card amber">
+      <div class="stat-label">⏳ 검토 중</div>
+      <div class="stat-value">${pending}</div>
+      <div class="stat-sub">신청완료 대기</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-label">✅ 선정</div>
+      <div class="stat-value">${confirmed}</div>
+      <div class="stat-sub">참가 확정</div>
+    </div>
+    <div class="stat-card red">
+      <div class="stat-label">❌ 미선정</div>
+      <div class="stat-value">${cancelled}</div>
+      <div class="stat-sub">아쉽지만 다음에</div>
+    </div>
+    <div class="stat-card sky">
+      <div class="stat-label">👨‍👩‍👧 가족 참여</div>
+      <div class="stat-value">${family}</div>
+      <div class="stat-sub">가족 포함 신청자</div>
+    </div>
+  `;
+}
+
+/* ═══ CHARTS ═══ */
+function renderCharts() {
+  const regs = getRegs();
+
+  // Dept
+  const deptMap = {};
+  regs.forEach(r => { deptMap[r.dept] = (deptMap[r.dept]||0) + 1; });
+  const depts = Object.entries(deptMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const maxD = depts.length ? depts[0][1] : 1;
+  document.getElementById('dept-bars').innerHTML = depts.length
+    ? depts.map(([d,n]) => `
+        <div class="dept-row">
+          <div class="dept-name">${d}</div>
+          <div class="dept-bar-bg"><div class="dept-bar-fill" style="width:${Math.round(n/maxD*100)}%"></div></div>
+          <div class="dept-cnt">${n}</div>
+        </div>
+      `).join('')
+    : '<p style="font-size:13px;color:var(--text-3);text-align:center;padding:20px">신청자가 없습니다</p>';
+
+  // Shoe
+  const shoeMap = {};
+  regs.forEach(r => {
+    shoeMap[r.shoeSize+'mm'] = (shoeMap[r.shoeSize+'mm']||0) + 1;
+    if (r.familyShoeSize) {
+      r.familyShoeSize.split(',').forEach(s => {
+        const sz = s.trim() + 'mm';
+        if (sz !== 'mm') shoeMap[sz] = (shoeMap[sz]||0) + 1;
+      });
+    }
+  });
+  const shoes = Object.entries(shoeMap).sort((a,b)=>parseInt(a[0])-parseInt(b[0]));
+  const maxS = shoes.length ? Math.max(...shoes.map(s=>s[1])) : 1;
+  document.getElementById('shoe-bars').innerHTML = shoes.length
+    ? shoes.map(([s,n]) => `
+        <div class="dept-row">
+          <div class="dept-name">${s}</div>
+          <div class="dept-bar-bg" style="background:var(--green-light)"><div class="dept-bar-fill" style="width:${Math.round(n/maxS*100)}%;background:linear-gradient(90deg,var(--green),#34D399)"></div></div>
+          <div class="dept-cnt">${n}</div>
+        </div>
+      `).join('')
+    : '<p style="font-size:13px;color:var(--text-3);text-align:center;padding:20px">신청자가 없습니다</p>';
+}
+
+/* ═══ DEPT FILTER ═══ */
+function renderDeptFilter() {
+  const regs = getRegs();
+  const depts = [...new Set(regs.map(r=>r.dept))].sort();
+  const sel = document.getElementById('filter-dept');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">전체 부서</option>' + depts.map(d=>`<option value="${d}" ${d===cur?'selected':''}>${d}</option>`).join('');
+}
+
+/* ═══ TABLE ═══ */
+function renderTable() {
+  let regs = getRegs();
+  const q      = document.getElementById('search-input').value.toLowerCase().trim();
+  const dept   = document.getElementById('filter-dept').value;
+  const status = document.getElementById('filter-status').value;
+  const family = document.getElementById('filter-family').value;
+
+  if (q)      regs = regs.filter(r => r.name.includes(q) || r.empId.toLowerCase().includes(q) || r.dept.includes(q) || r.phone.includes(q));
+  if (dept)   regs = regs.filter(r => r.dept === dept);
+  if (status) regs = regs.filter(r => r.status === status);
+  if (family === 'yes') regs = regs.filter(r => r.familyParticipation);
+  if (family === 'no')  regs = regs.filter(r => !r.familyParticipation);
+
+  // Sort
+  regs = regs.slice().sort((a,b) => {
+    if (sortKey === 'idx') return 0;
+    const av = a[sortKey] || ''; const bv = b[sortKey] || '';
+    if (sortKey === 'shoeSize') return (parseInt(av)||0) > (parseInt(bv)||0) ? sortDir : -sortDir;
+    return av > bv ? sortDir : -sortDir;
+  });
+
+  document.getElementById('filter-count').textContent = regs.length + '명';
+  const allRegs = getRegs();
+
+  const tbody = document.getElementById('table-body');
+  if (!regs.length) {
+    tbody.innerHTML = `<tr><td colspan="10"><div class="empty-table"><div class="ei">📋</div><p>표시할 데이터가 없습니다</p></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = regs.map((r, i) => {
+    const realIdx = allRegs.findIndex(x => x.id === r.id) + 1;
+    const statusCls = { pending:'status-pending', confirmed:'status-confirmed', cancelled:'status-cancelled' }[r.status];
+    const statusLbl = { pending:'⏳ 신청완료', confirmed:'✅ 선정', cancelled:'❌ 미선정' }[r.status];
+    const date = new Date(r.registeredAt).toLocaleDateString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+    return `
+      <tr>
+        <td class="td-num">${realIdx}</td>
+        <td>
+          <div class="td-name">${r.name}</div>
+          <div class="td-id">${r.id}</div>
+        </td>
+        <td>${r.empId}</td>
+        <td>${r.dept}</td>
+        <td>${r.phone}</td>
+        <td>${r.shoeSize}mm</td>
+        <td>${r.familyParticipation ? `<span class="family-badge">+${r.familyCount}명</span>` : '<span style="color:var(--text-3);font-size:12px">본인만</span>'}</td>
+        <td><span class="status-badge ${statusCls}">${statusLbl}</span></td>
+        <td style="font-size:12px;color:var(--text-3)">${date}</td>
+        <td>
+          <div class="action-group">
+            <button class="action-btn btn-detail" onclick="openDetail('${r.id}')">상세</button>
+            ${r.status !== 'confirmed' ? `<button class="action-btn btn-confirm"  onclick="updateStatus('${r.id}','confirmed')">선정</button>` : ''}
+            ${r.status !== 'cancelled' ? `<button class="action-btn btn-cancel"   onclick="updateStatus('${r.id}','cancelled')">미선정</button>` : ''}
+            ${r.status !== 'pending'   ? `<button class="action-btn btn-pending"  onclick="updateStatus('${r.id}','pending')">재검토</button>` : ''}
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+/* ═══ SORT ═══ */
+function sortBy(key) {
+  if (sortKey === key) sortDir *= -1;
+  else { sortKey = key; sortDir = -1; }
+  document.querySelectorAll('[id^="sort-"]').forEach(el => el.classList.remove('sorted'));
+  const sortEl = document.getElementById('sort-' + key);
+  if (sortEl) { sortEl.textContent = sortDir === 1 ? '↑' : '↓'; sortEl.classList.add('sorted'); }
+  renderTable();
+}
+
+/* ═══ STATUS UPDATE ═══ */
+function updateStatus(id, status) {
+  const regs = getRegs();
+  const r = regs.find(x => x.id === id);
+  if (!r) return;
+  r.status = status;
+  saveRegs(regs);
+  renderStats(); renderCharts(); renderTable();
+  const lbl = { confirmed:'✅ 선정', cancelled:'❌ 미선정', pending:'⏳ 재검토' }[status];
+  showToast(r.name + ' → ' + lbl);
+}
+
+/* ═══ CONFIRM ALL ═══ */
+function confirmAll() {
+  const q      = document.getElementById('search-input').value.toLowerCase().trim();
+  const dept   = document.getElementById('filter-dept').value;
+  const status = document.getElementById('filter-status').value;
+  if (!confirm('현재 필터 조건의 모든 신청자를 "선정" 처리하시겠습니까?')) return;
+  const regs = getRegs();
+  let cnt = 0;
+  regs.forEach(r => {
+    const match = (!q || r.name.includes(q) || r.empId.toLowerCase().includes(q) || r.dept.includes(q))
+               && (!dept   || r.dept   === dept)
+               && (!status || r.status === status);
+    if (match) { r.status = 'confirmed'; cnt++; }
+  });
+  saveRegs(regs);
+  renderStats(); renderCharts(); renderTable();
+  showToast('✅ ' + cnt + '명 선정 처리 완료');
+}
+
+/* ═══ DETAIL MODAL ═══ */
+function openDetail(id) {
+  const regs = getRegs();
+  const r = regs.find(x => x.id === id);
+  if (!r) return;
+  const statusLbl = { pending:'⏳ 신청완료', confirmed:'✅ 선정', cancelled:'❌ 미선정' }[r.status];
+  const date = new Date(r.registeredAt).toLocaleString('ko-KR');
+  document.getElementById('modal-title').textContent = r.name + ' · 상세 정보';
+  document.getElementById('modal-body').innerHTML = `
+    <div class="detail-row"><div class="detail-label">신청번호</div><div class="detail-value" style="color:var(--primary);font-weight:700">${r.id}</div></div>
+    <div class="detail-row"><div class="detail-label">이름</div><div class="detail-value">${r.name}</div></div>
+    <div class="detail-row"><div class="detail-label">사번</div><div class="detail-value">${r.empId}</div></div>
+    <div class="detail-row"><div class="detail-label">부서</div><div class="detail-value">${r.dept}</div></div>
+    <div class="detail-row"><div class="detail-label">연락처</div><div class="detail-value">${r.phone}</div></div>
+    <div class="detail-row"><div class="detail-label">이메일</div><div class="detail-value">${r.email || '미입력'}</div></div>
+    <div class="detail-row"><div class="detail-label">신발 사이즈</div><div class="detail-value">${r.shoeSize}mm</div></div>
+    <div class="detail-row"><div class="detail-label">가족 참여</div><div class="detail-value">${r.familyParticipation ? '예 (' + r.familyCount + '명)' : '아니오'}</div></div>
+    ${r.familyShoeSize ? `<div class="detail-row"><div class="detail-label">가족 신발</div><div class="detail-value">${r.familyShoeSize}</div></div>` : ''}
+    <div class="detail-row"><div class="detail-label">신청자 메모</div><div class="detail-value">${r.note || '없음'}</div></div>
+    <div class="detail-row"><div class="detail-label">상태</div><div class="detail-value">${statusLbl}</div></div>
+    <div class="detail-row"><div class="detail-label">신청일시</div><div class="detail-value">${date}</div></div>
+    <div style="margin-top:14px">
+      <div class="detail-label" style="margin-bottom:6px">📝 관리자 메모</div>
+      <textarea class="modal-note-input" id="admin-note-input" placeholder="내부 메모를 남겨보세요...">${r.adminNote||''}</textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn success" onclick="updateStatus('${r.id}','confirmed');saveNote('${r.id}');closeModalDirect()">✅ 선정</button>
+      <button class="modal-btn danger"  onclick="updateStatus('${r.id}','cancelled');saveNote('${r.id}');closeModalDirect()">❌ 미선정</button>
+      <button class="modal-btn primary" onclick="saveNote('${r.id}')">💾 메모 저장</button>
+      <button class="modal-btn outline" onclick="deleteReg('${r.id}')">🗑️ 삭제</button>
+    </div>
+  `;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function saveNote(id) {
+  const regs = getRegs();
+  const r = regs.find(x => x.id === id);
+  if (!r) return;
+  r.adminNote = document.getElementById('admin-note-input').value.trim();
+  saveRegs(regs);
+  showToast('💾 메모 저장 완료');
+}
+function closeModal(e) { if (e.target.id === 'modal-overlay') closeModalDirect(); }
+function closeModalDirect() { document.getElementById('modal-overlay').classList.remove('open'); }
+
+/* ═══ DELETE ═══ */
+function deleteReg(id) {
+  if (!confirm('이 신청자를 삭제하시겠습니까? 되돌릴 수 없습니다.')) return;
+  let regs = getRegs().filter(r => r.id !== id);
+  saveRegs(regs);
+  closeModalDirect();
+  renderStats(); renderCharts(); renderDeptFilter(); renderTable();
+  showToast('🗑️ 삭제 완료');
+}
+function clearAllData() {
+  if (!confirm('⚠️ 모든 신청자 데이터를 삭제합니다. 정말 삭제하시겠습니까?\n삭제 전 반드시 CSV로 백업하세요!')) return;
+  if (!confirm('마지막 확인: 정말로 전체 삭제하시겠습니까?')) return;
+  localStorage.removeItem(REG_KEY);
+  renderStats(); renderCharts(); renderDeptFilter(); renderTable();
+  showToast('🗑️ 전체 데이터 삭제 완료');
+}
+
+/* ═══ CSV EXPORT ═══ */
+function exportCSV() {
+  const regs = getRegs();
+  if (!regs.length) { showToast('내보낼 데이터가 없습니다'); return; }
+  const headers = ['신청번호','이름','사번','부서','연락처','이메일','신발사이즈','가족참여','가족인원','가족신발','메모','상태','관리자메모','신청일시'];
+  const statusMap = { pending:'신청완료', confirmed:'선정', cancelled:'미선정' };
+  const rows = regs.map(r => [
+    r.id, r.name, r.empId, r.dept, r.phone, r.email||'', r.shoeSize+'mm',
+    r.familyParticipation?'예':'아니오', r.familyCount||0, r.familyShoeSize||'',
+    r.note||'', statusMap[r.status]||r.status, r.adminNote||'',
+    new Date(r.registeredAt).toLocaleString('ko-KR')
+  ].map(v => '"' + String(v).replace(/"/g,'""') + '"'));
+  const csv = '\uFEFF' + [headers, ...rows].map(r => r.join(',')).join('\n');
+  const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'HI_Health_챌린지_참가자_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  showToast('📥 CSV 다운로드 완료 (' + regs.length + '명)');
+}
+
+/* ═══ TOAST ═══ */
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+/* ═══ DEMO DATA (개발용) ═══ */
+function seedDemoData() {
+  const existing = getRegs();
+  if (existing.length > 0) return; // 이미 데이터 있으면 skip
+  const demoRegs = [
+    { id:'HC-001', name:'홍길동', empId:'EMP001', dept:'내과', phone:'010-1234-5678', email:'hong@h.kr', shoeSize:'265', familyParticipation:false, familyCount:0, familyShoeSize:'', note:'', status:'confirmed', adminNote:'', registeredAt: new Date(Date.now()-3600000*5).toISOString() },
+    { id:'HC-002', name:'김영희', empId:'EMP002', dept:'간호부', phone:'010-2345-6789', email:'', shoeSize:'240', familyParticipation:true, familyCount:2, familyShoeSize:'235, 265', note:'아이와 함께 참여', status:'confirmed', adminNote:'가족 선물 3개', registeredAt: new Date(Date.now()-3600000*4).toISOString() },
+    { id:'HC-003', name:'박철수', empId:'EMP003', dept:'외과', phone:'010-3456-7890', email:'', shoeSize:'270', familyParticipation:false, familyCount:0, familyShoeSize:'', note:'', status:'pending', adminNote:'', registeredAt: new Date(Date.now()-3600000*3).toISOString() },
+    { id:'HC-004', name:'이미래', empId:'EMP004', dept:'약제부', phone:'010-4567-8901', email:'lee@h.kr', shoeSize:'250', familyParticipation:true, familyCount:1, familyShoeSize:'255', note:'', status:'pending', adminNote:'', registeredAt: new Date(Date.now()-3600000*2).toISOString() },
+    { id:'HC-005', name:'최강', empId:'EMP005', dept:'영상의학과', phone:'010-5678-9012', email:'', shoeSize:'280', familyParticipation:false, familyCount:0, familyShoeSize:'', note:'무릎 관절염 있음', status:'cancelled', adminNote:'건강 사유', registeredAt: new Date(Date.now()-3600000*1).toISOString() },
+    { id:'HC-006', name:'정은지', empId:'EMP006', dept:'원무과', phone:'010-6789-0123', email:'', shoeSize:'235', familyParticipation:false, familyCount:0, familyShoeSize:'', note:'', status:'pending', adminNote:'', registeredAt: new Date(Date.now()-3600000*0.5).toISOString() },
+  ];
+  saveRegs(demoRegs);
+}
+
+/* ═══ INIT ═══ */
+seedDemoData();
+checkAuth();
+</script>
+</body>
+</html>
