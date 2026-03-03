@@ -265,6 +265,8 @@
        EXERCISE
     ══════════════════════════════ */
     .ex-type-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 6px; }
+    .custom-ex-wrap { display:none; margin-top:10px; }
+    .custom-ex-wrap.show { display:block; }
     .ex-type-btn {
       display: flex; flex-direction: column; align-items: center; gap: 5px;
       padding: 12px 6px; border-radius: var(--radius-sm);
@@ -303,20 +305,205 @@
     .wo-name { font-size: 14px; font-weight: 600; }
     .wo-meta { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
     .wo-pts { font-size: 14px; font-weight: 700; color: var(--warning); }
+    .wo-photo { width:48px; height:48px; object-fit:cover; border-radius:8px; flex-shrink:0; cursor:pointer; border:1.5px solid var(--border); }
+
+    .photo-upload-area {
+      border: 2px dashed var(--border); border-radius: var(--radius-sm);
+      padding: 16px; text-align: center; cursor: pointer;
+      transition: all 0.2s; margin-bottom: 13px; position: relative;
+    }
+    .photo-upload-area:hover { border-color: var(--primary); background: var(--primary-light); }
+    .photo-upload-area.has-photo { border-style: solid; border-color: var(--secondary); padding: 8px; }
+    .pu-icon { font-size: 28px; margin-bottom: 6px; }
+    .pu-label { font-size: 13px; color: var(--text-secondary); }
+    .pu-hint  { font-size: 11px; color: var(--text-secondary); opacity: 0.7; margin-top: 3px; }
+    .photo-preview-img { width:100%; max-height:160px; object-fit:cover; border-radius:8px; display:block; }
+    .photo-del-btn {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: rgba(0,0,0,0.5); color: #fff; border: none;
+      border-radius: 20px; padding: 4px 12px; font-size: 11px;
+      cursor: pointer; margin-top: 6px;
+    }
+    .photo-lightbox {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.88);
+      z-index: 500; display: flex; align-items: center; justify-content: center;
+      padding: 20px; cursor: pointer;
+    }
+    .photo-lightbox img { max-width:100%; max-height:80vh; border-radius:12px; }
+    #photo-input { display:none; }
+    #photo-preview-img { display:none; }
+    #photo-del-wrap { display:none; }
+
+    /* ── Health Check ── */
+    .hc-chips { display:flex; gap:7px; flex-wrap:wrap; margin-bottom:10px; }
+    .hc-chip {
+      display:flex; align-items:center; gap:5px;
+      padding:7px 14px; border-radius:20px;
+      border:1.5px solid var(--border); background:var(--bg);
+      font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s;
+      color:var(--text-secondary);
+    }
+    .hc-chip.active { border-color:var(--primary); background:var(--primary-light); color:var(--primary); }
+    .hc-section { display:none; border:1.5px solid var(--border); border-radius:var(--radius-sm); padding:13px; margin-bottom:10px; animation:fadeIn 0.2s ease; }
+    .hc-section.show { display:block; }
+    .hc-sec-title { font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:10px; }
+    .hc-rate-row { display:flex; gap:7px; }
+    .hc-rate-btn {
+      flex:1; padding:9px 4px; border-radius:var(--radius-sm);
+      border:1.5px solid var(--border); background:var(--bg);
+      font-size:12px; font-weight:600; cursor:pointer; text-align:center; transition:all 0.2s;
+    }
+    .hc-rate-btn.on { border-color:var(--primary); background:var(--primary-light); color:var(--primary); }
+    .hc-sub-label { font-size:11px; font-weight:600; color:var(--text-secondary); margin:10px 0 6px; }
+    .hc-sub-chips { display:flex; gap:5px; flex-wrap:wrap; }
+    .hc-sub-chip {
+      padding:5px 10px; border-radius:20px; border:1.5px solid var(--border);
+      background:var(--bg); font-size:11px; font-weight:600; cursor:pointer; transition:all 0.2s;
+    }
+    .hc-sub-chip.on { border-color:var(--primary); background:var(--primary-light); color:var(--primary); }
+    .hc-supp-detail { margin-top:10px; padding-top:10px; border-top:1px solid var(--border); display:none; }
+    .hc-supp-detail.show { display:block; }
+    .hc-custom-supp { margin-top:7px; display:flex; gap:6px; }
+    .hc-custom-supp input { flex:1; padding:6px 10px; border:1.5px solid var(--border); border-radius:var(--radius-sm); font-size:12px; background:var(--bg); }
+    .hc-custom-supp button { padding:6px 12px; border-radius:var(--radius-sm); border:none; background:var(--primary); color:#fff; font-size:12px; font-weight:600; cursor:pointer; }
+    .hc-custom-list { margin-top:6px; }
+    .hc-sleep-row { display:flex; align-items:center; justify-content:center; gap:20px; }
+    .hc-sleep-val { font-size:36px; font-weight:700; color:var(--primary); line-height:1; }
+    .hc-sleep-unit { font-size:12px; color:var(--text-secondary); margin-top:2px; text-align:center; }
+    .wo-health-tags { display:flex; gap:5px; flex-wrap:wrap; margin-top:5px; }
+    .wo-health-tag { font-size:10px; padding:2px 7px; border-radius:10px; background:var(--primary-light); color:var(--primary); font-weight:600; }
+    .wo-health-tag-muted { background:var(--border); color:var(--text-secondary); }
+    .wo-health-tag-glucose { background:#FEE2E2; color:#DC2626; }
+
+    /* ── Community Share ── */
+    .share-toggle-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+    .share-toggle-btn {
+      display:flex; align-items:center; gap:7px; padding:9px 16px;
+      border-radius:var(--radius-sm); border:1.5px solid var(--border);
+      background:var(--bg); font-size:13px; font-weight:600; cursor:pointer;
+      transition:all 0.2s; color:var(--text-secondary); flex:1;
+    }
+    .share-toggle-btn.on {
+      border-color:#f97316; background:#FFF7ED; color:#ea580c;
+    }
+    .share-expand { display:none; animation:fadeIn 0.2s ease; }
+    .share-expand.show { display:block; }
+    .share-preview {
+      background:#FFF7ED; border:1.5px solid #fed7aa; border-radius:var(--radius-sm);
+      padding:11px 13px; margin-bottom:8px;
+    }
+    .share-preview-tag { font-size:11px; font-weight:700; color:#ea580c; margin-bottom:5px; }
+    .share-msg-input {
+      width:100%; padding:9px 11px; border:1.5px solid var(--border);
+      border-radius:var(--radius-sm); font-size:13px; font-family:inherit;
+      background:var(--bg); resize:none; line-height:1.5;
+    }
+    .share-msg-input:focus { outline:none; border-color:var(--primary); }
+    .share-hint { font-size:11px; color:var(--text-secondary); margin-top:5px; }
+    .share-section { margin-bottom:13px; }
+    .share-memo-preview { font-size:12px; color:#7c3aed; background:#f5f3ff; border-radius:6px; padding:6px 9px; margin-bottom:8px; line-height:1.5; white-space:pre-wrap; }
+    .share-opts-label { font-size:11px; color:var(--text-secondary); font-weight:600; margin:8px 0 6px; }
+    .share-opts-row { display:flex; gap:7px; flex-wrap:wrap; margin-bottom:8px; }
+    .share-opt-chip {
+      padding:6px 13px; border-radius:20px; border:1.5px solid var(--border);
+      background:var(--bg); font-size:12px; font-weight:600; cursor:pointer;
+      transition:all 0.2s; color:var(--text-secondary);
+    }
+    .share-opt-chip.on { border-color:#f97316; background:#FFF7ED; color:#ea580c; }
+    .post-photo-wrap { border-radius:var(--radius-sm); overflow:hidden; margin-bottom:12px; }
+    .post-photo { width:100%; max-height:260px; object-fit:cover; display:block; }
+    .post-health-card {
+      background:var(--bg); border-radius:var(--radius-sm); padding:10px 12px; margin-bottom:12px;
+    }
+    .post-health-title { font-size:11px; font-weight:700; color:var(--text-secondary); margin-bottom:7px; }
+    .post-health-chips { display:flex; flex-wrap:wrap; gap:5px; }
+    .post-health-chip {
+      font-size:11px; padding:3px 9px; border-radius:12px;
+      background:var(--card); border:1px solid var(--border); color:var(--text); white-space:nowrap;
+    }
+
+    /* ── Blood Glucose ── */
+    .glucose-input-wrap { display:flex; align-items:center; justify-content:center; gap:16px; margin-bottom:12px; }
+    .glucose-val-display { text-align:center; }
+    .glucose-val-num  { font-size:42px; font-weight:700; color:var(--primary); line-height:1; }
+    .glucose-val-unit { font-size:11px; color:var(--text-secondary); margin-top:2px; }
+    .glucose-timing-row { display:flex; gap:6px; flex-wrap:wrap; }
+    .glucose-timing-btn {
+      padding:6px 11px; border-radius:20px; border:1.5px solid var(--border);
+      background:var(--bg); font-size:11px; font-weight:600; cursor:pointer;
+      transition:all 0.2s; color:var(--text-secondary);
+    }
+    .glucose-timing-btn.on { border-color:var(--primary); background:var(--primary-light); color:var(--primary); }
+
+    .glucose-card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+    .glucose-badge-red { background:#FEE2E2; color:#DC2626; }
+    .glucose-input-wrap-sa { display:flex; align-items:center; justify-content:center; gap:16px; margin:12px 0 8px; }
+    .glucose-log-btn { margin-top:10px; }
+    .glucose-history-list { margin-top:12px; }
+    .glucose-item {
+      display:flex; align-items:center; gap:12px;
+      padding:11px 0; border-bottom:1px solid var(--border);
+    }
+    .glucose-item:last-child { border-bottom:none; }
+    .glucose-badge {
+      min-width:58px; padding:5px 8px; border-radius:10px;
+      text-align:center; flex-shrink:0;
+    }
+    .glucose-badge-val  { font-size:16px; font-weight:700; line-height:1; }
+    .glucose-badge-unit { font-size:9px; opacity:0.8; }
+    .glucose-info { flex:1; }
+    .glucose-timing-lbl { font-size:13px; font-weight:600; }
+    .glucose-time       { font-size:11px; color:var(--text-secondary); margin-top:1px; }
+    .glucose-status-tag  { font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px; margin-top:3px; display:inline-block; }
+    .glucose-status-low  { background:#DBEAFE; color:#1D4ED8; }
+    .glucose-status-ok   { background:#D1FAE5; color:#065F46; }
+    .glucose-status-warn { background:#FEF3C7; color:#92400E; }
+    .glucose-status-high { background:#FEE2E2; color:#991B1B; }
+    .glucose-del { background:none; border:none; cursor:pointer; color:var(--text-secondary); font-size:15px; opacity:0.4; transition:opacity 0.2s; }
+    .glucose-del:hover { opacity:1; color:#ef4444; }
+
     .wo-del { background:none; border:none; cursor:pointer; color:var(--text-secondary); font-size:15px; padding:4px; opacity:0.45; transition:opacity 0.2s; flex-shrink:0; line-height:1; }
     .wo-del:hover { opacity:1; color:#ef4444; }
 
     .hero-name { font-size:21px; font-weight:700; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
     .profile-edit-btn { background:rgba(255,255,255,0.22); border:none; cursor:pointer; font-size:12px; padding:3px 10px; border-radius:20px; color:white; flex-shrink:0; }
     .profile-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:200; display:flex; align-items:center; justify-content:center; padding:20px; }
-    .profile-modal { background:var(--card); border-radius:var(--radius); padding:28px 24px; width:100%; max-width:360px; }
+    .profile-modal { background:var(--card); border-radius:var(--radius); padding:28px 24px; width:100%; max-width:360px; max-height:88vh; overflow-y:auto; }
     .pm-title { font-size:18px; font-weight:700; text-align:center; margin-bottom:6px; }
     .pm-sub { font-size:13px; color:var(--text-secondary); text-align:center; margin-bottom:20px; }
+    /* ── Profile Tags ── */
+    .pm-tags-section { margin:16px 0 20px; }
+    .pm-tags-label { font-size:13px; font-weight:700; margin-bottom:12px; }
+    .pm-tag-category { margin-bottom:12px; }
+    .pm-tag-cat-title { font-size:11px; font-weight:700; color:var(--text-secondary); letter-spacing:0.5px; margin-bottom:6px; }
+    .pm-tag-chips { display:flex; flex-wrap:wrap; gap:6px; }
+    .pm-tag-chip {
+      padding:5px 12px; border-radius:20px; border:1.5px solid var(--border);
+      background:var(--bg); font-size:12px; cursor:pointer; transition:all 0.18s;
+      white-space:nowrap;
+    }
+    .pm-tag-chip.selected { border-color:var(--purple); background:var(--purple-light); color:var(--purple); font-weight:600; }
+    .pm-sel-count { font-size:11px; color:var(--text-secondary); margin-top:8px; }
+    /* Hero card tag display */
+    .hero-tags { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:14px; }
+    .hero-tag { font-size:11px; padding:3px 10px; border-radius:20px; background:rgba(255,255,255,0.2); color:#fff; font-weight:600; }
     .avatar-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin-bottom:20px; }
     .avatar-opt { width:100%; aspect-ratio:1; border-radius:50%; background:var(--bg); border:2px solid var(--border); font-size:22px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.2s; }
     .avatar-opt.selected { border-color:var(--primary); background:#EBF0FF; transform:scale(1.1); }
     .pm-hidden { display:none !important; }
     .pm-avatar-label { margin-top:16px; margin-bottom:8px; }
+    .pm-divider { height:1px; background:var(--border); margin:20px 0; }
+    .btn-danger { background:#FEE2E2; color:#DC2626; border:none; }
+    .btn-danger:active { transform:scale(0.97); background:#FECACA; }
+    /* ── Confirm Modal ── */
+    .confirm-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:300; display:flex; align-items:center; justify-content:center; padding:24px; }
+    .confirm-modal { background:var(--card); border-radius:var(--radius); padding:28px 24px 20px; width:100%; max-width:320px; text-align:center; }
+    .confirm-icon { font-size:40px; margin-bottom:12px; }
+    .confirm-title { font-size:17px; font-weight:700; margin-bottom:8px; }
+    .confirm-msg { font-size:13px; color:var(--text-secondary); line-height:1.6; margin-bottom:22px; }
+    .confirm-btns { display:flex; gap:10px; }
+    .confirm-btns .btn { flex:1; }
+    .btn-cancel { background:var(--bg); border:1.5px solid var(--border); }
 
     .form-label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 7px; }
     .form-textarea {
@@ -418,7 +605,12 @@
     .post-av { font-size: 30px; }
     .post-uname { font-size: 14px; font-weight: 600; }
     .post-meta { font-size: 11px; color: var(--text-secondary); display: flex; align-items: center; gap: 5px; }
+    .post-del { margin-left:auto; background:none; border:none; cursor:pointer; font-size:15px; opacity:0.35; transition:opacity 0.2s; padding:4px; line-height:1; flex-shrink:0; }
+    .post-del:hover { opacity:1; color:#ef4444; }
     .post-body { font-size: 14px; line-height: 1.65; margin-bottom: 13px; }
+    .post-tags-row { display:flex; flex-wrap:wrap; gap:4px; margin:5px 0 10px; }
+    .profile-tag { font-size:10px; padding:2px 8px; border-radius:12px; background:var(--purple-light); color:var(--purple); font-weight:600; white-space:nowrap; }
+    .lb-tags { display:flex; flex-wrap:wrap; gap:3px; margin-top:4px; }
     .post-exercise-tag {
       display: inline-flex; align-items: center; gap: 5px;
       background: var(--secondary-light); color: #166534;
@@ -445,6 +637,32 @@
       padding: 0; transition: color 0.2s;
     }
     .comment-btn:hover { color: var(--primary); }
+
+    /* ── Feed filter ── */
+    .feed-filter-row { display:flex; gap:7px; overflow-x:auto; padding-bottom:4px; margin-bottom:12px; }
+    .feed-filter-row::-webkit-scrollbar { display:none; }
+    .feed-filter-chip { padding:6px 14px; border-radius:20px; border:1.5px solid var(--border); background:var(--card); font-size:12px; font-weight:600; cursor:pointer; white-space:nowrap; transition:all 0.2s; flex-shrink:0; }
+    .feed-filter-chip.on { border-color:var(--primary); background:var(--primary-light); color:var(--primary); }
+    /* ── Comment modal ── */
+    .comment-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:200; display:flex; align-items:flex-end; justify-content:center; }
+    .comment-modal { background:var(--card); border-radius:var(--radius-lg) var(--radius-lg) 0 0; width:100%; max-width:480px; max-height:78vh; display:flex; flex-direction:column; }
+    .cm-header { display:flex; align-items:center; justify-content:space-between; padding:16px 20px 12px; border-bottom:1px solid var(--border); flex-shrink:0; }
+    .cm-title { font-size:16px; font-weight:700; }
+    .cm-close { background:none; border:none; font-size:22px; cursor:pointer; color:var(--text-secondary); line-height:1; padding:2px 6px; }
+    .cm-list { flex:1; overflow-y:auto; padding:14px 18px; }
+    .cm-item { display:flex; gap:10px; margin-bottom:14px; }
+    .cm-av { font-size:24px; flex-shrink:0; line-height:1.2; }
+    .cm-bubble { background:var(--bg); border-radius:0 12px 12px 12px; padding:9px 12px; flex:1; }
+    .cm-name { font-size:11px; font-weight:700; margin-bottom:3px; color:var(--text); }
+    .cm-body { font-size:13px; line-height:1.55; }
+    .cm-time { font-size:10px; color:var(--text-secondary); margin-top:4px; }
+    .cm-empty { text-align:center; padding:36px 0; color:var(--text-secondary); font-size:13px; }
+    .cm-compose { display:flex; align-items:center; gap:8px; padding:12px 16px; border-top:1px solid var(--border); flex-shrink:0; }
+    .cm-compose-av { font-size:24px; flex-shrink:0; }
+    .cm-input { flex:1; padding:9px 14px; border:1.5px solid var(--border); border-radius:20px; font-size:13px; font-family:inherit; background:var(--bg); }
+    .cm-input:focus { outline:none; border-color:var(--primary); }
+    .cm-send { padding:9px 16px; border-radius:20px; border:none; background:var(--primary); color:#fff; font-size:13px; font-weight:700; cursor:pointer; flex-shrink:0; }
+    .btn-compose { padding:9px 18px; font-size:13px; }
 
     /* ══════════════════════════════
        REWARDS
@@ -618,7 +836,8 @@
 
     <div class="hero-card">
       <p class="hero-greeting">안녕하세요! 오늘도 건강하게 👋</p>
-      <h2 class="hero-name"><span id="hero-name">사용자님</span><button type="button" class="profile-edit-btn" onclick="openProfileModal()">✏️ 수정</button></h2>
+      <h2 class="hero-name"><span id="hero-name">사용자님</span></h2>
+      <div class="hero-tags" id="hero-tags"></div>
       <div class="hero-stats">
         <div class="hero-stat">
           <div class="hero-stat-value" id="today-cnt">0</div>
@@ -698,6 +917,11 @@
     <div class="card">
       <p class="card-title" style="margin-bottom:13px">운동 종류 선택</p>
       <div class="ex-type-grid" id="ex-type-grid"></div>
+      <div id="custom-ex-wrap" class="custom-ex-wrap">
+        <input type="text" class="ch-form-input" id="custom-ex-name"
+               placeholder="운동 이름을 입력하세요 (예: 줄넘기, 배드민턴...)"
+               maxlength="20" oninput="updatePtsPreview()">
+      </div>
     </div>
 
     <div class="card">
@@ -716,8 +940,104 @@
       </div>
       <div style="margin-bottom:13px">
         <label class="form-label">메모 (선택)</label>
-        <textarea class="form-textarea" id="ex-memo" rows="2" placeholder="오늘 운동 소감을 남겨보세요..."></textarea>
+        <textarea class="form-textarea" id="ex-memo" rows="2" placeholder="오늘 운동 소감을 남겨보세요..." oninput="if(_shareOn) updateSharePreview()"></textarea>
       </div>
+      <div>
+        <label class="form-label">📷 운동 인증 사진 (선택)</label>
+        <div class="photo-upload-area" id="photo-upload-area" onclick="triggerPhotoInput()">
+          <div id="photo-placeholder">
+            <div class="pu-icon">📷</div>
+            <div class="pu-label">사진을 찍거나 갤러리에서 선택</div>
+            <div class="pu-hint">운동 인증 사진을 첨부하면 +5p 추가!</div>
+          </div>
+          <img id="photo-preview-img" class="photo-preview-img" alt="운동 인증">
+          <div id="photo-del-wrap">
+            <button type="button" class="photo-del-btn" onclick="clearPhoto(event)">✕ 사진 삭제</button>
+          </div>
+        </div>
+        <input type="file" id="photo-input" accept="image/*" onchange="handlePhotoInput(this)">
+      </div>
+
+      <div style="margin-bottom:13px">
+        <label class="form-label">🩺 건강 체크 (선택)</label>
+        <div class="hc-chips">
+          <button type="button" class="hc-chip" id="hc-diet-btn" onclick="toggleHC('diet')">🥗 식단</button>
+          <button type="button" class="hc-chip" id="hc-sleep-btn" onclick="toggleHC('sleep')">😴 수면</button>
+          <button type="button" class="hc-chip" id="hc-supp-btn"    onclick="toggleHC('supp')">💊 영양제</button>
+        </div>
+        <div class="hc-section" id="hc-diet-sec">
+          <div class="hc-sec-title">오늘 식단은 어떠셨나요?</div>
+          <div class="hc-rate-row">
+            <button type="button" class="hc-rate-btn" id="diet-good"  onclick="setDiet('잘먹음')">🥗 잘먹음</button>
+            <button type="button" class="hc-rate-btn" id="diet-norm"  onclick="setDiet('보통')">🍽️ 보통</button>
+            <button type="button" class="hc-rate-btn" id="diet-over"  onclick="setDiet('과식')">🍔 과식</button>
+            <button type="button" class="hc-rate-btn" id="diet-bad"   onclick="setDiet('불량')">😔 불량</button>
+          </div>
+          <div class="hc-sub-label">식사 종류 (복수 선택)</div>
+          <div class="hc-sub-chips">
+            <button type="button" class="hc-sub-chip hc-meal-chip" data-name="아침" onclick="toggleMeal('아침')">🌅 아침</button>
+            <button type="button" class="hc-sub-chip hc-meal-chip" data-name="아점" onclick="toggleMeal('아점')">🥪 아점</button>
+            <button type="button" class="hc-sub-chip hc-meal-chip" data-name="점심" onclick="toggleMeal('점심')">☀️ 점심</button>
+            <button type="button" class="hc-sub-chip hc-meal-chip" data-name="저녁" onclick="toggleMeal('저녁')">🌙 저녁</button>
+            <button type="button" class="hc-sub-chip hc-meal-chip" data-name="간식" onclick="toggleMeal('간식')">🍪 간식</button>
+            <button type="button" class="hc-sub-chip hc-meal-chip" data-name="야식" onclick="toggleMeal('야식')">🌃 야식</button>
+          </div>
+        </div>
+        <div class="hc-section" id="hc-sleep-sec">
+          <div class="hc-sec-title">어젯밤 수면 시간은?</div>
+          <div class="hc-sleep-row">
+            <button type="button" class="dur-btn" onclick="changeSleep(-0.5)">−</button>
+            <div>
+              <div class="hc-sleep-val" id="sleep-val">7</div>
+              <div class="hc-sleep-unit">시간</div>
+            </div>
+            <button type="button" class="dur-btn" onclick="changeSleep(0.5)">+</button>
+          </div>
+        </div>
+        <div class="hc-section" id="hc-supp-sec">
+          <div class="hc-sec-title">오늘 영양제를 복용하셨나요?</div>
+          <div class="hc-rate-row">
+            <button type="button" class="hc-rate-btn" id="supp-yes" onclick="setSupp(true)">💊 복용완료</button>
+            <button type="button" class="hc-rate-btn" id="supp-no"  onclick="setSupp(false)">✗ 미복용</button>
+          </div>
+          <div class="hc-supp-detail" id="hc-supp-detail">
+            <div class="hc-sub-label">복용한 영양제 (복수 선택)</div>
+            <div class="hc-sub-chips">
+              <button type="button" class="hc-sub-chip hc-supp-preset" data-name="비타민C"    onclick="toggleSuppItem('비타민C')">비타민C</button>
+              <button type="button" class="hc-sub-chip hc-supp-preset" data-name="비타민D"    onclick="toggleSuppItem('비타민D')">비타민D</button>
+              <button type="button" class="hc-sub-chip hc-supp-preset" data-name="오메가3"    onclick="toggleSuppItem('오메가3')">오메가3</button>
+              <button type="button" class="hc-sub-chip hc-supp-preset" data-name="철분"       onclick="toggleSuppItem('철분')">철분</button>
+              <button type="button" class="hc-sub-chip hc-supp-preset" data-name="칼슘"       onclick="toggleSuppItem('칼슘')">칼슘</button>
+              <button type="button" class="hc-sub-chip hc-supp-preset" data-name="마그네슘"   onclick="toggleSuppItem('마그네슘')">마그네슘</button>
+              <button type="button" class="hc-sub-chip hc-supp-preset" data-name="유산균"     onclick="toggleSuppItem('유산균')">유산균</button>
+              <button type="button" class="hc-sub-chip hc-supp-preset" data-name="종합비타민" onclick="toggleSuppItem('종합비타민')">종합비타민</button>
+            </div>
+            <div class="hc-custom-supp">
+              <input type="text" id="supp-custom-input" placeholder="기타 직접 입력" maxlength="20">
+              <button type="button" onclick="addCustomSupp()">추가</button>
+            </div>
+            <div class="hc-sub-chips hc-custom-list" id="supp-custom-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="share-section">
+        <div class="share-toggle-row">
+          <button type="button" class="share-toggle-btn" id="share-toggle-btn" onclick="toggleShare()">
+            <span id="share-toggle-icon">📣</span> 커뮤니티에 공유하기
+          </button>
+        </div>
+        <div class="share-expand" id="share-expand">
+          <div class="share-preview">
+            <div class="share-preview-tag" id="share-ex-tag">🏃 달리기 30분</div>
+            <div class="share-memo-preview pm-hidden" id="share-memo-preview"></div>
+            <textarea class="share-msg-input" id="share-msg" rows="3" placeholder="공유할 메시지를 입력하세요..."></textarea>
+          </div>
+          <div id="share-options"></div>
+          <div class="share-hint">💡 운동 종목·시간이 자동으로 태그됩니다</div>
+        </div>
+      </div>
+
       <button class="btn btn-primary btn-full" onclick="logExercise()">💪 운동 기록하기</button>
     </div>
 
@@ -727,6 +1047,29 @@
         <span class="badge badge-success" id="wo-total-badge">총 0회</span>
       </div>
       <div id="wo-history"></div>
+    </div>
+
+    <div class="card">
+      <div class="glucose-card-header">
+        <span class="card-title">🩸 혈당 기록</span>
+        <span class="badge glucose-badge-red" id="glucose-total-badge">총 0회</span>
+      </div>
+      <div class="glucose-input-wrap-sa">
+        <button type="button" class="dur-btn" onclick="changeGlucoseVal(-5)">−</button>
+        <div class="glucose-val-display">
+          <span class="glucose-val-num" id="sa-glucose-num">100</span>
+          <span class="glucose-val-unit">mg/dL</span>
+        </div>
+        <button type="button" class="dur-btn" onclick="changeGlucoseVal(5)">+</button>
+      </div>
+      <div class="glucose-timing-row">
+        <button type="button" class="glucose-timing-btn" id="sa-gt-fasting"  onclick="setGlucoseTiming('공복')">공복</button>
+        <button type="button" class="glucose-timing-btn" id="sa-gt-after2h"  onclick="setGlucoseTiming('식후2h')">식후 2h</button>
+        <button type="button" class="glucose-timing-btn" id="sa-gt-before"   onclick="setGlucoseTiming('식전')">식전</button>
+        <button type="button" class="glucose-timing-btn" id="sa-gt-bedtime"  onclick="setGlucoseTiming('취침전')">취침 전</button>
+      </div>
+      <button class="btn btn-primary btn-full glucose-log-btn" onclick="logGlucoseStandalone()">🩸 혈당 기록하기</button>
+      <div class="glucose-history-list" id="glucose-history"></div>
     </div>
 
   </section>
@@ -757,10 +1100,11 @@
         <textarea class="compose-input" id="post-input" rows="2" placeholder="운동 완료 후기나 응원 메시지를 남겨보세요!"></textarea>
       </div>
       <div class="compose-actions">
-        <button class="btn btn-primary" style="padding:9px 18px;font-size:13px" onclick="submitPost()">게시하기</button>
+        <button class="btn btn-primary btn-compose" onclick="submitPost()">게시하기</button>
       </div>
     </div>
 
+    <div class="feed-filter-row" id="feed-filter-row"></div>
     <div id="posts-feed"></div>
 
   </section>
@@ -827,9 +1171,48 @@
 
 <script>
 /* ════════════════════════════════════════
+   HAPTIC
+════════════════════════════════════════ */
+function haptic(type) {
+  if (!navigator.vibrate) return;
+  const patterns = {
+    light:   [30],
+    medium:  [60],
+    success: [40, 30, 80],
+    error:   [80, 50, 80],
+    levelup: [50, 40, 50, 40, 120],
+    delete:  [20, 20, 40],
+  };
+  navigator.vibrate(patterns[type] || [30]);
+}
+
+/* ════════════════════════════════════════
    CONSTANTS
 ════════════════════════════════════════ */
 const AVATARS = ['🏃','🚴','🏊','🤸','💪','🧘','🏋️','⚽','🎯','🌟'];
+
+const PROFILE_TAGS = [
+  {
+    cat: '🩺 치료 단계',
+    tags: ['🌱 준비 중', '💉 배란 유도중', '🥚 채란 완료', '🔬 배아 배양중', '🌡️ 이식 완료', '🤞 착상 기다리는 중', '✅ 임신 확인!', '❄️ 동결배아 보관중', '🔄 다음 시도 준비중', '⏸️ 잠시 휴식중', '🏁 최종 단계'],
+  },
+  {
+    cat: '🔢 시술 차수',
+    tags: ['1️⃣ 1차 시험관', '2️⃣ 2차 시험관', '3️⃣ 3차 시험관', '4️⃣ 4차 이상', '🔁 인공수정 병행', '🌿 자연임신 시도중'],
+  },
+  {
+    cat: '💊 치료 방법',
+    tags: ['🧪 신선 배아 이식', '🧊 동결 배아 이식', '💉 호르몬 치료', '🌿 한방 병행', '🔬 PGT 검사', '🏥 대학병원', '🏨 전문 클리닉', '💊 면역 치료', '🩸 혈액 검사중', '🧬 유전자 검사', '📋 자궁 검사중'],
+  },
+  {
+    cat: '💪 건강 습관',
+    tags: ['🥗 식단 관리', '🧘 스트레스 관리', '🏃 매일 걷기', '😴 수면 개선', '🚫 금주 실천', '🚭 금연 중', '💊 엽산 복용', '🐟 오메가3 챙기기', '🌿 영양 관리', '⚖️ 체중 관리', '🧖 림프 마사지'],
+  },
+  {
+    cat: '💬 나의 다짐',
+    tags: ['💪 포기 안 해요', '🌈 희망 잃지 않아요', '🤝 함께 이겨내요', '💕 남편과 함께', '🙏 간절히 기원중', '🌸 긍정 마인드', '👶 아기 기다려요', '🦋 내 몸 믿어요', '🌟 나를 응원해요', '💌 좋은 소식 기대해요'],
+  },
+];
 
 const LEVELS = [
   { lv:1, name:'새싹',    icon:'🌱', min:0,    max:199,  color:'#22C55E' },
@@ -847,8 +1230,12 @@ const EX_TYPES = [
   { id:'cycling',   name:'자전거',  icon:'🚴', ppm:0.8,  bg:'#FEF3C7' },
   { id:'yoga',      name:'요가',    icon:'🧘', ppm:0.7,  bg:'#F3E8FF' },
   { id:'strength',  name:'근력운동',icon:'💪', ppm:1.0,  bg:'#FCE7F3' },
-  { id:'stretching',name:'스트레칭',icon:'🤸', ppm:0.4,  bg:'#CFFAFE' },
-  { id:'hiking',    name:'등산',    icon:'🥾', ppm:0.9,  bg:'#D1FAE5' },
+  { id:'stretching',  name:'스트레칭',   icon:'🤸', ppm:0.4,  bg:'#CFFAFE' },
+  { id:'hiking',      name:'등산',       icon:'🥾', ppm:0.9,  bg:'#D1FAE5' },
+  { id:'tennis',      name:'테니스',     icon:'🎾', ppm:0.9,  bg:'#ECFCCB' },
+  { id:'aerial-yoga', name:'플라잉요가', icon:'🪂', ppm:0.8,  bg:'#FDF4FF' },
+  { id:'climbing',    name:'클라이밍',   icon:'🧗', ppm:1.1,  bg:'#FFF7ED' },
+  { id:'custom',      name:'기타',       icon:'✏️', ppm:0.8,  bg:'#F3F4F6' },
 ];
 
 const STICKERS = [
@@ -880,16 +1267,16 @@ const ACHIEVEMENTS_DATA = [
 ];
 
 const MOCK_USERS = [
-  { id:101, name:'박지수',  avatar:'👩', lv:5, pts:2840, wPts:320, change:2 },
-  { id:102, name:'이준호',  avatar:'🧑', lv:5, pts:2750, wPts:290, change:-1 },
-  { id:103, name:'김서연',  avatar:'👩‍🦱', lv:4, pts:1930, wPts:270, change:1 },
-  { id:104, name:'최민수',  avatar:'👨', lv:4, pts:1820, wPts:240, change:0 },
-  { id:105, name:'정예린',  avatar:'👧', lv:3, pts:870,  wPts:210, change:3 },
-  { id:106, name:'강동현',  avatar:'👦', lv:3, pts:720,  wPts:195, change:-2 },
-  { id:107, name:'한소희',  avatar:'🙋‍♀️', lv:2, pts:460,  wPts:175, change:1 },
-  { id:108, name:'오태준',  avatar:'🙋', lv:2, pts:380,  wPts:150, change:-1 },
-  { id:109, name:'유미래',  avatar:'👩‍🦰', lv:1, pts:180,  wPts:120, change:0 },
-  { id:110, name:'임건우',  avatar:'👨‍🦱', lv:1, pts:90,   wPts:80,  change:-2 },
+  { id:101, name:'박지수',  avatar:'👩',   lv:5, pts:2840, wPts:320, change:2,  tags:['💉 배란 유도중','💪 꾸준한 운동','🌸 긍정 마인드'] },
+  { id:102, name:'이준호',  avatar:'🧑',   lv:5, pts:2750, wPts:290, change:-1, tags:['🧪 신선 배아 이식','🏃 매일 걷기','😴 수면 개선'] },
+  { id:103, name:'김서연',  avatar:'👩‍🦱', lv:4, pts:1930, wPts:270, change:1,  tags:['🤞 착상 기다리는 중','🌿 한방 병행','🧘 스트레스 관리'] },
+  { id:104, name:'최민수',  avatar:'👨',   lv:4, pts:1820, wPts:240, change:0,  tags:['❄️ 동결배아 보관중','💊 엽산 복용','🚫 금주 실천'] },
+  { id:105, name:'정예린',  avatar:'👧',   lv:3, pts:870,  wPts:210, change:3,  tags:['🌱 준비 중','🥗 식단 관리','💕 남편과 함께'] },
+  { id:106, name:'강동현',  avatar:'👦',   lv:3, pts:720,  wPts:195, change:-2, tags:['2️⃣ 2차 시험관','🏥 대학병원','🌈 희망 잃지 않아요'] },
+  { id:107, name:'한소희',  avatar:'🙋‍♀️', lv:2, pts:460,  wPts:175, change:1,  tags:['1️⃣ 1차 시험관','💪 포기 안 해요','👶 아기 기다려요'] },
+  { id:108, name:'오태준',  avatar:'🙋',   lv:2, pts:380,  wPts:150, change:-1, tags:['🔬 PGT 검사','🏨 전문 클리닉'] },
+  { id:109, name:'유미래',  avatar:'👩‍🦰', lv:1, pts:180,  wPts:120, change:0,  tags:['🌱 준비 중','💊 엽산 복용'] },
+  { id:110, name:'임건우',  avatar:'👨‍🦱', lv:1, pts:90,   wPts:80,  change:-2, tags:['🥗 식단 관리'] },
 ];
 
 const MOCK_POSTS_SEED = [
@@ -897,41 +1284,74 @@ const MOCK_POSTS_SEED = [
     id:1001, userId:101, name:'박지수', avatar:'👩', lv:5,
     body:'오늘 달리기 30분 완료! 연속 14일 도전 중이에요 💪 매일 조금씩 나아지는 느낌이 너무 좋아요!',
     exTag:'🏃 달리기 30분',
+    userTags:['💉 배란 유도중','💪 꾸준한 운동'],
     time:'10분 전',
     stickers:{ cheer:12, love:5, cool:8, congrats:2, together:3 },
     myReactions:[], comments:3,
+    commentList:[
+      { id:9001, name:'이준호', avatar:'🧑', lv:5, body:'14일 연속이면 대단해요! 저도 자극받았어요 💪', time:'7분 전' },
+      { id:9002, name:'김서연', avatar:'👩‍🦱', lv:4, body:'저도 달리기 시작해야겠다는 생각이 드네요 🏃', time:'5분 전' },
+      { id:9003, name:'한소희', avatar:'🙋‍♀️', lv:2, body:'응원해요!! 계속 파이팅하세요 🌟', time:'2분 전' },
+    ],
   },
   {
     id:1002, userId:103, name:'김서연', avatar:'👩‍🦱', lv:4,
     body:'요가 수업 처음 들었는데 생각보다 너무 재밌었어요! 몸이 한결 가벼워진 기분 🧘',
     exTag:'🧘 요가 45분',
+    userTags:['🤞 착상 기다리는 중','🌿 한방 병행'],
     time:'1시간 전',
     stickers:{ cheer:7, love:11, cool:4, congrats:1, together:6 },
     myReactions:[], comments:5,
+    commentList:[
+      { id:9011, name:'박지수', avatar:'👩', lv:5, body:'저도 요가 배우고 싶은데 어디서 들으셨어요?', time:'55분 전' },
+      { id:9012, name:'정예린', avatar:'👧', lv:3, body:'요가는 스트레스 해소에도 정말 좋죠 🧘‍♀️', time:'50분 전' },
+      { id:9013, name:'이준호', avatar:'🧑', lv:5, body:'저희 병원 헬스장에서도 요가 수업 있던데 같이 가요!', time:'40분 전' },
+      { id:9014, name:'한소희', avatar:'🙋‍♀️', lv:2, body:'부럽다~ 저도 언젠가 해봐야겠어요', time:'30분 전' },
+      { id:9015, name:'김서연', avatar:'👩‍🦱', lv:4, body:'@박지수 2층 웰니스센터에서 들었어요! 화수금 오전에 해요 😊', time:'20분 전' },
+    ],
   },
   {
     id:1003, userId:105, name:'정예린', avatar:'👧', lv:3,
     body:'처음으로 5km 걷기 완주했어요!! 힘들었지만 정말 뿌듯하네요 😭 다들 응원해주셔서 감사해요!',
     exTag:'🚶 걷기 60분',
+    userTags:['🌱 준비 중','💕 남편과 함께'],
     time:'3시간 전',
     stickers:{ cheer:20, love:15, cool:9, congrats:18, together:11 },
-    myReactions:[], comments:12,
+    myReactions:[], comments:4,
+    commentList:[
+      { id:9021, name:'박지수', avatar:'👩', lv:5, body:'와 대단해요!! 처음 완주 정말 뿌듯하죠 🎉', time:'2시간 전' },
+      { id:9022, name:'이준호', avatar:'🧑', lv:5, body:'첫 5km 축하해요! 다음엔 10km 도전!', time:'2시간 전' },
+      { id:9023, name:'김서연', avatar:'👩‍🦱', lv:4, body:'진짜 대단해요 짝짝짝 👏👏👏', time:'1시간 전' },
+      { id:9024, name:'한소희', avatar:'🙋‍♀️', lv:2, body:'저도 언젠가 5km 완주 해보고 싶어요!', time:'30분 전' },
+    ],
   },
   {
     id:1004, userId:102, name:'이준호', avatar:'🧑', lv:5,
     body:'주말에 등산 다녀왔어요. 정상에서 바라본 뷰가 최고였습니다 🏔️ 건강도 챙기고 힐링도 하고!',
     exTag:'🥾 등산 120분',
+    userTags:['🧪 신선 배아 이식','🏃 매일 걷기'],
     time:'어제',
     stickers:{ cheer:9, love:7, cool:14, congrats:3, together:5 },
-    myReactions:[], comments:7,
+    myReactions:[], comments:3,
+    commentList:[
+      { id:9031, name:'박지수', avatar:'👩', lv:5, body:'어디 산 가셨어요? 뷰 사진 보고 싶어요 📸', time:'어제' },
+      { id:9032, name:'정예린', avatar:'👧', lv:3, body:'저도 등산 좋아하는데 다음엔 같이 가요!', time:'어제' },
+      { id:9033, name:'이준호', avatar:'🧑', lv:5, body:'@박지수 북한산 갔어요! 다음엔 같이 가요 😄', time:'어제' },
+    ],
   },
   {
     id:1005, userId:107, name:'한소희', avatar:'🙋‍♀️', lv:2,
     body:'수영 시작한 지 2주가 됐어요. 아직 25m도 힘들지만 포기 안 하고 꾸준히 해볼게요! 다들 화이팅!',
     exTag:'🏊 수영 40분',
+    userTags:['1️⃣ 1차 시험관','💪 포기 안 해요'],
     time:'어제',
     stickers:{ cheer:16, love:8, cool:5, congrats:2, together:13 },
-    myReactions:[], comments:9,
+    myReactions:[], comments:3,
+    commentList:[
+      { id:9041, name:'박지수', avatar:'👩', lv:5, body:'2주면 정말 잘 하고 계신 거예요! 화이팅 🏊', time:'어제' },
+      { id:9042, name:'이준호', avatar:'🧑', lv:5, body:'수영 처음에 힘들지만 1달 지나면 확 늘어요!', time:'어제' },
+      { id:9043, name:'김서연', avatar:'👩‍🦱', lv:4, body:'같은 병원 직원으로서 응원해요 💪', time:'어제' },
+    ],
   },
 ];
 
@@ -941,7 +1361,7 @@ const WEEK_DAYS = ['일','월','화','수','목','금','토'];
    STATE
 ════════════════════════════════════════ */
 let S = {
-  user: { name:'김민준', avatar:'🏃', points:0, streak:0, stickersReceived:0, registrationId:null },
+  user: { name:'김민준', avatar:'🏃', points:0, streak:0, stickersReceived:0, registrationId:null, tags:[] },
   workouts: [],
   posts: JSON.parse(JSON.stringify(MOCK_POSTS_SEED)),
   redeemedRewards: [],
@@ -949,6 +1369,7 @@ let S = {
   duration: 30,
   leagueTab: 'weekly',
   myReactions: {},   // postId -> [stickerId,...]
+  glucoseRecords: [], // { id, value, timing, ts }
 };
 
 /* ════════════════════════════════════════
@@ -962,6 +1383,7 @@ function save() {
       posts: S.posts,
       redeemedRewards: S.redeemedRewards,
       myReactions: S.myReactions,
+      glucoseRecords: S.glucoseRecords,
     }));
   } catch(e) {}
 }
@@ -974,6 +1396,7 @@ function load() {
     S.posts = d.posts || JSON.parse(JSON.stringify(MOCK_POSTS_SEED));
     S.redeemedRewards = d.redeemedRewards || [];
     S.myReactions = d.myReactions || {};
+    S.glucoseRecords = d.glucoseRecords || [];
   } catch(e) {}
 }
 
@@ -1098,6 +1521,10 @@ function renderHome() {
   const todayPts  = tw.reduce((s,w) => s+w.points, 0);
 
   document.getElementById('hero-name').textContent = S.user.name + '님';
+  const tagsEl = document.getElementById('hero-tags');
+  if (tagsEl) {
+    tagsEl.innerHTML = (S.user.tags || []).map(t => `<span class="hero-tag">${t}</span>`).join('');
+  }
   document.getElementById('today-cnt').textContent = tw.length;
   document.getElementById('today-min').textContent = todayMins;
   document.getElementById('today-pts').textContent = '+' + todayPts;
@@ -1168,6 +1595,10 @@ function renderExercise() {
 
   updatePtsPreview();
 
+  // Show/hide custom exercise input
+  const cw = document.getElementById('custom-ex-wrap');
+  if (cw) cw.classList.toggle('show', S.selectedEx === 'custom');
+
   // History
   const wo = document.getElementById('wo-history');
   document.getElementById('wo-total-badge').textContent = '총 ' + S.workouts.length + '회';
@@ -1181,46 +1612,196 @@ function renderExercise() {
       <div class="workout-item">
         <div class="wo-icon" style="background:${ex.bg}">${ex.icon}</div>
         <div class="wo-info">
-          <div class="wo-name">${ex.name}</div>
+          <div class="wo-name">${w.customName || ex.name}</div>
           <div class="wo-meta">${w.duration}분 · ${fmtTime(w.ts)}${w.memo ? ' · '+w.memo : ''}</div>
+          ${(w.diet || w.mealTypes || w.sleep != null || w.supp != null || w.suppList || w.glucose != null) ? `
+          <div class="wo-health-tags">
+            ${w.diet  ? `<span class="wo-health-tag">🥗 ${w.diet}</span>` : ''}
+            ${w.mealTypes ? `<span class="wo-health-tag">🍽️ ${w.mealTypes.join('·')}</span>` : ''}
+            ${w.sleep != null ? `<span class="wo-health-tag">😴 ${w.sleep}h</span>` : ''}
+            ${w.supp === true && !w.suppList ? `<span class="wo-health-tag">💊 영양제</span>` : ''}
+            ${w.suppList ? `<span class="wo-health-tag">💊 ${w.suppList.join('·')}</span>` : ''}
+            ${w.supp === false ? `<span class="wo-health-tag wo-health-tag-muted">💊 미복용</span>` : ''}
+            ${w.glucose != null ? `<span class="wo-health-tag wo-health-tag-glucose">🩸 ${w.glucose} mg/dL</span>` : ''}
+          </div>` : ''}
         </div>
+        ${w.photo ? `<img class="wo-photo" src="${w.photo}" onclick="viewPhoto(${w.id})" alt="인증">` : ''}
         <div class="wo-pts">+${w.points}p</div>
         <button type="button" class="wo-del" onclick="deleteWorkout(${w.id})" title="삭제">🗑️</button>
       </div>
     `;
   }).join('');
+
+  renderGlucose();
 }
 
 function selectEx(id) {
+  haptic('light');
   S.selectedEx = id;
   renderExercise();
+  if (_shareOn) updateSharePreview();
 }
 function changeDur(delta) {
   S.duration = Math.max(5, Math.min(180, S.duration + delta));
   document.getElementById('dur-val').textContent = S.duration;
   updatePtsPreview();
+  if (_shareOn) updateSharePreview();
 }
+let _shareOn = false;
+
+function toggleShare() {
+  haptic('light');
+  _shareOn = !_shareOn;
+  document.getElementById('share-toggle-btn').classList.toggle('on', _shareOn);
+  document.getElementById('share-expand').classList.toggle('show', _shareOn);
+  if (_shareOn) updateSharePreview();
+}
+
+let _sharePhoto  = false;
+let _shareHealth = false;
+
+function updateSharePreview() {
+  const ex = EX_TYPES.find(e => e.id === S.selectedEx);
+  if (!ex) return;
+  const name = S.selectedEx === 'custom'
+    ? (document.getElementById('custom-ex-name')?.value.trim() || '기타 운동')
+    : ex.name;
+  const tag = ex.icon + ' ' + name + ' ' + S.duration + '분';
+  const tagEl = document.getElementById('share-ex-tag');
+  if (tagEl) tagEl.textContent = tag;
+
+  // Memo preview
+  const memo = document.getElementById('ex-memo')?.value.trim();
+  const memoEl = document.getElementById('share-memo-preview');
+  if (memoEl) {
+    if (memo) {
+      memoEl.textContent = memo;
+      memoEl.classList.remove('pm-hidden');
+    } else {
+      memoEl.classList.add('pm-hidden');
+    }
+  }
+
+  // Auto-fill message only if empty
+  const msgEl = document.getElementById('share-msg');
+  if (msgEl && !msgEl.value.trim()) {
+    msgEl.value = '오늘 ' + name + ' ' + S.duration + '분 완료했어요! 💪';
+  }
+
+  renderShareOptions();
+}
+
+function renderShareOptions() {
+  const el = document.getElementById('share-options');
+  if (!el) return;
+  const hasPhoto  = !!_photoData;
+  const hasSleep  = document.getElementById('hc-sleep-sec')?.classList.contains('show');
+  const hasHealth = !!(_dietRating || _mealTypes.length || hasSleep || _suppTaken);
+  if (!hasPhoto && !hasHealth) { el.innerHTML = ''; return; }
+  let html = '<div class="share-opts-label">함께 공유할 항목</div><div class="share-opts-row">';
+  if (hasPhoto)  html += `<button type="button" class="share-opt-chip${_sharePhoto  ? ' on' : ''}" onclick="toggleShareOpt('photo')">📸 사진</button>`;
+  if (hasHealth) html += `<button type="button" class="share-opt-chip${_shareHealth ? ' on' : ''}" onclick="toggleShareOpt('health')">🏥 건강체크</button>`;
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+function toggleShareOpt(type) {
+  haptic('light');
+  if (type === 'photo')  _sharePhoto  = !_sharePhoto;
+  if (type === 'health') _shareHealth = !_shareHealth;
+  renderShareOptions();
+}
+
 function updatePtsPreview() {
   const pts = calcPts(S.selectedEx, S.duration);
   document.getElementById('pts-prev').textContent = '+' + pts;
 }
 function logExercise() {
-  const pts = calcPts(S.selectedEx, S.duration);
+  const customName = S.selectedEx === 'custom'
+    ? document.getElementById('custom-ex-name').value.trim()
+    : '';
+  if (S.selectedEx === 'custom' && !customName) {
+    haptic('error');
+    showToast('⚠️ 운동 이름을 입력해주세요');
+    document.getElementById('custom-ex-name').focus();
+    return;
+  }
+  const basePts = calcPts(S.selectedEx, S.duration);
+  const photoBonus = _photoData ? 5 : 0;
+  const pts = basePts + photoBonus;
   const memo = document.getElementById('ex-memo').value.trim();
   S.workouts.push({
     id: Date.now(),
     exId: S.selectedEx,
+    customName: customName || null,
     duration: S.duration,
     points: pts,
     memo,
+    photo: _photoData || null,
+    diet:      _dietRating,
+    mealTypes: _mealTypes.length ? [..._mealTypes] : null,
+    sleep:     document.getElementById('hc-sleep-sec').classList.contains('show') ? _sleepHours : null,
+    supp:      _suppTaken,
+    suppList:  _suppList.length ? [..._suppList] : null,
     ts: Date.now(),
   });
   S.user.points += pts;
   updateStreak();
+  const wasShared = _shareOn;
+  // Community share
+  if (_shareOn) {
+    const ex = EX_TYPES.find(e => e.id === S.selectedEx);
+    const exName = customName || (ex ? ex.name : '운동');
+    const exIcon = ex ? ex.icon : '💪';
+    const shareMsg = document.getElementById('share-msg').value.trim()
+      || '오늘 ' + exName + ' ' + S.duration + '분 완료했어요! 💪';
+    const curLv = getLevel(S.user.points);
+    const hasSleep = document.getElementById('hc-sleep-sec').classList.contains('show');
+    S.posts.unshift({
+      id: Date.now(),
+      userId: 0,
+      name: S.user.name,
+      avatar: S.user.avatar,
+      lv: curLv.lv,
+      body: shareMsg,
+      exTag: exIcon + ' ' + exName + ' ' + S.duration + '분',
+      userTags: [...(S.user.tags || [])],
+      sharePhoto:  (_sharePhoto && _photoData) ? _photoData : null,
+      shareHealth: _shareHealth ? {
+        diet:      _dietRating,
+        mealTypes: _mealTypes.length ? [..._mealTypes] : null,
+        sleep:     hasSleep ? _sleepHours : null,
+        supp:      _suppTaken,
+        suppList:  _suppList.length ? [..._suppList] : null,
+      } : null,
+      time: '방금 전',
+      stickers: { cheer:0, love:0, congrats:0, cool:0, together:0 },
+      myReactions: [],
+      comments: 0,
+      commentList: [],
+    });
+    document.getElementById('share-msg').value = '';
+  }
+  // Reset share toggle
+  _shareOn = false;
+  _sharePhoto  = false;
+  _shareHealth = false;
+  document.getElementById('share-toggle-btn').classList.remove('on');
+  document.getElementById('share-expand').classList.remove('show');
+  document.getElementById('share-options').innerHTML = '';
+
   document.getElementById('ex-memo').value = '';
+  if (S.selectedEx === 'custom') document.getElementById('custom-ex-name').value = '';
+  clearPhoto(null);
+  resetHealthChecks();
   save();
   renderHeader();
-  showToast('🎉 운동 기록 완료! +' + pts + 'p 획득!');
+  haptic('success');
+  if (wasShared) {
+    showToast(`🎉 운동 기록 완료! +${pts}p 획득! 📣 커뮤니티에 공유됐어요!`);
+  } else {
+    showToast(photoBonus ? `🎉 운동 기록 완료! +${pts}p (사진 인증 +5p 포함!)` : `🎉 운동 기록 완료! +${pts}p 획득!`);
+  }
   renderExercise();
 
   // Check level up
@@ -1228,31 +1809,307 @@ function logExercise() {
   const prevPts = S.user.points - pts;
   const prevLv = getLevel(prevPts);
   if (lv.lv > prevLv.lv) {
-    setTimeout(() => showToast('🆙 레벨 업! ' + lv.icon + ' ' + lv.name + ' 달성!'), 1200);
+    setTimeout(() => { haptic('levelup'); showToast('🆙 레벨 업! ' + lv.icon + ' ' + lv.name + ' 달성!'); }, 1200);
   }
 }
 
 function deleteWorkout(id) {
   const idx = S.workouts.findIndex(w => w.id === id);
   if (idx === -1) return;
-  const pts = S.workouts[idx].points;
-  S.workouts.splice(idx, 1);
-  S.user.points = Math.max(0, S.user.points - pts);
-  updateStreak();
+  const wo = S.workouts[idx];
+  const ex = EX_TYPES.find(e => e.id === wo.exId);
+  const exName = wo.customName || (ex ? ex.name : '운동');
+  showConfirm({
+    icon: '🏋️',
+    title: '운동 기록 삭제',
+    msg: exName + ' ' + wo.duration + '분 기록을 삭제할까요?\n포인트 ' + wo.points + 'p가 차감됩니다.',
+    okLabel: '삭제',
+    onOk: () => {
+      haptic('delete');
+      S.workouts.splice(idx, 1);
+      S.user.points = Math.max(0, S.user.points - wo.points);
+      updateStreak();
+      save();
+      renderHeader();
+      renderExercise();
+      showToast('운동 기록이 삭제되었습니다');
+    },
+  });
+}
+
+/* ── Photo ── */
+let _photoData = null;
+
+/* ── Health Check ── */
+let _dietRating = null;
+let _mealTypes  = [];
+let _sleepHours = 7;
+let _suppTaken  = null;
+let _suppList   = [];
+
+function toggleHC(type) {
+  haptic('light');
+  const sec = document.getElementById('hc-' + type + '-sec');
+  const btn = document.getElementById('hc-' + type + '-btn');
+  const opening = !sec.classList.contains('show');
+  sec.classList.toggle('show', opening);
+  btn.classList.toggle('active', opening);
+  if (!opening) {
+    if (type === 'diet')  { _dietRating = null; _mealTypes = []; document.querySelectorAll('[id^="diet-"],.hc-meal-chip').forEach(e => e.classList.remove('on')); }
+    if (type === 'sleep') { _sleepHours = 7; document.getElementById('sleep-val').textContent = '7'; }
+    if (type === 'supp')  { clearSuppSection(); }
+  }
+}
+function setDiet(rating) {
+  haptic('light');
+  _dietRating = rating;
+  const map = { '잘먹음':'diet-good', '보통':'diet-norm', '과식':'diet-over', '불량':'diet-bad' };
+  document.querySelectorAll('[id^="diet-"]').forEach(e => e.classList.remove('on'));
+  document.getElementById(map[rating]).classList.add('on');
+}
+function changeSleep(delta) {
+  haptic('light');
+  _sleepHours = Math.max(2, Math.min(12, _sleepHours + delta));
+  document.getElementById('sleep-val').textContent = _sleepHours % 1 === 0 ? _sleepHours : _sleepHours.toFixed(1);
+}
+function setSupp(val) {
+  haptic('light');
+  _suppTaken = val;
+  document.getElementById('supp-yes').classList.toggle('on', val === true);
+  document.getElementById('supp-no').classList.toggle('on',  val === false);
+  document.getElementById('hc-supp-detail').classList.toggle('show', val === true);
+  if (val === false) {
+    _suppList = [];
+    document.querySelectorAll('.hc-supp-preset').forEach(e => e.classList.remove('on'));
+    document.getElementById('supp-custom-list').innerHTML = '';
+    document.getElementById('supp-custom-input').value = '';
+  }
+}
+function resetHealthChecks() {
+  ['diet','sleep','supp'].forEach(t => {
+    document.getElementById('hc-' + t + '-sec').classList.remove('show');
+    document.getElementById('hc-' + t + '-btn').classList.remove('active');
+  });
+  document.querySelectorAll('[id^="diet-"]').forEach(e => e.classList.remove('on'));
+  _dietRating = null; _mealTypes = []; _sleepHours = 7;
+  document.getElementById('sleep-val').textContent = '7';
+  clearSuppSection();
+}
+function clearSuppSection() {
+  _suppTaken = null; _suppList = [];
+  document.getElementById('supp-yes').classList.remove('on');
+  document.getElementById('supp-no').classList.remove('on');
+  document.getElementById('hc-supp-detail').classList.remove('show');
+  document.querySelectorAll('.hc-supp-preset').forEach(e => e.classList.remove('on'));
+  document.getElementById('supp-custom-list').innerHTML = '';
+  document.getElementById('supp-custom-input').value = '';
+}
+
+/* ── Meal / Supplement detail ── */
+function toggleMeal(name) {
+  haptic('light');
+  const idx = _mealTypes.indexOf(name);
+  if (idx === -1) _mealTypes.push(name); else _mealTypes.splice(idx, 1);
+  const btn = document.querySelector('.hc-meal-chip[data-name="' + name + '"]');
+  if (btn) btn.classList.toggle('on', _mealTypes.includes(name));
+}
+function toggleSuppItem(name) {
+  haptic('light');
+  const idx = _suppList.indexOf(name);
+  if (idx === -1) _suppList.push(name); else _suppList.splice(idx, 1);
+  const btn = document.querySelector('.hc-supp-preset[data-name="' + name + '"]');
+  if (btn) btn.classList.toggle('on', _suppList.includes(name));
+}
+function addCustomSupp() {
+  const input = document.getElementById('supp-custom-input');
+  const val = input.value.trim();
+  if (!val || _suppList.includes(val)) { input.value = ''; return; }
+  haptic('light');
+  _suppList.push(val);
+  input.value = '';
+  const list = document.getElementById('supp-custom-list');
+  const chip = document.createElement('button');
+  chip.type = 'button';
+  chip.className = 'hc-sub-chip on';
+  chip.textContent = val + ' ✕';
+  chip.onclick = () => { _suppList = _suppList.filter(s => s !== val); chip.remove(); };
+  list.appendChild(chip);
+}
+
+/* ── Blood Glucose ── */
+let _glucoseVal    = 100;
+let _glucoseTiming = null;
+
+const GLUCOSE_TIMINGS = ['공복','식후2h','식전','취침전'];
+const TIMING_ID_MAP = { '공복':'fasting', '식후2h':'after2h', '식전':'before', '취침전':'bedtime' };
+
+function getGlucoseStatus(val) {
+  if (val < 70)  return { label:'저혈당', cls:'glucose-status-low' };
+  if (val < 140) return { label:'정상',   cls:'glucose-status-ok' };
+  if (val < 180) return { label:'주의',   cls:'glucose-status-warn' };
+  return             { label:'고혈당', cls:'glucose-status-high' };
+}
+
+function syncGlucoseUI() {
+  const numEl = document.getElementById('sa-glucose-num');
+  if (numEl) numEl.textContent = _glucoseVal;
+  GLUCOSE_TIMINGS.forEach(t => {
+    const el = document.getElementById('sa-gt-' + TIMING_ID_MAP[t]);
+    if (el) el.classList.toggle('on', _glucoseTiming === t);
+  });
+}
+
+function changeGlucoseVal(delta) {
+  haptic('light');
+  _glucoseVal = Math.max(40, Math.min(400, _glucoseVal + delta));
+  syncGlucoseUI();
+}
+
+function setGlucoseTiming(timing) {
+  haptic('light');
+  _glucoseTiming = _glucoseTiming === timing ? null : timing;
+  syncGlucoseUI();
+}
+
+function logGlucoseStandalone() {
+  if (!_glucoseTiming) { haptic('error'); showToast('측정 시점을 선택해주세요'); return; }
+  haptic('success');
+  const rec = { id: Date.now(), value: _glucoseVal, timing: _glucoseTiming, ts: new Date().toISOString() };
+  S.glucoseRecords.unshift(rec);
   save();
-  renderHeader();
-  renderExercise();
-  showToast('운동 기록이 삭제되었습니다');
+  _glucoseVal = 100; _glucoseTiming = null;
+  syncGlucoseUI('sa');
+  renderGlucose();
+  const st = getGlucoseStatus(rec.value);
+  showToast('🩸 혈당 기록 완료! ' + rec.value + ' mg/dL (' + st.label + ')');
+}
+
+function deleteGlucose(id) {
+  haptic('delete');
+  S.glucoseRecords = S.glucoseRecords.filter(r => r.id !== id);
+  save();
+  renderGlucose();
+}
+
+function renderGlucose() {
+  const el = document.getElementById('glucose-history');
+  const badge = document.getElementById('glucose-total-badge');
+  if (!el) return;
+  const recs = S.glucoseRecords;
+  if (badge) badge.textContent = '총 ' + recs.length + '회';
+  if (recs.length === 0) {
+    el.innerHTML = '<div class="wo-empty">아직 혈당 기록이 없어요</div>';
+    return;
+  }
+  el.innerHTML = recs.map(r => {
+    const st = getGlucoseStatus(r.value);
+    const d  = new Date(r.ts);
+    const timeStr = (d.getMonth()+1) + '/' + d.getDate() + ' ' +
+                    String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+    return `<div class="glucose-item">
+      <div class="glucose-badge"><span class="glucose-badge-val">${r.value}</span><span class="glucose-val-unit">mg/dL</span></div>
+      <div class="glucose-info">
+        <span class="glucose-timing-lbl">${r.timing}</span>
+        <span class="glucose-time">${timeStr}</span>
+      </div>
+      <span class="glucose-status-tag ${st.cls}">${st.label}</span>
+      <button class="glucose-del" onclick="deleteGlucose(${r.id})">✕</button>
+    </div>`;
+  }).join('');
+}
+function triggerPhotoInput() { document.getElementById('photo-input').click(); }
+function handlePhotoInput(input) {
+  if (!input.files || !input.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = e => compressImage(e.target.result, data => {
+    _photoData = data;
+    document.getElementById('photo-preview-img').src = data;
+    document.getElementById('photo-preview-img').style.display = 'block';
+    document.getElementById('photo-placeholder').style.display = 'none';
+    document.getElementById('photo-del-wrap').style.display = 'block';
+    document.getElementById('photo-upload-area').classList.add('has-photo');
+    if (_shareOn) renderShareOptions();
+  });
+  reader.readAsDataURL(input.files[0]);
+}
+function compressImage(dataUrl, cb) {
+  const img = new Image();
+  img.onload = () => {
+    const canvas = document.createElement('canvas');
+    const ratio = Math.min(480 / img.width, 480 / img.height, 1);
+    canvas.width  = Math.round(img.width  * ratio);
+    canvas.height = Math.round(img.height * ratio);
+    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+    cb(canvas.toDataURL('image/jpeg', 0.6));
+  };
+  img.src = dataUrl;
+}
+function clearPhoto(e) {
+  if (e) e.stopPropagation();
+  _photoData = null;
+  const pi = document.getElementById('photo-preview-img');
+  pi.src = ''; pi.style.display = 'none';
+  document.getElementById('photo-placeholder').style.display = 'block';
+  document.getElementById('photo-del-wrap').style.display = 'none';
+  document.getElementById('photo-upload-area').classList.remove('has-photo');
+  document.getElementById('photo-input').value = '';
+  _sharePhoto = false;
+  if (_shareOn) renderShareOptions();
+}
+function viewPhoto(id) {
+  const w = S.workouts.find(w => w.id === id);
+  if (!w || !w.photo) return;
+  const box = document.createElement('div');
+  box.className = 'photo-lightbox';
+  box.onclick = () => box.remove();
+  const img = document.createElement('img');
+  img.src = w.photo; img.alt = '운동 인증';
+  box.appendChild(img);
+  document.body.appendChild(box);
 }
 
 let _selAvatar = '🏃';
+let _selTags   = [];
 function openProfileModal() {
   document.getElementById('pm-name').value = S.user.name;
   _selAvatar = S.user.avatar;
+  _selTags   = [...(S.user.tags || [])];
   document.getElementById('pm-avatar-grid').innerHTML = AVATARS.map(a =>
     `<button type="button" class="avatar-opt${a===_selAvatar?' selected':''}" onclick="pickAvatar('${a}')">${a}</button>`
   ).join('');
+  renderPmTags();
   document.getElementById('profile-modal').classList.remove('pm-hidden');
+}
+function renderPmTags() {
+  const listEl = document.getElementById('pm-tag-list');
+  if (!listEl) return;
+  listEl.innerHTML = PROFILE_TAGS.map((cat, ci) => `
+    <div class="pm-tag-category">
+      <div class="pm-tag-cat-title">${cat.cat}</div>
+      <div class="pm-tag-chips" id="pm-cat-${ci}"></div>
+    </div>
+  `).join('');
+  // Attach buttons via JS to avoid any HTML attribute string-encoding issues
+  PROFILE_TAGS.forEach((cat, ci) => {
+    const row = document.getElementById('pm-cat-' + ci);
+    cat.tags.forEach((tag, ti) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'pm-tag-chip' + (_selTags.includes(tag) ? ' selected' : '');
+      btn.textContent = tag;
+      btn.addEventListener('click', () => togglePmTag(ci, ti));
+      row.appendChild(btn);
+    });
+  });
+  const cnt = _selTags.length;
+  document.getElementById('pm-sel-count').textContent = cnt ? cnt + '개 선택됨' : '';
+}
+function togglePmTag(ci, ti) {
+  haptic('light');
+  const tag = PROFILE_TAGS[ci].tags[ti];
+  const idx = _selTags.indexOf(tag);
+  if (idx === -1) _selTags.push(tag); else _selTags.splice(idx, 1);
+  renderPmTags();
 }
 function pickAvatar(a) {
   _selAvatar = a;
@@ -1262,14 +2119,35 @@ function pickAvatar(a) {
 }
 function saveProfile() {
   const name = document.getElementById('pm-name').value.trim();
-  if (!name) { showToast('이름을 입력해주세요'); return; }
-  S.user.name = name;
+  if (!name) { haptic('error'); showToast('이름을 입력해주세요'); return; }
+  S.user.name   = name;
   S.user.avatar = _selAvatar;
+  S.user.tags   = [..._selTags];
   save();
   renderHeader();
   renderHome();
   document.getElementById('profile-modal').classList.add('pm-hidden');
+  haptic('medium');
   showToast('프로필이 저장되었습니다');
+}
+function logout() {
+  if (!confirm('로그아웃 하면 이 기기의 운동 기록, 포인트 등 모든 데이터가 초기화됩니다.\n계속하시겠어요?')) return;
+  localStorage.removeItem('hi_health_v2');
+  S = {
+    user: { name:'', avatar:'🏃', points:0, streak:0, stickersReceived:0, registrationId:null, tags:[] },
+    workouts: [],
+    posts: JSON.parse(JSON.stringify(MOCK_POSTS_SEED)),
+    redeemedRewards: [],
+    selectedEx: 'walking',
+    duration: 30,
+    leagueTab: 'weekly',
+    myReactions: {},
+  };
+  document.getElementById('profile-modal').classList.add('pm-hidden');
+  navigate('home');
+  renderHeader();
+  showToast('로그아웃 되었습니다');
+  setTimeout(openProfileModal, 500);
 }
 
 /* ════════════════════════════════════════
@@ -1301,7 +2179,7 @@ function renderLeague() {
   const me = {
     id:0, name: S.user.name + ' (나)', avatar: S.user.avatar,
     lv: getLevel(S.user.points).lv, pts: S.user.points,
-    wPts: myWeekPts(), change:0, isMe: true,
+    wPts: myWeekPts(), change:0, isMe: true, tags: S.user.tags || [],
   };
   const list = [
     ...MOCK_USERS.map(u => ({ ...u, pts: u.pts, wPts: u.wPts, isMe: false })),
@@ -1337,6 +2215,7 @@ function renderLeague() {
         <div class="lb-info">
           <div class="lb-name">${u.name}</div>
           <div class="lb-level">${lv.icon} ${lv.name}</div>
+          ${(u.tags || []).length ? `<div class="lb-tags">${(u.tags).map(t => `<span class="profile-tag">${t}</span>`).join('')}</div>` : ''}
         </div>
         <div class="lb-right">
           <div class="lb-pts">⭐ ${tab==='weekly'?u.wPts:u.pts}p</div>
@@ -1357,26 +2236,69 @@ function setTab(el, tab) {
 /* ════════════════════════════════════════
    RENDER: COMMUNITY
 ════════════════════════════════════════ */
+let _feedFilter = 'all';
+let _commentPostId = null;
+
+function buildPostHealthHtml(h) {
+  const chips = [];
+  if (h.diet) {
+    const dietLabel = { '잘먹음':'🥗 잘먹음', '보통':'🍽️ 보통', '과식':'🍔 과식', '불량':'😔 식단불량' };
+    chips.push(dietLabel[h.diet] || h.diet);
+  }
+  if (h.mealTypes?.length) chips.push('☀️ ' + h.mealTypes.join(' · '));
+  if (h.sleep != null) chips.push('😴 수면 ' + h.sleep + 'h');
+  if (h.supp === 'done') chips.push('💊 영양제 ✓');
+  if (h.supp === 'skip') chips.push('💊 스킵');
+  if (h.suppList?.length) chips.push(...h.suppList.map(s => s));
+  if (!chips.length) return '';
+  return `<div class="post-health-card">
+    <div class="post-health-title">🏥 건강체크</div>
+    <div class="post-health-chips">${chips.map(c => `<span class="post-health-chip">${c}</span>`).join('')}</div>
+  </div>`;
+}
+
 function renderCommunity() {
   document.getElementById('compose-av').textContent = S.user.avatar;
+
+  // Build filter chips from unique userTags
+  const filterRow = document.getElementById('feed-filter-row');
+  const tagSet = new Set();
+  S.posts.forEach(p => { (p.userTags || []).forEach(t => tagSet.add(t)); });
+  const filters = [{ key:'all', label:'전체' }, ...[...tagSet].map(t => ({ key:t, label:t }))];
+  filterRow.innerHTML = '';
+  filters.forEach(f => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'feed-filter-chip' + (_feedFilter === f.key ? ' on' : '');
+    btn.textContent = f.label;
+    btn.addEventListener('click', () => setFeedFilter(f.key));
+    filterRow.appendChild(btn);
+  });
+
+  // Sort newest first, then filter
+  const sorted = [...S.posts].sort((a, b) => b.id - a.id);
+  const visible = sorted.filter(p => {
+    if (_feedFilter === 'all') return true;
+    return (p.userTags || []).includes(_feedFilter);
+  });
+
   const feed = document.getElementById('posts-feed');
-  if (!S.posts.length) {
-    feed.innerHTML = `<div class="empty-state"><div class="ei">💬</div><p>아직 게시물이 없어요. 첫 글을 남겨보세요!</p></div>`;
+  if (!visible.length) {
+    feed.innerHTML = `<div class="empty-state"><div class="ei">💬</div><p>해당하는 게시물이 없어요</p></div>`;
     return;
   }
-  feed.innerHTML = [...S.posts].reverse().map(p => {
-    const lv = LEVELS[Math.min(p.lv-1, LEVELS.length-1)];
+  feed.innerHTML = visible.map(p => {
+    const lv = LEVELS[Math.min(p.lv - 1, LEVELS.length - 1)];
     const myR = S.myReactions[p.id] || [];
     const stickersHtml = STICKERS.map(s => {
-      const cnt = (p.stickers[s.id] || 0);
+      const cnt = p.stickers[s.id] || 0;
       const on  = myR.includes(s.id);
-      return `
-        <button class="sticker-btn ${on?'on':''}" onclick="react(${p.id},'${s.id}')">
-          <span class="sticker-emoji">${s.emoji}</span>
-          <span class="sticker-cnt">${cnt > 0 ? cnt : ''} ${s.label}</span>
-        </button>
-      `;
+      return `<button type="button" class="sticker-btn ${on?'on':''}" onclick="react(${p.id},'${s.id}')">
+        <span class="sticker-emoji">${s.emoji}</span>
+        <span class="sticker-cnt">${cnt > 0 ? cnt : ''} ${s.label}</span>
+      </button>`;
     }).join('');
+    const cmCount = (p.commentList || []).length;
     return `
       <div class="post-card" id="post-${p.id}">
         <div class="post-head">
@@ -1389,17 +2311,88 @@ function renderCommunity() {
               <span>${p.time}</span>
             </div>
           </div>
+          ${p.userId === 0 ? `<button type="button" class="post-del" onclick="deletePost(${p.id})" title="게시물 삭제">🗑️</button>` : ''}
         </div>
+        ${(p.userTags || []).length ? `<div class="post-tags-row">${(p.userTags).map(t => `<span class="profile-tag">${t}</span>`).join('')}</div>` : ''}
         <div class="post-body">${p.body}</div>
         ${p.exTag ? `<div class="post-exercise-tag">${p.exTag}</div>` : ''}
+        ${p.sharePhoto ? `<div class="post-photo-wrap"><img class="post-photo" src="${p.sharePhoto}" alt="운동 사진"></div>` : ''}
+        ${p.shareHealth ? buildPostHealthHtml(p.shareHealth) : ''}
         <div class="sticker-row">${stickersHtml}</div>
-        <button class="comment-btn">💬 댓글 ${p.comments || 0}개</button>
+        <button type="button" class="comment-btn" onclick="openComments(${p.id})">💬 댓글 ${cmCount}개</button>
       </div>
     `;
   }).join('');
 }
 
+function setFeedFilter(key) {
+  haptic('light');
+  _feedFilter = key;
+  renderCommunity();
+}
+
+/* ── Comments ── */
+function openComments(postId) {
+  haptic('light');
+  _commentPostId = postId;
+  document.getElementById('cm-av').textContent = S.user.avatar;
+  document.getElementById('cm-input').value = '';
+  renderCommentList();
+  document.getElementById('comment-overlay').classList.remove('pm-hidden');
+  setTimeout(() => document.getElementById('cm-input').focus(), 300);
+}
+function closeComments() {
+  document.getElementById('comment-overlay').classList.add('pm-hidden');
+  _commentPostId = null;
+}
+function renderCommentList() {
+  const post = S.posts.find(p => p.id === _commentPostId);
+  if (!post) return;
+  const list = post.commentList || [];
+  const el = document.getElementById('cm-list');
+  if (!list.length) {
+    el.innerHTML = '<div class="cm-empty">아직 댓글이 없어요.<br>첫 댓글을 남겨보세요! 💬</div>';
+    return;
+  }
+  el.innerHTML = list.map(c => {
+    const clv = LEVELS[Math.min((c.lv || 1) - 1, LEVELS.length - 1)];
+    return `<div class="cm-item">
+      <span class="cm-av">${c.avatar}</span>
+      <div class="cm-bubble">
+        <div class="cm-name">${c.name} <span style="font-weight:400;color:var(--text-secondary)">${clv.icon}</span></div>
+        <div class="cm-body">${c.body}</div>
+        <div class="cm-time">${c.time}</div>
+      </div>
+    </div>`;
+  }).join('');
+  el.scrollTop = el.scrollHeight;
+}
+function submitComment() {
+  const input = document.getElementById('cm-input');
+  const body = input.value.trim();
+  if (!body) return;
+  haptic('medium');
+  const post = S.posts.find(p => p.id === _commentPostId);
+  if (!post) return;
+  if (!post.commentList) post.commentList = [];
+  const lv = getLevel(S.user.points);
+  post.commentList.push({
+    id: Date.now(),
+    name: S.user.name,
+    avatar: S.user.avatar,
+    lv: lv.lv,
+    body,
+    time: '방금 전',
+  });
+  post.comments = post.commentList.length;
+  input.value = '';
+  save();
+  renderCommentList();
+  renderCommunity();
+}
+
 function react(postId, stickerId) {
+  haptic('light');
   const post = S.posts.find(p => p.id === postId);
   if (!post) return;
   if (!S.myReactions[postId]) S.myReactions[postId] = [];
@@ -1418,10 +2411,44 @@ function react(postId, stickerId) {
   renderCommunity();
 }
 
+let _confirmCallback = null;
+function showConfirm({ icon = '🗑️', title, msg, okLabel = '삭제', onOk }) {
+  document.getElementById('confirm-icon').textContent  = icon;
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-msg').textContent   = msg;
+  document.getElementById('confirm-ok-btn').textContent = okLabel;
+  _confirmCallback = onOk;
+  document.getElementById('confirm-overlay').classList.remove('pm-hidden');
+}
+function closeConfirm() {
+  document.getElementById('confirm-overlay').classList.add('pm-hidden');
+  _confirmCallback = null;
+}
+function confirmOk() {
+  closeConfirm();
+  if (_confirmCallback) _confirmCallback();
+}
+
+function deletePost(id) {
+  showConfirm({
+    icon: '🗑️',
+    title: '게시물 삭제',
+    msg: '정말 삭제하시겠어요?\n삭제한 글은 복구할 수 없습니다.',
+    okLabel: '삭제',
+    onOk: () => {
+      haptic('delete');
+      S.posts = S.posts.filter(p => p.id !== id);
+      save();
+      renderCommunity();
+      showToast('게시물이 삭제되었습니다');
+    },
+  });
+}
+
 function submitPost() {
   const input = document.getElementById('post-input');
   const body  = input.value.trim();
-  if (!body) { showToast('내용을 입력해주세요 ✏️'); return; }
+  if (!body) { haptic('error'); showToast('내용을 입력해주세요 ✏️'); return; }
   const lv = getLevel(S.user.points);
   const newPost = {
     id: Date.now(),
@@ -1431,14 +2458,17 @@ function submitPost() {
     lv: lv.lv,
     body,
     exTag: null,
+    userTags: [...(S.user.tags || [])],
     time: '방금 전',
     stickers: { cheer:0, love:0, congrats:0, cool:0, together:0 },
     myReactions: [],
     comments: 0,
+    commentList: [],
   };
-  S.posts.push(newPost);
+  S.posts.unshift(newPost);
   input.value = '';
   save();
+  haptic('medium');
   showToast('📣 게시물이 등록되었어요!');
   renderCommunity();
 }
@@ -1511,13 +2541,14 @@ function renderRewards() {
 function redeemReward(id) {
   const r = REWARDS_DATA.find(x => x.id === id);
   if (!r) return;
-  if (S.redeemedRewards.includes(id)) { showToast('이미 교환한 보상이에요'); return; }
-  if (S.user.points < r.cost) { showToast('⚠️ 포인트가 부족해요 (필요: ' + r.cost + 'p)'); return; }
+  if (S.redeemedRewards.includes(id)) { haptic('error'); showToast('이미 교환한 보상이에요'); return; }
+  if (S.user.points < r.cost) { haptic('error'); showToast('⚠️ 포인트가 부족해요 (필요: ' + r.cost + 'p)'); return; }
   if (!confirm(`"${r.name}"을(를) ${r.cost}p로 교환하시겠어요?`)) return;
   S.user.points -= r.cost;
   S.redeemedRewards.push(id);
   save();
   renderHeader();
+  haptic('success');
   showToast('🎁 ' + r.name + ' 교환 완료!');
   renderRewards();
 }
@@ -1794,6 +2825,7 @@ function submitChReg(e) {
   S.user.name = name;
   save();
   renderHeader();
+  haptic('success');
   showToast('🎉 챌린지 신청 완료! 신청번호: ' + id);
   renderChallenge();
 }
@@ -1832,7 +2864,43 @@ init();
     <input type="text" class="ch-form-input" id="pm-name" placeholder="이름을 입력하세요" maxlength="10">
     <div class="form-label pm-avatar-label">아바타 선택</div>
     <div class="avatar-grid" id="pm-avatar-grid"></div>
+    <div class="pm-tags-section">
+      <div class="pm-tags-label">🏷️ 나의 태그 <span class="pm-sel-count" id="pm-sel-count"></span></div>
+      <div id="pm-tag-list"></div>
+    </div>
     <button type="button" class="btn btn-primary btn-full" onclick="saveProfile()">저장하기</button>
+    <div class="pm-divider"></div>
+    <button type="button" class="btn btn-danger btn-full" onclick="logout()">🚪 로그아웃 (데이터 초기화)</button>
+  </div>
+</div>
+
+<!-- Comment Modal -->
+<div id="comment-overlay" class="comment-overlay pm-hidden">
+  <div class="comment-modal">
+    <div class="cm-header">
+      <span class="cm-title">💬 댓글</span>
+      <button type="button" class="cm-close" onclick="closeComments()">✕</button>
+    </div>
+    <div class="cm-list" id="cm-list"></div>
+    <div class="cm-compose">
+      <span class="cm-compose-av" id="cm-av">🏃</span>
+      <input class="cm-input" id="cm-input" type="text" placeholder="댓글을 입력하세요..." maxlength="200"
+             onkeydown="if(event.key==='Enter')submitComment()">
+      <button type="button" class="cm-send" onclick="submitComment()">게시</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Modal -->
+<div id="confirm-overlay" class="confirm-overlay pm-hidden">
+  <div class="confirm-modal">
+    <div class="confirm-icon" id="confirm-icon">🗑️</div>
+    <div class="confirm-title" id="confirm-title">삭제하시겠어요?</div>
+    <div class="confirm-msg" id="confirm-msg">이 작업은 되돌릴 수 없습니다.</div>
+    <div class="confirm-btns">
+      <button type="button" class="btn btn-cancel btn-full" onclick="closeConfirm()">취소</button>
+      <button type="button" class="btn btn-danger btn-full" id="confirm-ok-btn" onclick="confirmOk()">삭제</button>
+    </div>
   </div>
 </div>
 
