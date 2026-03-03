@@ -2070,7 +2070,7 @@ function viewPhoto(id) {
 
 let _selAvatar = '🏃';
 let _selTags   = [];
-function openProfileModal() {
+function openProfileModal(onboarding = false) {
   document.getElementById('pm-name').value = S.user.name;
   _selAvatar = S.user.avatar;
   _selTags   = [...(S.user.tags || [])];
@@ -2078,6 +2078,19 @@ function openProfileModal() {
     `<button type="button" class="avatar-opt${a===_selAvatar?' selected':''}" onclick="pickAvatar('${a}')">${a}</button>`
   ).join('');
   renderPmTags();
+
+  if (onboarding) {
+    document.getElementById('pm-title').textContent = '🎉 HI Health에 오신 걸 환영해요!';
+    document.getElementById('pm-sub').textContent   = '이름과 아바타를 설정하고 챌린지를 시작해보세요';
+    document.getElementById('pm-save-btn').textContent = '시작하기!';
+    document.getElementById('pm-logout-section').style.display = 'none';
+  } else {
+    document.getElementById('pm-title').textContent = '👤 프로필 설정';
+    document.getElementById('pm-sub').textContent   = '이름과 아바타를 선택해주세요';
+    document.getElementById('pm-save-btn').textContent = '저장하기';
+    document.getElementById('pm-logout-section').style.display = '';
+  }
+
   document.getElementById('profile-modal').classList.remove('pm-hidden');
 }
 function renderPmTags() {
@@ -2147,7 +2160,7 @@ function logout() {
   navigate('home');
   renderHeader();
   showToast('로그아웃 되었습니다');
-  setTimeout(openProfileModal, 500);
+  setTimeout(() => openProfileModal(true), 500);
 }
 
 /* ════════════════════════════════════════
@@ -2840,7 +2853,7 @@ function init() {
   renderHeader();
   renderHome();
   // Show profile setup on first visit
-  if (isFirstVisit) setTimeout(openProfileModal, 400);
+  if (isFirstVisit) setTimeout(() => openProfileModal(true), 400);
   // Animate level bar after short delay
   setTimeout(() => {
     const lv = getLevel(S.user.points);
