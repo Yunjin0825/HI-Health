@@ -1,684 +1,2909 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HI Health 건강 챌린지 2026 | 직원 참가 신청</title>
+  <title>HI Health - 건강 챌린지</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #4F46E5;
-      --primary-dark: #3730A3;
-      --primary-light: #EEF2FF;
-      --green: #10B981;
-      --green-light: #D1FAE5;
-      --amber: #F59E0B;
-      --amber-light: #FEF3C7;
-      --red: #EF4444;
-      --red-light: #FEE2E2;
-      --sky: #0EA5E9;
-      --sky-light: #E0F2FE;
-      --text: #111827;
-      --text-2: #374151;
-      --text-3: #6B7280;
+      --primary: #5B8AF5;
+      --primary-dark: #3D6FE8;
+      --primary-light: #EBF0FF;
+      --secondary: #5DC38B;
+      --secondary-light: #E8FAF1;
+      --accent: #FF6B6B;
+      --accent-light: #FFE8E8;
+      --warning: #F59E0B;
+      --warning-light: #FFF8E1;
+      --purple: #8B5CF6;
+      --purple-light: #F3EEFF;
+      --bg: #F0F4FF;
+      --card: #FFFFFF;
+      --text: #1A1F36;
+      --text-secondary: #6B7280;
       --border: #E5E7EB;
-      --bg: #F9FAFB;
-      --card: #fff;
+      --shadow: 0 4px 20px rgba(91,138,245,0.08);
+      --shadow-hover: 0 8px 30px rgba(91,138,245,0.18);
+      --nav-height: 68px;
+      --header-height: 64px;
       --radius: 16px;
       --radius-sm: 10px;
-      --shadow: 0 4px 20px rgba(0,0,0,0.08);
-      --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
+      --radius-lg: 24px;
     }
-    * { margin:0; padding:0; box-sizing:border-box; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-behavior: smooth; }
-    body { font-family:'Noto Sans KR',sans-serif; background:var(--bg); color:var(--text); }
-
-    /* ── NAV ── */
-    .nav {
-      position: fixed; top:0; left:0; right:0; height:62px;
-      background: rgba(255,255,255,0.96); border-bottom:1px solid var(--border);
-      display:flex; align-items:center; justify-content:space-between;
-      padding: 0 max(20px, calc((100vw - 1100px)/2));
-      z-index:200; backdrop-filter:blur(12px);
-      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-    }
-    .nav-logo { display:flex; align-items:center; gap:9px; text-decoration:none; }
-    .nav-logo-icon {
-      width:34px; height:34px;
-      background: linear-gradient(135deg, var(--primary), var(--green));
-      border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:17px;
-    }
-    .nav-logo-text { font-size:17px; font-weight:700; color:var(--primary); }
-    .nav-right { display:flex; align-items:center; gap:12px; }
-    .nav-admin { font-size:12px; color:var(--text-3); text-decoration:none; padding:6px 12px; border-radius:20px; border:1px solid var(--border); transition:all 0.2s; }
-    .nav-admin:hover { border-color:var(--primary); color:var(--primary); }
-    .nav-cta {
-      background: var(--primary); color:#fff; padding:9px 20px;
-      border-radius:20px; font-size:13px; font-weight:700;
-      text-decoration:none; transition:all 0.2s;
-    }
-    .nav-cta:hover { background:var(--primary-dark); transform:translateY(-1px); }
-
-    /* ── HERO ── */
-    .hero {
+    body {
+      font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
-      background: linear-gradient(150deg, #1e1b4b 0%, #312e81 35%, #4338ca 65%, #6366f1 100%);
-      display:flex; flex-direction:column; align-items:center; justify-content:center;
-      text-align:center; color:#fff; padding:100px 20px 70px;
-      position:relative; overflow:hidden;
+      max-width: 480px;
+      margin: 0 auto;
+      position: relative;
+      -webkit-tap-highlight-color: transparent;
     }
-    .hero-bg-circle {
-      position:absolute; border-radius:50%; background:rgba(255,255,255,0.04);
+    @media (min-width: 481px) {
+      body { background: #D8E4FF; }
     }
-    .hero-badge {
-      display:inline-flex; align-items:center; gap:7px;
-      background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.25);
-      padding:7px 18px; border-radius:30px; font-size:12px; font-weight:700;
-      margin-bottom:22px; backdrop-filter:blur(6px); letter-spacing:0.3px;
-    }
-    .hero-title { font-size:clamp(30px,6vw,56px); font-weight:900; line-height:1.18; margin-bottom:14px; }
-    .hero-title .hl { color:#FCD34D; }
-    .hero-sub { font-size:clamp(14px,2.5vw,18px); opacity:0.82; margin-bottom:36px; max-width:520px; line-height:1.7; }
-    .hero-chips { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin-bottom:36px; }
-    .hero-chip {
-      background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2);
-      padding:11px 20px; border-radius:13px; backdrop-filter:blur(6px);
-    }
-    .chip-label { font-size:10px; opacity:0.72; margin-bottom:4px; }
-    .chip-val { font-size:14px; font-weight:700; }
-    .hero-cta {
-      display:inline-flex; align-items:center; gap:9px;
-      background:#FCD34D; color:#1e1b4b; padding:15px 36px;
-      border-radius:40px; font-size:15px; font-weight:900;
-      text-decoration:none; transition:all 0.25s;
-      box-shadow:0 8px 28px rgba(252,211,77,0.45);
-    }
-    .hero-cta:hover { transform:translateY(-3px); box-shadow:0 12px 36px rgba(252,211,77,0.55); }
-    .hero-scroll { position:absolute; bottom:26px; left:50%; transform:translateX(-50%); font-size:12px; opacity:0.55; display:flex; flex-direction:column; align-items:center; gap:6px; animation:bounce 2s infinite; }
-    @keyframes bounce { 0%,100%{ transform:translateX(-50%) translateY(0); } 50%{ transform:translateX(-50%) translateY(8px); } }
-    /* Countdown */
-    .countdown { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:34px; }
-    .cd-box { background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.15); border-radius:12px; padding:13px 16px; text-align:center; min-width:68px; backdrop-filter:blur(4px); }
-    .cd-val { font-size:26px; font-weight:900; line-height:1; }
-    .cd-lbl { font-size:10px; opacity:0.68; margin-top:3px; }
 
-    /* ── COMMON SECTION ── */
-    .section { padding:72px max(20px,calc((100vw - 1100px)/2)); }
-    .section-inner { max-width:900px; margin:0 auto; }
-    .s-tag { display:inline-block; padding:5px 14px; border-radius:20px; font-size:12px; font-weight:700; margin-bottom:10px; }
-    .s-tag-purple { background:var(--primary-light); color:var(--primary); }
-    .s-tag-green  { background:var(--green-light);   color:#065F46; }
-    .s-tag-amber  { background:var(--amber-light);   color:#92400E; }
-    .s-tag-sky    { background:var(--sky-light);     color:#0369A1; }
-    .s-tag-red    { background:var(--red-light);     color:#991B1B; }
-    .s-title { font-size:clamp(22px,4vw,34px); font-weight:700; line-height:1.3; margin-bottom:8px; }
-    .s-desc  { font-size:15px; color:var(--text-3); }
-
-    /* ── PHASE CARDS ── */
-    .phase-bg { background:#F9FAFB; }
-    .phase-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:20px; margin-top:36px; }
-    .phase-card {
-      border-radius:var(--radius); padding:28px; color:#fff; position:relative; overflow:hidden;
+    /* ── Header ── */
+    .app-header {
+      position: fixed; top: 0; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 480px;
+      height: var(--header-height);
+      background: #fff; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 18px; z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
     }
-    .phase-card.pre  { background:linear-gradient(135deg,#0EA5E9,#0369A1); }
-    .phase-card.main { background:linear-gradient(135deg,#EF4444,#B91C1C); }
-    .phase-card::after { content:''; position:absolute; top:-35px; right:-35px; width:110px; height:110px; background:rgba(255,255,255,0.1); border-radius:50%; }
-    .pc-step { font-size:11px; font-weight:700; letter-spacing:1.5px; opacity:0.75; margin-bottom:8px; }
-    .pc-title { font-size:22px; font-weight:700; margin-bottom:5px; }
-    .pc-date  { font-size:13px; opacity:0.88; margin-bottom:18px; }
-    .pc-list  { list-style:none; display:flex; flex-direction:column; gap:10px; }
-    .pc-li    { display:flex; align-items:flex-start; gap:9px; font-size:14px; line-height:1.5; }
-    .pc-dot   { flex-shrink:0; width:6px; height:6px; background:#fff; border-radius:50%; margin-top:7px; opacity:0.75; }
-
-    /* ── TIMELINE ── */
-    .tl-bg { background:#fff; }
-    .tl-wrap { max-width:640px; margin:44px auto 0; position:relative; }
-    .tl-wrap::before { content:''; position:absolute; left:27px; top:12px; bottom:12px; width:2px; background:linear-gradient(180deg,var(--primary),var(--green)); border-radius:1px; }
-    .tl-row { display:flex; gap:20px; margin-bottom:30px; position:relative; }
-    .tl-icon { flex-shrink:0; width:54px; height:54px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px; z-index:1; box-shadow:0 4px 12px rgba(0,0,0,0.15); }
-    .tl-body { flex:1; padding-top:8px; }
-    .tl-date  { font-size:12px; color:var(--text-3); font-weight:600; margin-bottom:4px; }
-    .tl-title { font-size:16px; font-weight:700; margin-bottom:5px; }
-    .tl-desc  { font-size:13px; color:var(--text-3); line-height:1.65; }
-    .tl-note  { display:inline-block; margin-top:8px; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:600; background:var(--amber-light); color:#92400E; }
-
-    /* ── BENEFITS ── */
-    .benefits-bg { background:linear-gradient(135deg,#EEF2FF 0%,#FEF3C7 100%); }
-    .benefit-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:14px; margin-top:36px; }
-    .benefit-card { background:#fff; border-radius:var(--radius); padding:22px 16px; text-align:center; box-shadow:var(--shadow); transition:all 0.25s; }
-    .benefit-card:hover { transform:translateY(-5px); box-shadow:var(--shadow-lg); }
-    .b-icon  { font-size:36px; margin-bottom:10px; }
-    .b-title { font-size:14px; font-weight:700; margin-bottom:5px; }
-    .b-desc  { font-size:12px; color:var(--text-3); line-height:1.55; }
-
-    /* ── NOTICE ── */
-    .notice-bg { background:#F9FAFB; }
-    .notice-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px; margin-top:32px; }
-    .notice-card { background:#fff; border-radius:var(--radius-sm); padding:18px; box-shadow:var(--shadow); border-left:4px solid var(--primary); }
-    .nc-title { font-size:14px; font-weight:700; margin-bottom:6px; display:flex; align-items:center; gap:6px; }
-    .nc-body  { font-size:13px; color:var(--text-3); line-height:1.65; }
-
-    /* ── FORM ── */
-    .form-bg { background:#fff; }
-    .form-card {
-      background:#fff; border-radius:20px; padding:40px;
-      box-shadow:var(--shadow-lg); border:1px solid var(--border);
-      max-width:720px; margin:36px auto 0;
+    .header-logo { display: flex; align-items: center; gap: 9px; }
+    .logo-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
     }
-    .form-head { margin-bottom:28px; }
-    .form-card-title { font-size:22px; font-weight:700; margin-bottom:5px; }
-    .form-card-sub   { font-size:13px; color:var(--text-3); }
-    .form-section-label { font-size:13px; font-weight:700; color:var(--primary); padding:10px 14px; background:var(--primary-light); border-radius:8px; margin:24px 0 16px; }
-    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-    @media(max-width:600px){ .form-row{ grid-template-columns:1fr; } }
-    .form-group { margin-bottom:18px; }
-    .form-label { display:flex; align-items:center; gap:5px; font-size:13px; font-weight:600; margin-bottom:7px; }
-    .req { color:var(--red); font-size:14px; }
-    .form-input, .form-select, .form-textarea {
-      width:100%; padding:11px 14px;
+    .logo-text { font-size: 19px; font-weight: 700; color: var(--primary); letter-spacing: -0.5px; }
+    .header-right { display: flex; align-items: center; gap: 10px; }
+    .header-points {
+      display: flex; align-items: center; gap: 4px;
+      background: var(--warning-light); padding: 6px 12px;
+      border-radius: 20px; font-size: 13px; font-weight: 700; color: #92400E;
+      cursor: pointer;
+    }
+    .header-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--purple));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; cursor: pointer;
+      border: 2px solid var(--primary-light);
+      position: relative;
+    }
+    .header-avatar::after {
+      content: '✏️';
+      position: absolute; bottom: -3px; right: -3px;
+      font-size: 10px; background: #fff;
+      border-radius: 50%; width: 14px; height: 14px;
+      display: flex; align-items: center; justify-content: center;
+      line-height: 1;
+    }
+
+    /* ── Main ── */
+    .app-content {
+      margin-top: var(--header-height);
+      margin-bottom: var(--nav-height);
+      min-height: calc(100vh - var(--header-height) - var(--nav-height));
+      overflow-x: hidden;
+    }
+    .page {
+      display: none; padding: 18px;
+      animation: pageIn 0.3s cubic-bezier(0.22,1,0.36,1);
+    }
+    .page.active { display: block; }
+    @keyframes pageIn {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Bottom Nav ── */
+    .app-nav {
+      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 480px; height: var(--nav-height);
+      background: #fff; border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-around;
+      z-index: 100; box-shadow: 0 -4px 20px rgba(0,0,0,0.07);
+    }
+    .nav-btn {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      padding: 6px 4px; border: none; background: none; cursor: pointer;
+      border-radius: var(--radius-sm); transition: all 0.2s;
+      color: var(--text-secondary); font-family: inherit; min-width: 0; flex: 1;
+    }
+    .nav-icon { font-size: 20px; transition: transform 0.25s; display: block; }
+    .nav-label { font-size: 10px; font-weight: 500; }
+    .nav-btn.active { color: var(--primary); }
+    .nav-btn.active .nav-icon { transform: translateY(-3px) scale(1.1); }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--card); border-radius: var(--radius);
+      padding: 18px; box-shadow: var(--shadow); margin-bottom: 14px;
+    }
+    .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .card-title { font-size: 15px; font-weight: 700; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 3px;
+      padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+    }
+    .badge-primary { background: var(--primary-light); color: var(--primary); }
+    .badge-success { background: var(--secondary-light); color: #166534; }
+    .badge-warning { background: var(--warning-light); color: #92400E; }
+    .badge-purple  { background: var(--purple-light);  color: var(--purple); }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+      padding: 12px 22px; border-radius: var(--radius-sm);
+      border: none; font-family: inherit; font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff; box-shadow: 0 4px 14px rgba(91,138,245,0.35);
+    }
+    .btn-primary:active { transform: scale(0.97); }
+    .btn-secondary { background: var(--primary-light); color: var(--primary); }
+    .btn-success {
+      background: linear-gradient(135deg, var(--secondary), #3DA96A);
+      color: #fff; box-shadow: 0 4px 14px rgba(93,195,139,0.35);
+    }
+    .btn-full { width: 100%; }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed; bottom: calc(var(--nav-height) + 14px); left: 50%;
+      transform: translateX(-50%) translateY(16px);
+      background: #1A1F36; color: #fff;
+      padding: 11px 24px; border-radius: 30px;
+      font-size: 14px; font-weight: 500;
+      z-index: 300; opacity: 0; transition: all 0.3s; pointer-events: none;
+      white-space: nowrap; box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ══════════════════════════════
+       HOME
+    ══════════════════════════════ */
+    .hero-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: var(--radius-lg); padding: 22px; color: #fff;
+      margin-bottom: 14px; position: relative; overflow: hidden;
+    }
+    .hero-card::before {
+      content: ''; position: absolute; top: -40px; right: -40px;
+      width: 130px; height: 130px; background: rgba(255,255,255,0.1); border-radius: 50%;
+    }
+    .hero-card::after {
+      content: ''; position: absolute; bottom: -30px; right: 50px;
+      width: 80px; height: 80px; background: rgba(255,255,255,0.07); border-radius: 50%;
+    }
+    .hero-greeting { font-size: 13px; opacity: 0.85; margin-bottom: 3px; }
+    /* .hero-name overridden below with flex layout */
+    .hero-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+    .hero-stat {
+      background: rgba(255,255,255,0.15); border-radius: 12px;
+      padding: 12px 6px; text-align: center; backdrop-filter: blur(10px);
+    }
+    .hero-stat-value { font-size: 22px; font-weight: 700; }
+    .hero-stat-label { font-size: 10px; opacity: 0.8; margin-top: 2px; }
+
+    .level-card { background: #fff; border-radius: var(--radius); padding: 18px; margin-bottom: 14px; box-shadow: var(--shadow); }
+    .level-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .level-info { display: flex; align-items: center; gap: 12px; }
+    .level-icon-large { font-size: 34px; line-height: 1; }
+    .level-name { font-size: 17px; font-weight: 700; }
+    .level-num { font-size: 12px; color: var(--text-secondary); }
+    .streak-badge {
+      display: flex; align-items: center; gap: 5px;
+      background: var(--accent-light); padding: 6px 12px;
+      border-radius: 20px; font-size: 13px; font-weight: 700; color: var(--accent);
+    }
+    .level-bar-bg { width: 100%; height: 10px; background: var(--border); border-radius: 5px; overflow: hidden; }
+    .level-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      border-radius: 5px; transition: width 1.2s cubic-bezier(0.22,1,0.36,1);
+    }
+    .level-bar-text { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-secondary); margin-top: 6px; }
+
+    .quick-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; margin-bottom: 14px; }
+    .quick-btn {
+      background: #fff; border-radius: var(--radius);
+      padding: 14px; display: flex; align-items: center; gap: 11px;
+      box-shadow: var(--shadow); cursor: pointer; transition: all 0.2s;
+      border: none; font-family: inherit; text-align: left;
+    }
+    .quick-btn:active { transform: scale(0.97); box-shadow: var(--shadow-hover); }
+    .qi-icon {
+      width: 42px; height: 42px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+    .qi-title { font-size: 13px; font-weight: 600; }
+    .qi-sub { font-size: 11px; color: var(--text-secondary); }
+
+    /* Weekly chart */
+    .week-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 5px; margin-top: 10px; }
+    .week-day { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .week-label { font-size: 10px; color: var(--text-secondary); }
+    .week-bar { width: 100%; height: 52px; background: var(--border); border-radius: 5px; display: flex; align-items: flex-end; overflow: hidden; }
+    .week-fill { width: 100%; background: linear-gradient(180deg, var(--primary), var(--secondary)); border-radius: 5px; transition: height 0.9s ease; }
+    .week-val { font-size: 9px; font-weight: 600; color: var(--text); }
+    .week-day.today .week-label { color: var(--primary); font-weight: 700; }
+    .week-day.today .week-bar { background: var(--primary-light); }
+
+    /* Achievement strip */
+    .ach-strip { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+    .ach-strip::-webkit-scrollbar { display: none; }
+    .ach-chip { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+    .ach-circle {
+      width: 54px; height: 54px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; font-size: 24px;
+    }
+    .ach-circle.earned {
+      background: linear-gradient(white,white) padding-box,
+                  linear-gradient(135deg, var(--warning), #FF8C00) border-box;
+      border: 2.5px solid transparent;
+      box-shadow: 0 3px 10px rgba(245,158,11,0.3);
+    }
+    .ach-circle.locked { background: var(--border); filter: grayscale(1); opacity: 0.4; }
+    .ach-label { font-size: 10px; color: var(--text-secondary); text-align: center; max-width: 58px; line-height: 1.3; }
+
+    /* ══════════════════════════════
+       EXERCISE
+    ══════════════════════════════ */
+    .ex-type-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 6px; }
+    .custom-ex-wrap { display:none; margin-top:10px; }
+    .custom-ex-wrap.show { display:block; }
+    .ex-type-btn {
+      display: flex; flex-direction: column; align-items: center; gap: 5px;
+      padding: 12px 6px; border-radius: var(--radius-sm);
+      border: 2px solid var(--border); background: #fff;
+      cursor: pointer; transition: all 0.2s; font-family: inherit;
+    }
+    .ex-type-btn.selected { border-color: var(--primary); background: var(--primary-light); }
+    .ex-type-icon { font-size: 24px; }
+    .ex-type-name { font-size: 11px; font-weight: 500; }
+    .ex-type-pts { font-size: 10px; color: var(--text-secondary); }
+    .ex-type-btn.selected .ex-type-name { color: var(--primary); font-weight: 700; }
+
+    .duration-wrap { display: flex; align-items: center; justify-content: center; gap: 22px; margin: 14px 0; }
+    .dur-btn {
+      width: 42px; height: 42px; border-radius: 50%;
+      border: 2px solid var(--border); background: #fff;
+      font-size: 22px; cursor: pointer; display: flex;
+      align-items: center; justify-content: center; transition: all 0.2s;
+    }
+    .dur-btn:active { border-color: var(--primary); color: var(--primary); transform: scale(0.93); }
+    .dur-display { text-align: center; }
+    .dur-val { font-size: 44px; font-weight: 700; color: var(--primary); line-height: 1; }
+    .dur-unit { font-size: 13px; color: var(--text-secondary); }
+
+    .pts-preview {
+      background: linear-gradient(135deg, var(--primary-light), var(--secondary-light));
+      border-radius: var(--radius-sm); padding: 13px; text-align: center; margin: 13px 0;
+    }
+    .pts-preview-val { font-size: 26px; font-weight: 700; color: var(--primary); }
+    .pts-preview-lbl { font-size: 12px; color: var(--text-secondary); }
+
+    .workout-item { display: flex; align-items: center; gap: 13px; padding: 13px 0; border-bottom: 1px solid var(--border); }
+    .workout-item:last-child { border-bottom: none; }
+    .wo-icon { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+    .wo-info { flex: 1; }
+    .wo-name { font-size: 14px; font-weight: 600; }
+    .wo-meta { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+    .wo-pts { font-size: 14px; font-weight: 700; color: var(--warning); }
+    .wo-photo { width:48px; height:48px; object-fit:cover; border-radius:8px; flex-shrink:0; cursor:pointer; border:1.5px solid var(--border); }
+
+    .photo-upload-area {
+      border: 2px dashed var(--border); border-radius: var(--radius-sm);
+      padding: 16px; text-align: center; cursor: pointer;
+      transition: all 0.2s; margin-bottom: 13px; position: relative;
+    }
+    .photo-upload-area:hover { border-color: var(--primary); background: var(--primary-light); }
+    .photo-upload-area.has-photo { border-style: solid; border-color: var(--secondary); padding: 8px; }
+    .pu-icon { font-size: 28px; margin-bottom: 6px; }
+    .pu-label { font-size: 13px; color: var(--text-secondary); }
+    .pu-hint  { font-size: 11px; color: var(--text-secondary); opacity: 0.7; margin-top: 3px; }
+    .photo-preview-img { width:100%; max-height:160px; object-fit:cover; border-radius:8px; display:block; }
+    .photo-del-btn {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: rgba(0,0,0,0.5); color: #fff; border: none;
+      border-radius: 20px; padding: 4px 12px; font-size: 11px;
+      cursor: pointer; margin-top: 6px;
+    }
+    .photo-lightbox {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.88);
+      z-index: 500; display: flex; align-items: center; justify-content: center;
+      padding: 20px; cursor: pointer;
+    }
+    .photo-lightbox img { max-width:100%; max-height:80vh; border-radius:12px; }
+    #photo-input { display:none; }
+    #photo-preview-img { display:none; }
+    #photo-del-wrap { display:none; }
+
+    /* ── Health Check ── */
+    .hc-chips { display:flex; gap:7px; flex-wrap:wrap; margin-bottom:10px; }
+    .hc-chip {
+      display:flex; align-items:center; gap:5px;
+      padding:7px 14px; border-radius:20px;
+      border:1.5px solid var(--border); background:var(--bg);
+      font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s;
+      color:var(--text-secondary);
+    }
+    .hc-chip.active { border-color:var(--primary); background:var(--primary-light); color:var(--primary); }
+    .hc-section { display:none; border:1.5px solid var(--border); border-radius:var(--radius-sm); padding:13px; margin-bottom:10px; animation:fadeIn 0.2s ease; }
+    .hc-section.show { display:block; }
+    .hc-sec-title { font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:10px; }
+    .hc-rate-row { display:flex; gap:7px; }
+    .hc-rate-btn {
+      flex:1; padding:9px 4px; border-radius:var(--radius-sm);
+      border:1.5px solid var(--border); background:var(--bg);
+      font-size:12px; font-weight:600; cursor:pointer; text-align:center; transition:all 0.2s;
+    }
+    .hc-rate-btn.on { border-color:var(--primary); background:var(--primary-light); color:var(--primary); }
+    .hc-sub-label { font-size:11px; font-weight:600; color:var(--text-secondary); margin:10px 0 6px; }
+    .hc-sub-chips { display:flex; gap:5px; flex-wrap:wrap; }
+    .hc-sub-chip {
+      padding:5px 10px; border-radius:20px; border:1.5px solid var(--border);
+      background:var(--bg); font-size:11px; font-weight:600; cursor:pointer; transition:all 0.2s;
+    }
+    .hc-sub-chip.on { border-color:var(--primary); background:var(--primary-light); color:var(--primary); }
+    .hc-supp-detail { margin-top:10px; padding-top:10px; border-top:1px solid var(--border); display:none; }
+    .hc-supp-detail.show { display:block; }
+    .hc-custom-supp { margin-top:7px; display:flex; gap:6px; }
+    .hc-custom-supp input { flex:1; padding:6px 10px; border:1.5px solid var(--border); border-radius:var(--radius-sm); font-size:12px; background:var(--bg); }
+    .hc-custom-supp button { padding:6px 12px; border-radius:var(--radius-sm); border:none; background:var(--primary); color:#fff; font-size:12px; font-weight:600; cursor:pointer; }
+    .hc-custom-list { margin-top:6px; }
+    .hc-sleep-row { display:flex; align-items:center; justify-content:center; gap:20px; }
+    .hc-sleep-val { font-size:36px; font-weight:700; color:var(--primary); line-height:1; }
+    .hc-sleep-unit { font-size:12px; color:var(--text-secondary); margin-top:2px; text-align:center; }
+    .wo-health-tags { display:flex; gap:5px; flex-wrap:wrap; margin-top:5px; }
+    .wo-health-tag { font-size:10px; padding:2px 7px; border-radius:10px; background:var(--primary-light); color:var(--primary); font-weight:600; }
+    .wo-health-tag-muted { background:var(--border); color:var(--text-secondary); }
+    .wo-health-tag-glucose { background:#FEE2E2; color:#DC2626; }
+
+    /* ── Community Share ── */
+    .share-toggle-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+    .share-toggle-btn {
+      display:flex; align-items:center; gap:7px; padding:9px 16px;
+      border-radius:var(--radius-sm); border:1.5px solid var(--border);
+      background:var(--bg); font-size:13px; font-weight:600; cursor:pointer;
+      transition:all 0.2s; color:var(--text-secondary); flex:1;
+    }
+    .share-toggle-btn.on {
+      border-color:#f97316; background:#FFF7ED; color:#ea580c;
+    }
+    .share-expand { display:none; animation:fadeIn 0.2s ease; }
+    .share-expand.show { display:block; }
+    .share-preview {
+      background:#FFF7ED; border:1.5px solid #fed7aa; border-radius:var(--radius-sm);
+      padding:11px 13px; margin-bottom:8px;
+    }
+    .share-preview-tag { font-size:11px; font-weight:700; color:#ea580c; margin-bottom:5px; }
+    .share-msg-input {
+      width:100%; padding:9px 11px; border:1.5px solid var(--border);
+      border-radius:var(--radius-sm); font-size:13px; font-family:inherit;
+      background:var(--bg); resize:none; line-height:1.5;
+    }
+    .share-msg-input:focus { outline:none; border-color:var(--primary); }
+    .share-hint { font-size:11px; color:var(--text-secondary); margin-top:5px; }
+    .share-section { margin-bottom:13px; }
+    .share-memo-preview { font-size:12px; color:#7c3aed; background:#f5f3ff; border-radius:6px; padding:6px 9px; margin-bottom:8px; line-height:1.5; white-space:pre-wrap; }
+    .share-opts-label { font-size:11px; color:var(--text-secondary); font-weight:600; margin:8px 0 6px; }
+    .share-opts-row { display:flex; gap:7px; flex-wrap:wrap; margin-bottom:8px; }
+    .share-opt-chip {
+      padding:6px 13px; border-radius:20px; border:1.5px solid var(--border);
+      background:var(--bg); font-size:12px; font-weight:600; cursor:pointer;
+      transition:all 0.2s; color:var(--text-secondary);
+    }
+    .share-opt-chip.on { border-color:#f97316; background:#FFF7ED; color:#ea580c; }
+    .post-photo-wrap { border-radius:var(--radius-sm); overflow:hidden; margin-bottom:12px; }
+    .post-photo { width:100%; max-height:260px; object-fit:cover; display:block; }
+    .post-health-card {
+      background:var(--bg); border-radius:var(--radius-sm); padding:10px 12px; margin-bottom:12px;
+    }
+    .post-health-title { font-size:11px; font-weight:700; color:var(--text-secondary); margin-bottom:7px; }
+    .post-health-chips { display:flex; flex-wrap:wrap; gap:5px; }
+    .post-health-chip {
+      font-size:11px; padding:3px 9px; border-radius:12px;
+      background:var(--card); border:1px solid var(--border); color:var(--text); white-space:nowrap;
+    }
+
+    /* ── Blood Glucose ── */
+    .glucose-input-wrap { display:flex; align-items:center; justify-content:center; gap:16px; margin-bottom:12px; }
+    .glucose-val-display { text-align:center; }
+    .glucose-val-num  { font-size:42px; font-weight:700; color:var(--primary); line-height:1; }
+    .glucose-val-unit { font-size:11px; color:var(--text-secondary); margin-top:2px; }
+    .glucose-timing-row { display:flex; gap:6px; flex-wrap:wrap; }
+    .glucose-timing-btn {
+      padding:6px 11px; border-radius:20px; border:1.5px solid var(--border);
+      background:var(--bg); font-size:11px; font-weight:600; cursor:pointer;
+      transition:all 0.2s; color:var(--text-secondary);
+    }
+    .glucose-timing-btn.on { border-color:var(--primary); background:var(--primary-light); color:var(--primary); }
+
+    .glucose-card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+    .glucose-badge-red { background:#FEE2E2; color:#DC2626; }
+    .glucose-input-wrap-sa { display:flex; align-items:center; justify-content:center; gap:16px; margin:12px 0 8px; }
+    .glucose-log-btn { margin-top:10px; }
+    .glucose-history-list { margin-top:12px; }
+    .glucose-item {
+      display:flex; align-items:center; gap:12px;
+      padding:11px 0; border-bottom:1px solid var(--border);
+    }
+    .glucose-item:last-child { border-bottom:none; }
+    .glucose-badge {
+      min-width:58px; padding:5px 8px; border-radius:10px;
+      text-align:center; flex-shrink:0;
+    }
+    .glucose-badge-val  { font-size:16px; font-weight:700; line-height:1; }
+    .glucose-badge-unit { font-size:9px; opacity:0.8; }
+    .glucose-info { flex:1; }
+    .glucose-timing-lbl { font-size:13px; font-weight:600; }
+    .glucose-time       { font-size:11px; color:var(--text-secondary); margin-top:1px; }
+    .glucose-status-tag  { font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px; margin-top:3px; display:inline-block; }
+    .glucose-status-low  { background:#DBEAFE; color:#1D4ED8; }
+    .glucose-status-ok   { background:#D1FAE5; color:#065F46; }
+    .glucose-status-warn { background:#FEF3C7; color:#92400E; }
+    .glucose-status-high { background:#FEE2E2; color:#991B1B; }
+    .glucose-del { background:none; border:none; cursor:pointer; color:var(--text-secondary); font-size:15px; opacity:0.4; transition:opacity 0.2s; }
+    .glucose-del:hover { opacity:1; color:#ef4444; }
+
+    .wo-del { background:none; border:none; cursor:pointer; color:var(--text-secondary); font-size:15px; padding:4px; opacity:0.45; transition:opacity 0.2s; flex-shrink:0; line-height:1; }
+    .wo-del:hover { opacity:1; color:#ef4444; }
+
+    .hero-name { font-size:21px; font-weight:700; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+    .profile-edit-btn { background:rgba(255,255,255,0.22); border:none; cursor:pointer; font-size:12px; padding:3px 10px; border-radius:20px; color:white; flex-shrink:0; }
+    .profile-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:200; display:flex; align-items:center; justify-content:center; padding:20px; }
+    .profile-modal { background:var(--card); border-radius:var(--radius); padding:28px 24px; width:100%; max-width:360px; max-height:88vh; overflow-y:auto; }
+    .pm-title { font-size:18px; font-weight:700; text-align:center; margin-bottom:6px; }
+    .pm-sub { font-size:13px; color:var(--text-secondary); text-align:center; margin-bottom:20px; }
+    /* ── Profile Tags ── */
+    .pm-tags-section { margin:16px 0 20px; }
+    .pm-tags-label { font-size:13px; font-weight:700; margin-bottom:12px; }
+    .pm-tag-category { margin-bottom:12px; }
+    .pm-tag-cat-title { font-size:11px; font-weight:700; color:var(--text-secondary); letter-spacing:0.5px; margin-bottom:6px; }
+    .pm-tag-chips { display:flex; flex-wrap:wrap; gap:6px; }
+    .pm-tag-chip {
+      padding:5px 12px; border-radius:20px; border:1.5px solid var(--border);
+      background:var(--bg); font-size:12px; cursor:pointer; transition:all 0.18s;
+      white-space:nowrap;
+    }
+    .pm-tag-chip.selected { border-color:var(--purple); background:var(--purple-light); color:var(--purple); font-weight:600; }
+    .pm-sel-count { font-size:11px; color:var(--text-secondary); margin-top:8px; }
+    /* Hero card tag display */
+    .hero-tags { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:14px; }
+    .hero-tag { font-size:11px; padding:3px 10px; border-radius:20px; background:rgba(255,255,255,0.2); color:#fff; font-weight:600; }
+    .avatar-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin-bottom:20px; }
+    .avatar-opt { width:100%; aspect-ratio:1; border-radius:50%; background:var(--bg); border:2px solid var(--border); font-size:22px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.2s; }
+    .avatar-opt.selected { border-color:var(--primary); background:#EBF0FF; transform:scale(1.1); }
+    .pm-hidden { display:none !important; }
+    .pm-avatar-label { margin-top:16px; margin-bottom:8px; }
+    .pm-divider { height:1px; background:var(--border); margin:20px 0; }
+    .btn-danger { background:#FEE2E2; color:#DC2626; border:none; }
+    .btn-danger:active { transform:scale(0.97); background:#FECACA; }
+    /* ── Confirm Modal ── */
+    .confirm-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:300; display:flex; align-items:center; justify-content:center; padding:24px; }
+    .confirm-modal { background:var(--card); border-radius:var(--radius); padding:28px 24px 20px; width:100%; max-width:320px; text-align:center; }
+    .confirm-icon { font-size:40px; margin-bottom:12px; }
+    .confirm-title { font-size:17px; font-weight:700; margin-bottom:8px; }
+    .confirm-msg { font-size:13px; color:var(--text-secondary); line-height:1.6; margin-bottom:22px; }
+    .confirm-btns { display:flex; gap:10px; }
+    .confirm-btns .btn { flex:1; }
+    .btn-cancel { background:var(--bg); border:1.5px solid var(--border); }
+
+    .form-label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 7px; }
+    .form-textarea {
+      width: 100%; padding: 11px 14px;
+      border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+      font-family: inherit; font-size: 13px; color: var(--text);
+      resize: none; outline: none; background: var(--bg); transition: border-color 0.2s;
+    }
+    .form-textarea:focus { border-color: var(--primary); background: #fff; }
+
+    /* ══════════════════════════════
+       LEAGUE
+    ══════════════════════════════ */
+    .league-tabs {
+      display: flex; background: var(--border);
+      border-radius: 12px; padding: 4px; margin-bottom: 16px;
+    }
+    .league-tab {
+      flex: 1; padding: 9px; text-align: center;
+      border-radius: 9px; border: none; background: none;
+      font-family: inherit; font-size: 13px; font-weight: 600;
+      color: var(--text-secondary); cursor: pointer; transition: all 0.2s;
+    }
+    .league-tab.active { background: #fff; color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+
+    .my-rank-card {
+      background: linear-gradient(135deg, #EBF0FF, #fff);
+      border-radius: var(--radius); padding: 16px 18px;
+      box-shadow: var(--shadow); margin-bottom: 14px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .my-rank-left .mrl-label { font-size: 12px; color: var(--text-secondary); }
+    .my-rank-left .mrl-rank { font-size: 36px; font-weight: 900; color: var(--primary); line-height: 1; }
+    .my-rank-left .mrl-pct { font-size: 12px; color: var(--text-secondary); }
+    .my-rank-right { text-align: right; }
+    .my-rank-right .mrr-label { font-size: 12px; color: var(--text-secondary); }
+    .my-rank-right .mrr-pts { font-size: 24px; font-weight: 700; color: var(--warning); }
+    .my-rank-right .mrr-change { font-size: 12px; color: var(--secondary); font-weight: 600; }
+
+    /* Podium */
+    .podium {
+      display: flex; align-items: flex-end; justify-content: center; gap: 14px;
+      padding: 18px 0 20px;
+      background: linear-gradient(180deg, var(--primary-light) 0%, transparent 100%);
+      border-radius: var(--radius); margin-bottom: 14px;
+    }
+    .podium-item { display: flex; flex-direction: column; align-items: center; gap: 7px; }
+    .podium-avatar { font-size: 30px; line-height: 1; }
+    .podium-name { font-size: 11px; font-weight: 600; text-align: center; max-width: 70px; }
+    .podium-pts { font-size: 10px; color: var(--text-secondary); }
+    .podium-stand {
+      border-radius: 8px 8px 0 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px; font-weight: 700; color: #fff;
+    }
+    .stand-gold   { background: linear-gradient(180deg, #FFD700, #FFA500); width: 68px; height: 76px; }
+    .stand-silver { background: linear-gradient(180deg, #D0D0D0, #A8A8A8); width: 58px; height: 58px; }
+    .stand-bronze { background: linear-gradient(180deg, #CD7F32, #9A5A2A); width: 58px; height: 44px; }
+
+    .lb-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 13px 14px; border-radius: var(--radius-sm);
+      margin-bottom: 7px; background: #fff; box-shadow: var(--shadow);
+      transition: all 0.2s;
+    }
+    .lb-item.me { background: var(--primary-light); border: 1.5px solid var(--primary); }
+    .lb-rank { font-size: 15px; font-weight: 700; width: 26px; text-align: center; color: var(--text-secondary); }
+    .lb-rank.top3 { color: var(--warning); }
+    .lb-avatar { font-size: 26px; }
+    .lb-info { flex: 1; }
+    .lb-name { font-size: 14px; font-weight: 600; }
+    .lb-level { font-size: 11px; color: var(--text-secondary); display: flex; align-items: center; gap: 3px; }
+    .lb-right { text-align: right; }
+    .lb-pts { font-size: 15px; font-weight: 700; color: var(--warning); }
+    .lb-change { font-size: 11px; font-weight: 600; }
+    .ch-up { color: var(--secondary); } .ch-dn { color: var(--accent); } .ch-eq { color: var(--text-secondary); }
+
+    /* ══════════════════════════════
+       COMMUNITY
+    ══════════════════════════════ */
+    .compose-wrap { display: flex; gap: 11px; align-items: flex-start; margin-bottom: 10px; }
+    .compose-avatar { font-size: 28px; flex-shrink: 0; }
+    .compose-input {
+      flex: 1; padding: 11px 15px; border: 1.5px solid var(--border);
+      border-radius: 18px; font-family: inherit; font-size: 13px;
+      color: var(--text); resize: none; outline: none;
+      background: var(--bg); transition: border-color 0.2s;
+    }
+    .compose-input:focus { border-color: var(--primary); background: #fff; }
+    .compose-actions { display: flex; justify-content: flex-end; }
+
+    .post-card {
+      background: #fff; border-radius: var(--radius);
+      padding: 16px; box-shadow: var(--shadow); margin-bottom: 12px;
+      animation: fadeIn 0.35s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .post-head { display: flex; align-items: center; gap: 10px; margin-bottom: 11px; }
+    .post-av { font-size: 30px; }
+    .post-uname { font-size: 14px; font-weight: 600; }
+    .post-meta { font-size: 11px; color: var(--text-secondary); display: flex; align-items: center; gap: 5px; }
+    .post-del { margin-left:auto; background:none; border:none; cursor:pointer; font-size:15px; opacity:0.35; transition:opacity 0.2s; padding:4px; line-height:1; flex-shrink:0; }
+    .post-del:hover { opacity:1; color:#ef4444; }
+    .post-body { font-size: 14px; line-height: 1.65; margin-bottom: 13px; }
+    .post-tags-row { display:flex; flex-wrap:wrap; gap:4px; margin:5px 0 10px; }
+    .profile-tag { font-size:10px; padding:2px 8px; border-radius:12px; background:var(--purple-light); color:var(--purple); font-weight:600; white-space:nowrap; }
+    .lb-tags { display:flex; flex-wrap:wrap; gap:3px; margin-top:4px; }
+    .post-exercise-tag {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: var(--secondary-light); color: #166534;
+      padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+      margin-bottom: 13px;
+    }
+    .sticker-row { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 11px; }
+    .sticker-btn {
+      display: flex; align-items: center; gap: 4px;
+      padding: 5px 11px; border-radius: 20px;
+      border: 1.5px solid var(--border); background: var(--bg);
+      cursor: pointer; font-size: 12px; font-family: inherit; font-weight: 500;
+      transition: all 0.2s;
+    }
+    .sticker-btn:active { transform: scale(0.93); }
+    .sticker-btn.on { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
+    .sticker-emoji { font-size: 15px; }
+    .sticker-cnt { color: var(--text-secondary); }
+    .sticker-btn.on .sticker-cnt { color: var(--primary); }
+    .comment-btn {
+      display: flex; align-items: center; gap: 5px;
+      background: none; border: none; cursor: pointer;
+      font-family: inherit; font-size: 12px; color: var(--text-secondary);
+      padding: 0; transition: color 0.2s;
+    }
+    .comment-btn:hover { color: var(--primary); }
+
+    /* ── Feed filter ── */
+    .feed-filter-row { display:flex; gap:7px; overflow-x:auto; padding-bottom:4px; margin-bottom:12px; }
+    .feed-filter-row::-webkit-scrollbar { display:none; }
+    .feed-filter-chip { padding:6px 14px; border-radius:20px; border:1.5px solid var(--border); background:var(--card); font-size:12px; font-weight:600; cursor:pointer; white-space:nowrap; transition:all 0.2s; flex-shrink:0; }
+    .feed-filter-chip.on { border-color:var(--primary); background:var(--primary-light); color:var(--primary); }
+    /* ── Comment modal ── */
+    .comment-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:200; display:flex; align-items:flex-end; justify-content:center; }
+    .comment-modal { background:var(--card); border-radius:var(--radius-lg) var(--radius-lg) 0 0; width:100%; max-width:480px; max-height:78vh; display:flex; flex-direction:column; }
+    .cm-header { display:flex; align-items:center; justify-content:space-between; padding:16px 20px 12px; border-bottom:1px solid var(--border); flex-shrink:0; }
+    .cm-title { font-size:16px; font-weight:700; }
+    .cm-close { background:none; border:none; font-size:22px; cursor:pointer; color:var(--text-secondary); line-height:1; padding:2px 6px; }
+    .cm-list { flex:1; overflow-y:auto; padding:14px 18px; }
+    .cm-item { display:flex; gap:10px; margin-bottom:14px; }
+    .cm-av { font-size:24px; flex-shrink:0; line-height:1.2; }
+    .cm-bubble { background:var(--bg); border-radius:0 12px 12px 12px; padding:9px 12px; flex:1; }
+    .cm-name { font-size:11px; font-weight:700; margin-bottom:3px; color:var(--text); }
+    .cm-body { font-size:13px; line-height:1.55; }
+    .cm-time { font-size:10px; color:var(--text-secondary); margin-top:4px; }
+    .cm-empty { text-align:center; padding:36px 0; color:var(--text-secondary); font-size:13px; }
+    .cm-compose { display:flex; align-items:center; gap:8px; padding:12px 16px; border-top:1px solid var(--border); flex-shrink:0; }
+    .cm-compose-av { font-size:24px; flex-shrink:0; }
+    .cm-input { flex:1; padding:9px 14px; border:1.5px solid var(--border); border-radius:20px; font-size:13px; font-family:inherit; background:var(--bg); }
+    .cm-input:focus { outline:none; border-color:var(--primary); }
+    .cm-send { padding:9px 16px; border-radius:20px; border:none; background:var(--primary); color:#fff; font-size:13px; font-weight:700; cursor:pointer; flex-shrink:0; }
+    .btn-compose { padding:9px 18px; font-size:13px; }
+
+    /* ══════════════════════════════
+       REWARDS
+    ══════════════════════════════ */
+    .balance-card {
+      background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+      border-radius: var(--radius-lg); padding: 22px;
+      color: #fff; margin-bottom: 18px; text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .balance-card::before { content: '✨'; position: absolute; font-size: 90px; top: -15px; right: -15px; opacity: 0.15; }
+    .bal-label { font-size: 13px; opacity: 0.9; }
+    .bal-amt { font-size: 52px; font-weight: 900; line-height: 1.1; }
+    .bal-sub { font-size: 12px; opacity: 0.8; margin-top: 3px; }
+
+    .section-title { font-size: 16px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 7px; }
+
+    .reward-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; margin-bottom: 18px; }
+    .reward-card {
+      background: #fff; border-radius: var(--radius); padding: 14px;
+      box-shadow: var(--shadow); text-align: center;
+      cursor: pointer; transition: all 0.2s; border: 2px solid transparent;
+    }
+    .reward-card:active { transform: scale(0.97); }
+    .reward-card.can { border-color: var(--secondary); }
+    .reward-card.done { opacity: 0.55; cursor: default; }
+    .reward-emoji { font-size: 34px; margin-bottom: 7px; }
+    .reward-name { font-size: 12px; font-weight: 600; margin-bottom: 6px; }
+    .reward-cost {
+      display: inline-flex; align-items: center; gap: 3px;
+      font-size: 11px; font-weight: 700; color: var(--warning);
+      background: var(--warning-light); padding: 3px 9px; border-radius: 20px;
+    }
+    .reward-done-label { font-size: 11px; font-weight: 600; color: var(--secondary); }
+
+    .ach-list { display: grid; gap: 10px; }
+    .ach-item {
+      display: flex; align-items: center; gap: 13px;
+      padding: 14px; background: #fff; border-radius: var(--radius-sm); box-shadow: var(--shadow);
+    }
+    .ach-item.locked { opacity: 0.5; }
+    .ach-badge {
+      width: 48px; height: 48px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; flex-shrink: 0;
+    }
+    .ach-badge.earned { background: linear-gradient(135deg, var(--warning), #D97706); }
+    .ach-badge.pending { background: var(--border); filter: grayscale(0.7); }
+    .ach-info { flex: 1; }
+    .ach-name { font-size: 13px; font-weight: 600; }
+    .ach-desc { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+    .ach-prog-bar { height: 4px; background: var(--border); border-radius: 2px; margin-top: 7px; overflow: hidden; }
+    .ach-prog-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); border-radius: 2px; }
+
+    /* Level guide */
+    .level-guide { display: grid; gap: 8px; }
+    .lg-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 11px 13px; background: #fff;
+      border-radius: var(--radius-sm); box-shadow: var(--shadow);
+    }
+    .lg-icon { font-size: 26px; }
+    .lg-info { flex: 1; }
+    .lg-name { font-size: 13px; font-weight: 600; }
+    .lg-range { font-size: 11px; color: var(--text-secondary); }
+    .lg-current { font-size: 11px; font-weight: 700; color: var(--primary); }
+    .lg-row.current-level { border: 1.5px solid var(--primary); background: var(--primary-light); }
+
+    /* Divider */
+    .divider { height: 1px; background: var(--border); margin: 14px 0; }
+
+    /* Pulse animation */
+    @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+    .pulse { animation: pulse 2s ease-in-out infinite; }
+
+    /* Notification dot */
+    .notif-dot {
+      position: absolute; top: -2px; right: -2px;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--accent); border: 2px solid #fff;
+    }
+    .nav-icon-wrap { position: relative; display: inline-block; }
+
+    .empty-state { text-align: center; padding: 36px 20px; color: var(--text-secondary); }
+    .empty-state .ei { font-size: 44px; margin-bottom: 10px; }
+    .empty-state p { font-size: 13px; }
+
+    /* ══════════════════════════════
+       CHALLENGE TAB
+    ══════════════════════════════ */
+    .ch-phase-card {
+      border-radius: var(--radius-lg); padding: 20px; color: #fff;
+      margin-bottom: 14px; position: relative; overflow: hidden;
+    }
+    .ch-phase-card::before { content:''; position:absolute; top:-30px; right:-30px; width:110px; height:110px; background:rgba(255,255,255,0.1); border-radius:50%; }
+    .ch-phase-badge { display:inline-flex; align-items:center; gap:5px; background:rgba(255,255,255,0.2); padding:5px 12px; border-radius:20px; font-size:11px; font-weight:700; margin-bottom:10px; }
+    .ch-phase-title { font-size:17px; font-weight:700; margin-bottom:4px; }
+    .ch-phase-desc  { font-size:12px; opacity:0.85; margin-bottom:14px; line-height:1.5; }
+    .ch-phase-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+    .ch-phase-stat  { background:rgba(255,255,255,0.15); border-radius:10px; padding:10px 6px; text-align:center; }
+    .ch-phase-val   { font-size:19px; font-weight:700; }
+    .ch-phase-lbl   { font-size:10px; opacity:0.8; margin-top:2px; }
+
+    .ch-reg-card { background:var(--secondary-light); border-radius:var(--radius); padding:16px; margin-bottom:14px; border:1.5px solid var(--secondary); }
+    .ch-reg-title { font-size:14px; font-weight:700; color:#166534; margin-bottom:10px; }
+    .ch-reg-row { display:flex; justify-content:space-between; font-size:13px; padding:7px 0; border-bottom:1px solid rgba(22,101,52,0.1); }
+    .ch-reg-row:last-child { border-bottom:none; }
+    .ch-reg-label { color:var(--text-secondary); }
+    .ch-reg-value { font-weight:600; color:#166534; }
+
+    .ch-tl { position:relative; padding-left:30px; }
+    .ch-tl::before { content:''; position:absolute; left:10px; top:8px; bottom:8px; width:2px; background:linear-gradient(180deg,var(--primary),var(--secondary)); border-radius:1px; }
+    .ch-tl-item { position:relative; margin-bottom:18px; }
+    .ch-tl-dot { position:absolute; left:-24px; top:4px; width:14px; height:14px; border-radius:50%; border:2.5px solid; }
+    .ch-tl-dot.done   { background:var(--secondary); border-color:var(--secondary); }
+    .ch-tl-dot.active { background:var(--primary); border-color:var(--primary); animation:pulse 2s infinite; }
+    .ch-tl-dot.future { background:#fff; border-color:var(--border); }
+    .ch-tl-date  { font-size:11px; color:var(--text-secondary); font-weight:600; }
+    .ch-tl-title { font-size:14px; font-weight:600; margin:2px 0; }
+    .ch-tl-desc  { font-size:12px; color:var(--text-secondary); line-height:1.5; }
+    .ch-tl-tag   { display:inline-block; margin-top:5px; padding:3px 9px; border-radius:20px; font-size:11px; font-weight:600; }
+    .ch-tl-tag.pre  { background:var(--primary-light); color:var(--primary); }
+    .ch-tl-tag.main { background:var(--accent-light); color:var(--accent); }
+
+    .ch-form-input, .ch-form-select {
+      width:100%; padding:10px 13px;
       border:1.5px solid var(--border); border-radius:var(--radius-sm);
-      font-family:inherit; font-size:14px; color:var(--text);
+      font-family:inherit; font-size:13px; color:var(--text);
       outline:none; background:var(--bg); transition:all 0.2s; appearance:none;
     }
-    .form-input:focus, .form-select:focus, .form-textarea:focus {
-      border-color:var(--primary); background:#fff;
-      box-shadow:0 0 0 3px rgba(79,70,229,0.1);
-    }
-    .form-select {
-      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
-      background-repeat:no-repeat; background-position:right 12px center; background-size:18px; padding-right:40px;
-    }
-    .form-textarea { resize:vertical; min-height:82px; }
-    .form-hint { font-size:11px; color:var(--text-3); margin-top:5px; }
-    .radio-group { display:flex; gap:10px; flex-wrap:wrap; }
-    .radio-label {
-      display:flex; align-items:center; gap:8px;
-      padding:10px 16px; border-radius:var(--radius-sm);
-      border:1.5px solid var(--border); cursor:pointer; font-size:14px;
-      transition:all 0.2s; background:var(--bg); user-select:none;
-    }
-    .radio-label:has(input:checked) { border-color:var(--primary); background:var(--primary-light); color:var(--primary); font-weight:700; }
-    .radio-label input { display:none; }
-    .divider { height:1px; background:var(--border); margin:24px 0; }
-    .consent-box { background:#F9FAFB; border-radius:var(--radius-sm); padding:16px; border:1px solid var(--border); margin-bottom:20px; }
-    .consent-text { font-size:12px; color:var(--text-3); line-height:1.75; margin-bottom:12px; }
-    .consent-check { display:flex; align-items:center; gap:10px; cursor:pointer; font-size:13px; font-weight:600; }
-    .consent-check input { width:18px; height:18px; accent-color:var(--primary); cursor:pointer; }
-    .form-submit {
-      width:100%; padding:16px;
-      background:linear-gradient(135deg,var(--primary),var(--primary-dark));
-      color:#fff; border:none; border-radius:var(--radius-sm);
-      font-family:inherit; font-size:16px; font-weight:700; cursor:pointer;
-      transition:all 0.25s; box-shadow:0 6px 22px rgba(79,70,229,0.35);
-    }
-    .form-submit:hover { transform:translateY(-2px); box-shadow:0 10px 30px rgba(79,70,229,0.45); }
-    .form-submit:active { transform:scale(0.99); }
-    .submit-note { text-align:center; font-size:12px; color:var(--text-3); margin-top:12px; line-height:1.6; }
-
-    /* ── SUCCESS ── */
-    .success-wrap { display:none; max-width:480px; margin:36px auto 0; text-align:center; padding:52px 28px; background:#fff; border-radius:20px; box-shadow:var(--shadow-lg); }
-    .success-wrap.show { display:block; }
-    .success-icon { font-size:70px; margin-bottom:18px; }
-    .success-title { font-size:24px; font-weight:700; margin-bottom:10px; }
-    .success-desc { font-size:14px; color:var(--text-3); line-height:1.75; margin-bottom:22px; }
-    .success-id { display:inline-block; background:var(--primary-light); color:var(--primary); padding:9px 22px; border-radius:30px; font-size:14px; font-weight:700; }
-
-    /* ── FOOTER ── */
-    footer { background:#1e1b4b; color:rgba(255,255,255,0.65); padding:44px 20px; text-align:center; }
-    .ft-logo { font-size:18px; font-weight:700; color:#fff; margin-bottom:8px; }
-    .ft-desc { font-size:12px; line-height:1.9; }
-    .ft-link { color:rgba(255,255,255,0.5); text-decoration:none; font-size:12px; border-bottom:1px solid rgba(255,255,255,0.2); }
-    .ft-link:hover { color:#fff; }
-
-    /* ── ANIM ── */
-    .fade-up { opacity:0; transform:translateY(24px); transition:opacity 0.65s ease, transform 0.65s ease; }
-    .fade-up.vis { opacity:1; transform:translateY(0); }
-    .fade-up:nth-child(2){ transition-delay:0.1s; }
-    .fade-up:nth-child(3){ transition-delay:0.2s; }
-    .fade-up:nth-child(4){ transition-delay:0.3s; }
-
-    /* ── DUPLICATE WARNING ── */
-    .dup-warning { display:none; padding:11px 14px; background:var(--amber-light); border:1px solid var(--amber); border-radius:var(--radius-sm); font-size:13px; color:#92400E; margin-bottom:14px; }
-    .dup-warning.show { display:block; }
-
-    /* Error state */
-    .form-input.error, .form-select.error { border-color:var(--red); background:var(--red-light); }
-    .form-error { font-size:11px; color:var(--red); margin-top:4px; display:none; }
-    .form-error.show { display:block; }
+    .ch-form-input:focus, .ch-form-select:focus { border-color:var(--primary); background:#fff; }
+    .ch-form-select { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; background-size:16px; padding-right:34px; }
+    .ch-form-group { margin-bottom:13px; }
+    .ch-row2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .ch-radio-group { display:flex; gap:8px; }
+    .ch-radio-label { display:flex; align-items:center; justify-content:center; gap:6px; padding:9px 12px; border-radius:var(--radius-sm); border:1.5px solid var(--border); cursor:pointer; font-size:13px; transition:all 0.2s; background:var(--bg); user-select:none; flex:1; }
+    .ch-radio-label:has(input:checked) { border-color:var(--primary); background:var(--primary-light); color:var(--primary); font-weight:700; }
+    .ch-radio-label input { display:none; }
+    .ch-consent { background:var(--bg); border-radius:var(--radius-sm); padding:12px; border:1px solid var(--border); margin-bottom:13px; }
+    .ch-consent-text { font-size:11px; color:var(--text-secondary); line-height:1.6; margin-bottom:8px; }
+    .ch-consent-check { display:flex; align-items:center; gap:8px; cursor:pointer; font-size:12px; font-weight:600; }
+    .ch-consent-check input { width:16px; height:16px; accent-color:var(--primary); }
+    .ch-dup-warn { display:none; padding:10px 13px; background:var(--warning-light); border-radius:var(--radius-sm); font-size:12px; color:#92400E; margin-bottom:12px; }
+    .ch-dup-warn.show { display:block; }
   </style>
 </head>
 <body>
 
-<!-- NAV -->
-<nav class="nav">
-  <a class="nav-logo" href="#">
-    <div class="nav-logo-icon">💙</div>
-    <span class="nav-logo-text">HI Health</span>
-  </a>
-  <div class="nav-right">
-    <a href="challenge-admin.html" class="nav-admin">🔒 관리자</a>
-    <a href="#apply" class="nav-cta">신청하기 →</a>
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<!-- Header -->
+<header class="app-header">
+  <div class="header-logo">
+    <div class="logo-icon">💙</div>
+    <span class="logo-text">HI Health</span>
   </div>
+  <div class="header-right">
+    <div class="header-points" id="header-pts" onclick="navigate('rewards')">
+      ⭐ <span id="hpts-val">0</span>p
+    </div>
+    <div class="header-avatar" id="header-avatar" onclick="openProfileModal()" title="프로필 설정"></div>
+  </div>
+</header>
+
+<!-- App content -->
+<main class="app-content">
+
+  <!-- ████  HOME  ████ -->
+  <section id="page-home" class="page active">
+
+    <div class="hero-card">
+      <p class="hero-greeting">안녕하세요! 오늘도 건강하게 👋</p>
+      <h2 class="hero-name"><span id="hero-name">사용자님</span></h2>
+      <div class="hero-tags" id="hero-tags"></div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-value" id="today-cnt">0</div>
+          <div class="hero-stat-label">오늘 운동</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value" id="today-min">0</div>
+          <div class="hero-stat-label">운동(분)</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value" id="today-pts">+0</div>
+          <div class="hero-stat-label">획득 포인트</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="level-card">
+      <div class="level-header">
+        <div class="level-info">
+          <span class="level-icon-large" id="lv-icon">🌱</span>
+          <div>
+            <div class="level-name" id="lv-name">새싹</div>
+            <div class="level-num" id="lv-num">레벨 1</div>
+          </div>
+        </div>
+        <div class="streak-badge">🔥 <span id="streak-num">0</span>일 연속</div>
+      </div>
+      <div class="level-bar-bg">
+        <div class="level-bar-fill" id="lv-bar" style="width:0%"></div>
+      </div>
+      <div class="level-bar-text">
+        <span id="lv-cur-pts">0p</span>
+        <span id="lv-next-pts">다음 레벨까지 200p</span>
+      </div>
+    </div>
+
+    <div class="quick-grid">
+      <button class="quick-btn" onclick="navigate('exercise')">
+        <div class="qi-icon" style="background:#EBF0FF">🏃</div>
+        <div><div class="qi-title">운동 기록</div><div class="qi-sub">오늘 운동 추가</div></div>
+      </button>
+      <button class="quick-btn" onclick="navigate('league')">
+        <div class="qi-icon" style="background:#FFF8E1">🏆</div>
+        <div><div class="qi-title">내 순위</div><div class="qi-sub" id="my-rank-quick">순위 확인</div></div>
+      </button>
+      <button class="quick-btn" onclick="navigate('community')">
+        <div class="qi-icon" style="background:#E8FAF1">💬</div>
+        <div><div class="qi-title">커뮤니티</div><div class="qi-sub">응원 메시지 보기</div></div>
+      </button>
+      <button class="quick-btn" onclick="navigate('rewards')">
+        <div class="qi-icon" style="background:#FFE8E8">🎁</div>
+        <div><div class="qi-title">보상</div><div class="qi-sub" id="pts-quick">0p 보유</div></div>
+      </button>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">이번 주 활동</span>
+        <span class="badge badge-primary" id="week-total-badge">0분</span>
+      </div>
+      <div class="week-grid" id="week-grid"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">획득한 배지</span>
+        <span class="badge badge-warning" id="ach-count-badge">0개</span>
+      </div>
+      <div class="ach-strip" id="ach-strip-home"></div>
+    </div>
+
+  </section>
+
+  <!-- ████  EXERCISE  ████ -->
+  <section id="page-exercise" class="page">
+
+    <div class="card">
+      <p class="card-title" style="margin-bottom:13px">운동 종류 선택</p>
+      <div class="ex-type-grid" id="ex-type-grid"></div>
+      <div id="custom-ex-wrap" class="custom-ex-wrap">
+        <input type="text" class="ch-form-input" id="custom-ex-name"
+               placeholder="운동 이름을 입력하세요 (예: 줄넘기, 배드민턴...)"
+               maxlength="20" oninput="updatePtsPreview()">
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="card-title" style="margin-bottom:5px">운동 시간</p>
+      <div class="duration-wrap">
+        <button type="button" class="dur-btn" onclick="changeDur(-5)">−</button>
+        <div class="dur-display">
+          <div class="dur-val" id="dur-val">30</div>
+          <div class="dur-unit">분</div>
+        </div>
+        <button type="button" class="dur-btn" onclick="changeDur(5)">+</button>
+      </div>
+      <div class="pts-preview">
+        <div class="pts-preview-val" id="pts-prev">+15</div>
+        <div class="pts-preview-lbl">획득 예정 포인트</div>
+      </div>
+      <div style="margin-bottom:13px">
+        <label class="form-label">메모 (선택)</label>
+        <textarea class="form-textarea" id="ex-memo" rows="2" placeholder="오늘 운동 소감을 남겨보세요..." oninput="if(_shareOn) updateSharePreview()"></textarea>
+      </div>
+      <div>
+        <label class="form-label">📷 운동 인증 사진 (선택)</label>
+        <div class="photo-upload-area" id="photo-upload-area" onclick="triggerPhotoInput()">
+          <div id="photo-placeholder">
+            <div class="pu-icon">📷</div>
+            <div class="pu-label">사진을 찍거나 갤러리에서 선택</div>
+            <div class="pu-hint">운동 인증 사진을 첨부하면 +5p 추가!</div>
+          </div>
+          <img id="photo-preview-img" class="photo-preview-img" alt="운동 인증">
+          <div id="photo-del-wrap">
+            <button type="button" class="photo-del-btn" onclick="clearPhoto(event)">✕ 사진 삭제</button>
+          </div>
+        </div>
+        <input type="file" id="photo-input" accept="image/*" onchange="handlePhotoInput(this)">
+      </div>
+
+      <div style="margin-bottom:13px">
+        <label class="form-label">🩺 건강 체크 (선택)</label>
+        <div class="hc-chips">
+          <button type="button" class="hc-chip" id="hc-diet-btn" onclick="toggleHC('diet')">🥗 식단</button>
+          <button type="button" class="hc-chip" id="hc-sleep-btn" onclick="toggleHC('sleep')">😴 수면</button>
+          <button type="button" class="hc-chip" id="hc-supp-btn"    onclick="toggleHC('supp')">💊 영양제</button>
+        </div>
+        <div class="hc-section" id="hc-diet-sec">
+          <div class="hc-sec-title">오늘 식단은 어떠셨나요?</div>
+          <div class="hc-rate-row">
+            <button type="button" class="hc-rate-btn" id="diet-good"  onclick="setDiet('잘먹음')">🥗 잘먹음</button>
+            <button type="button" class="hc-rate-btn" id="diet-norm"  onclick="setDiet('보통')">🍽️ 보통</button>
+            <button type="button" class="hc-rate-btn" id="diet-over"  onclick="setDiet('과식')">🍔 과식</button>
+            <button type="button" class="hc-rate-btn" id="diet-bad"   onclick="setDiet('불량')">😔 불량</button>
+          </div>
+          <div class="hc-sub-label">식사 종류 (복수 선택)</div>
+          <div class="hc-sub-chips">
+            <button type="button" class="hc-sub-chip hc-meal-chip" data-name="아침" onclick="toggleMeal('아침')">🌅 아침</button>
+            <button type="button" class="hc-sub-chip hc-meal-chip" data-name="아점" onclick="toggleMeal('아점')">🥪 아점</button>
+            <button type="button" class="hc-sub-chip hc-meal-chip" data-name="점심" onclick="toggleMeal('점심')">☀️ 점심</button>
+            <button type="button" class="hc-sub-chip hc-meal-chip" data-name="저녁" onclick="toggleMeal('저녁')">🌙 저녁</button>
+            <button type="button" class="hc-sub-chip hc-meal-chip" data-name="간식" onclick="toggleMeal('간식')">🍪 간식</button>
+            <button type="button" class="hc-sub-chip hc-meal-chip" data-name="야식" onclick="toggleMeal('야식')">🌃 야식</button>
+          </div>
+        </div>
+        <div class="hc-section" id="hc-sleep-sec">
+          <div class="hc-sec-title">어젯밤 수면 시간은?</div>
+          <div class="hc-sleep-row">
+            <button type="button" class="dur-btn" onclick="changeSleep(-0.5)">−</button>
+            <div>
+              <div class="hc-sleep-val" id="sleep-val">7</div>
+              <div class="hc-sleep-unit">시간</div>
+            </div>
+            <button type="button" class="dur-btn" onclick="changeSleep(0.5)">+</button>
+          </div>
+        </div>
+        <div class="hc-section" id="hc-supp-sec">
+          <div class="hc-sec-title">오늘 영양제를 복용하셨나요?</div>
+          <div class="hc-rate-row">
+            <button type="button" class="hc-rate-btn" id="supp-yes" onclick="setSupp(true)">💊 복용완료</button>
+            <button type="button" class="hc-rate-btn" id="supp-no"  onclick="setSupp(false)">✗ 미복용</button>
+          </div>
+          <div class="hc-supp-detail" id="hc-supp-detail">
+            <div class="hc-sub-label">복용한 영양제 (복수 선택)</div>
+            <div class="hc-sub-chips">
+              <button type="button" class="hc-sub-chip hc-supp-preset" data-name="비타민C"    onclick="toggleSuppItem('비타민C')">비타민C</button>
+              <button type="button" class="hc-sub-chip hc-supp-preset" data-name="비타민D"    onclick="toggleSuppItem('비타민D')">비타민D</button>
+              <button type="button" class="hc-sub-chip hc-supp-preset" data-name="오메가3"    onclick="toggleSuppItem('오메가3')">오메가3</button>
+              <button type="button" class="hc-sub-chip hc-supp-preset" data-name="철분"       onclick="toggleSuppItem('철분')">철분</button>
+              <button type="button" class="hc-sub-chip hc-supp-preset" data-name="칼슘"       onclick="toggleSuppItem('칼슘')">칼슘</button>
+              <button type="button" class="hc-sub-chip hc-supp-preset" data-name="마그네슘"   onclick="toggleSuppItem('마그네슘')">마그네슘</button>
+              <button type="button" class="hc-sub-chip hc-supp-preset" data-name="유산균"     onclick="toggleSuppItem('유산균')">유산균</button>
+              <button type="button" class="hc-sub-chip hc-supp-preset" data-name="종합비타민" onclick="toggleSuppItem('종합비타민')">종합비타민</button>
+            </div>
+            <div class="hc-custom-supp">
+              <input type="text" id="supp-custom-input" placeholder="기타 직접 입력" maxlength="20">
+              <button type="button" onclick="addCustomSupp()">추가</button>
+            </div>
+            <div class="hc-sub-chips hc-custom-list" id="supp-custom-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="share-section">
+        <div class="share-toggle-row">
+          <button type="button" class="share-toggle-btn" id="share-toggle-btn" onclick="toggleShare()">
+            <span id="share-toggle-icon">📣</span> 커뮤니티에 공유하기
+          </button>
+        </div>
+        <div class="share-expand" id="share-expand">
+          <div class="share-preview">
+            <div class="share-preview-tag" id="share-ex-tag">🏃 달리기 30분</div>
+            <div class="share-memo-preview pm-hidden" id="share-memo-preview"></div>
+            <textarea class="share-msg-input" id="share-msg" rows="3" placeholder="공유할 메시지를 입력하세요..."></textarea>
+          </div>
+          <div id="share-options"></div>
+          <div class="share-hint">💡 운동 종목·시간이 자동으로 태그됩니다</div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary btn-full" onclick="logExercise()">💪 운동 기록하기</button>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">운동 기록</span>
+        <span class="badge badge-success" id="wo-total-badge">총 0회</span>
+      </div>
+      <div id="wo-history"></div>
+    </div>
+
+    <div class="card">
+      <div class="glucose-card-header">
+        <span class="card-title">🩸 혈당 기록</span>
+        <span class="badge glucose-badge-red" id="glucose-total-badge">총 0회</span>
+      </div>
+      <div class="glucose-input-wrap-sa">
+        <button type="button" class="dur-btn" onclick="changeGlucoseVal(-5)">−</button>
+        <div class="glucose-val-display">
+          <span class="glucose-val-num" id="sa-glucose-num">100</span>
+          <span class="glucose-val-unit">mg/dL</span>
+        </div>
+        <button type="button" class="dur-btn" onclick="changeGlucoseVal(5)">+</button>
+      </div>
+      <div class="glucose-timing-row">
+        <button type="button" class="glucose-timing-btn" id="sa-gt-fasting"  onclick="setGlucoseTiming('공복')">공복</button>
+        <button type="button" class="glucose-timing-btn" id="sa-gt-after2h"  onclick="setGlucoseTiming('식후2h')">식후 2h</button>
+        <button type="button" class="glucose-timing-btn" id="sa-gt-before"   onclick="setGlucoseTiming('식전')">식전</button>
+        <button type="button" class="glucose-timing-btn" id="sa-gt-bedtime"  onclick="setGlucoseTiming('취침전')">취침 전</button>
+      </div>
+      <button class="btn btn-primary btn-full glucose-log-btn" onclick="logGlucoseStandalone()">🩸 혈당 기록하기</button>
+      <div class="glucose-history-list" id="glucose-history"></div>
+    </div>
+
+  </section>
+
+  <!-- ████  LEAGUE  ████ -->
+  <section id="page-league" class="page">
+
+    <div class="league-tabs">
+      <button class="league-tab active" data-tab="weekly"  onclick="setTab(this,'weekly')">이번 주</button>
+      <button class="league-tab"        data-tab="monthly" onclick="setTab(this,'monthly')">이번 달</button>
+      <button class="league-tab"        data-tab="alltime" onclick="setTab(this,'alltime')">전체 기록</button>
+    </div>
+
+    <div class="my-rank-card" id="my-rank-card"></div>
+
+    <div class="podium" id="podium"></div>
+
+    <div id="lb-list"></div>
+
+  </section>
+
+  <!-- ████  COMMUNITY  ████ -->
+  <section id="page-community" class="page">
+
+    <div class="card">
+      <div class="compose-wrap">
+        <span class="compose-avatar" id="compose-av">🏃</span>
+        <textarea class="compose-input" id="post-input" rows="2" placeholder="운동 완료 후기나 응원 메시지를 남겨보세요!"></textarea>
+      </div>
+      <div class="compose-actions">
+        <button class="btn btn-primary btn-compose" onclick="submitPost()">게시하기</button>
+      </div>
+    </div>
+
+    <div class="feed-filter-row" id="feed-filter-row"></div>
+    <div id="posts-feed"></div>
+
+  </section>
+
+  <!-- ████  REWARDS  ████ -->
+  <section id="page-rewards" class="page">
+
+    <div class="balance-card">
+      <p class="bal-label">보유 포인트</p>
+      <p class="bal-amt" id="bal-display">0</p>
+      <p class="bal-sub">⭐ 포인트로 다양한 혜택을 누리세요!</p>
+    </div>
+
+    <p class="section-title">🎁 교환 가능한 보상</p>
+    <div class="reward-grid" id="reward-grid"></div>
+
+    <p class="section-title">🏅 달성 배지</p>
+    <div class="ach-list" id="ach-list"></div>
+
+    <div style="margin-top:6px"></div>
+    <p class="section-title">📊 레벨 안내</p>
+    <div class="level-guide" id="level-guide"></div>
+
+  </section>
+
+  <!-- ████  CHALLENGE  ████ -->
+  <section id="page-challenge" class="page">
+
+    <div id="ch-phase-card"></div>
+    <div id="ch-reg-status"></div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">📅 챌린지 일정</span>
+      </div>
+      <div class="ch-tl" id="ch-timeline"></div>
+    </div>
+
+  </section>
+
+</main>
+
+<!-- Bottom Nav -->
+<nav class="app-nav">
+  <button class="nav-btn active" onclick="navigate('home')" data-page="home">
+    <span class="nav-icon">🏠</span><span class="nav-label">홈</span>
+  </button>
+  <button class="nav-btn" onclick="navigate('exercise')" data-page="exercise">
+    <span class="nav-icon">🏃</span><span class="nav-label">운동</span>
+  </button>
+  <button class="nav-btn" onclick="navigate('league')" data-page="league">
+    <span class="nav-icon">🏆</span><span class="nav-label">리그</span>
+  </button>
+  <button class="nav-btn" onclick="navigate('community')" data-page="community">
+    <span class="nav-icon">💬</span><span class="nav-label">커뮤니티</span>
+  </button>
+  <button class="nav-btn" onclick="navigate('rewards')" data-page="rewards">
+    <span class="nav-icon">🎁</span><span class="nav-label">보상</span>
+  </button>
+  <button class="nav-btn" onclick="navigate('challenge')" data-page="challenge">
+    <span class="nav-icon">🏅</span><span class="nav-label">챌린지</span>
+  </button>
 </nav>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-bg-circle" style="width:400px;height:400px;top:-120px;right:-120px;"></div>
-  <div class="hero-bg-circle" style="width:250px;height:250px;bottom:-60px;left:-60px;"></div>
-  <div class="hero-badge">🏥 2026 HI Health · 직원 건강 증진 프로그램</div>
-  <h1 class="hero-title">건강하게 걸어요,<br><span class="hl">함께 달려요!</span></h1>
-  <p class="hero-sub">운동 인증부터 포인트 적립까지<br>병원 가족 모두 함께하는 건강 챌린지</p>
-  <div class="hero-chips">
-    <div class="hero-chip">
-      <div class="chip-label">📢 신청 기간</div>
-      <div class="chip-val">3/16 ~ 3/18</div>
-    </div>
-    <div class="hero-chip">
-      <div class="chip-label">🏃 프리 챌린지</div>
-      <div class="chip-val">3/22 ~ 4/4</div>
-    </div>
-    <div class="hero-chip">
-      <div class="chip-label">💪 본 챌린지</div>
-      <div class="chip-val">4/5 ~ 4/14</div>
-    </div>
-  </div>
-  <div class="countdown" id="countdown">
-    <div class="cd-box"><div class="cd-val" id="cd-d">--</div><div class="cd-lbl">일</div></div>
-    <div class="cd-box"><div class="cd-val" id="cd-h">--</div><div class="cd-lbl">시간</div></div>
-    <div class="cd-box"><div class="cd-val" id="cd-m">--</div><div class="cd-lbl">분</div></div>
-    <div class="cd-box"><div class="cd-val" id="cd-s">--</div><div class="cd-lbl">초</div></div>
-  </div>
-  <a href="#apply" class="hero-cta">✍️ 지금 신청하기</a>
-  <div class="hero-scroll"><span>자세히 보기</span><span style="font-size:20px">↓</span></div>
-</section>
-
-<!-- PHASE CARDS -->
-<section class="section phase-bg">
-  <div class="section-inner">
-    <div style="text-align:center; margin-bottom:6px">
-      <span class="s-tag s-tag-purple fade-up">📋 챌린지 구성</span>
-    </div>
-    <h2 class="s-title fade-up" style="text-align:center">2단계 챌린지로 진행돼요</h2>
-    <p class="s-desc fade-up" style="text-align:center">가볍게 시작해서 본격적으로! 두 단계로 나눠 함께 달려요</p>
-    <div class="phase-grid">
-      <div class="phase-card pre fade-up">
-        <div class="pc-step">STEP 01 · 프리 챌린지</div>
-        <div class="pc-title">🏃 가볍게 시작!</div>
-        <div class="pc-date">3월 22일(일) – 4월 4일(토) · 2주간</div>
-        <ul class="pc-list">
-          <li class="pc-li"><span class="pc-dot"></span>주 2회 운동 인증 (자율 참여)</li>
-          <li class="pc-li"><span class="pc-dot"></span>혈당 체크 없이 부담 없이 시작</li>
-          <li class="pc-li"><span class="pc-dot"></span>걷기, 달리기 등 자유롭게</li>
-          <li class="pc-li"><span class="pc-dot"></span>가볍게 운동 습관 만들기</li>
-        </ul>
-      </div>
-      <div class="phase-card main fade-up">
-        <div class="pc-step">STEP 02 · 본 챌린지</div>
-        <div class="pc-title">💪 본격적으로 달려요!</div>
-        <div class="pc-date">4월 5일(일) – 4월 14일(화) · 10일간</div>
-        <ul class="pc-list">
-          <li class="pc-li"><span class="pc-dot"></span>주 3회 운동 인증 필수</li>
-          <li class="pc-li"><span class="pc-dot"></span>걷기 / 달리기 인증</li>
-          <li class="pc-li"><span class="pc-dot"></span>혈당 체크 기기 착용</li>
-          <li class="pc-li"><span class="pc-dot"></span>포인트 적립 + 식단 자유</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- TIMELINE -->
-<section class="section tl-bg">
-  <div class="section-inner" style="text-align:center">
-    <span class="s-tag s-tag-sky fade-up">📅 일정</span>
-    <h2 class="s-title fade-up">챌린지 타임라인</h2>
-    <p class="s-desc fade-up">모집부터 종료까지 전체 일정을 확인하세요</p>
-  </div>
-  <div class="tl-wrap">
-    <div class="tl-row fade-up">
-      <div class="tl-icon" style="background:linear-gradient(135deg,#8B5CF6,#6D28D9)">📢</div>
-      <div class="tl-body">
-        <div class="tl-date">2026년 3월 16일 (월)</div>
-        <div class="tl-title">모집 공지 시작</div>
-        <div class="tl-desc">참가 신청 접수 시작. 신발 사이즈 및 가족 참여 정보 필수 기재</div>
-      </div>
-    </div>
-    <div class="tl-row fade-up">
-      <div class="tl-icon" style="background:linear-gradient(135deg,#F59E0B,#D97706)">✅</div>
-      <div class="tl-body">
-        <div class="tl-date">2026년 3월 18일 (수)</div>
-        <div class="tl-title">신청 마감</div>
-        <div class="tl-desc">이 날 이후 추가 신청 불가. 기한 내 신청 필수!</div>
-      </div>
-    </div>
-    <div class="tl-row fade-up">
-      <div class="tl-icon" style="background:linear-gradient(135deg,#10B981,#059669)">🎁</div>
-      <div class="tl-body">
-        <div class="tl-date">2026년 3월 19일 (목) ~</div>
-        <div class="tl-title">인원 확정 및 선물 주문</div>
-        <div class="tl-desc">참가자 명단 확정 후 선물 주문 시작</div>
-        <div class="tl-note">선물 지급: 4월 1일(수)부터 입고 순서대로</div>
-      </div>
-    </div>
-    <div class="tl-row fade-up">
-      <div class="tl-icon" style="background:linear-gradient(135deg,#0EA5E9,#0369A1)">🏃</div>
-      <div class="tl-body">
-        <div class="tl-date">2026년 3월 22일(일) – 4월 4일(토)</div>
-        <div class="tl-title">🟦 프리 챌린지 (2주)</div>
-        <div class="tl-desc">주 2회 운동 인증. 혈당 체크 없이 가볍게 시작하는 체험 기간</div>
-      </div>
-    </div>
-    <div class="tl-row fade-up">
-      <div class="tl-icon" style="background:linear-gradient(135deg,#EF4444,#B91C1C)">💪</div>
-      <div class="tl-body">
-        <div class="tl-date">2026년 4월 5일(일) – 4월 14일(화)</div>
-        <div class="tl-title">🔴 본 챌린지 (10일)</div>
-        <div class="tl-desc">주 3회 운동 인증. 혈당 체크 기기 착용 + 걷기/달리기 인증 + 포인트 적립</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- BENEFITS -->
-<section class="section benefits-bg">
-  <div class="section-inner" style="text-align:center">
-    <span class="s-tag s-tag-amber fade-up">🎁 혜택</span>
-    <h2 class="s-title fade-up">참가하면 이런 혜택이!</h2>
-    <p class="s-desc fade-up">건강도 챙기고 선물도 받고, 일석이조 챌린지</p>
-  </div>
-  <div class="benefit-grid" style="max-width:900px;margin:36px auto 0">
-    <div class="benefit-card fade-up"><div class="b-icon">👟</div><div class="b-title">참가 선물</div><div class="b-desc">신청 사이즈 맞춤<br>선물을 드려요</div></div>
-    <div class="benefit-card fade-up"><div class="b-icon">📱</div><div class="b-title">혈당 체크 기기</div><div class="b-desc">본 챌린지 기간<br>기기 착용 지원</div></div>
-    <div class="benefit-card fade-up"><div class="b-icon">⭐</div><div class="b-title">포인트 적립</div><div class="b-desc">운동 인증마다<br>포인트 쌓기</div></div>
-    <div class="benefit-card fade-up"><div class="b-icon">🏆</div><div class="b-title">리그 순위 보상</div><div class="b-desc">상위권 달성 시<br>추가 보상 지급</div></div>
-    <div class="benefit-card fade-up"><div class="b-icon">👨‍👩‍👧</div><div class="b-title">가족 참여 가능</div><div class="b-desc">소중한 가족과<br>함께 도전!</div></div>
-    <div class="benefit-card fade-up"><div class="b-icon">💬</div><div class="b-title">동료 응원</div><div class="b-desc">커뮤니티에서<br>함께 격려해요</div></div>
-  </div>
-</section>
-
-<!-- NOTICE -->
-<section class="section notice-bg">
-  <div class="section-inner">
-    <div style="text-align:center">
-      <span class="s-tag s-tag-red fade-up">📌 안내사항</span>
-      <h2 class="s-title fade-up">신청 전 꼭 확인하세요</h2>
-    </div>
-    <div class="notice-grid" style="margin-top:30px">
-      <div class="notice-card fade-up"><div class="nc-title">👟 신발 사이즈 필수</div><div class="nc-body">정확한 신발 사이즈(mm)를 기재해 주세요. 마감 후 변경이 어렵습니다.</div></div>
-      <div class="notice-card fade-up"><div class="nc-title">👨‍👩‍👧 가족 참여 안내</div><div class="nc-body">가족과 함께 참여 시 가족 인원수를 정확히 기재해 주세요. 가족도 선물이 지급됩니다.</div></div>
-      <div class="notice-card fade-up"><div class="nc-title">📅 신청 마감 준수</div><div class="nc-body">3월 18일(수) 이후 추가 신청은 불가합니다. 기한 내 신청해 주세요.</div></div>
-      <div class="notice-card fade-up"><div class="nc-title">🎁 선물 지급 일정</div><div class="nc-body">4월 1일(수)부터 입고 순서대로 지급됩니다. 일정이 변동될 수 있습니다.</div></div>
-    </div>
-  </div>
-</section>
-
-<!-- FORM -->
-<section class="section form-bg" id="apply">
-  <div class="section-inner" style="text-align:center">
-    <span class="s-tag s-tag-green fade-up">✍️ 신청</span>
-    <h2 class="s-title fade-up">참가 신청하기</h2>
-    <p class="s-desc fade-up">신청 마감: <strong>2026년 3월 18일(수)</strong> · 선착순 마감될 수 있습니다</p>
-  </div>
-
-  <div class="form-card fade-up" id="form-card">
-    <div class="form-head">
-      <h3 class="form-card-title">📋 참가 신청서</h3>
-      <p class="form-card-sub">* 표시 항목은 필수 입력 사항입니다</p>
-    </div>
-
-    <div class="dup-warning" id="dup-warning">⚠️ 이미 신청하신 사번입니다. 중복 신청은 불가합니다.</div>
-
-    <form id="apply-form" onsubmit="submitForm(event)" novalidate>
-
-      <div class="form-section-label">👤 기본 정보</div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">이름 <span class="req">*</span></label>
-          <input type="text" class="form-input" id="f-name" placeholder="홍길동" autocomplete="name">
-          <div class="form-error" id="err-name">이름을 입력해주세요</div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">사번 <span class="req">*</span></label>
-          <input type="text" class="form-input" id="f-empid" placeholder="예: EMP-001" autocomplete="off" oninput="checkDuplicate()">
-          <div class="form-error" id="err-empid">사번을 입력해주세요</div>
-          <div class="form-hint">사번으로 중복 신청 여부를 확인합니다</div>
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">부서 <span class="req">*</span></label>
-          <select class="form-select" id="f-dept">
-            <option value="">부서 선택</option>
-            <option>내과</option><option>외과</option><option>정형외과</option>
-            <option>소아청소년과</option><option>산부인과</option><option>응급의학과</option>
-            <option>마취통증의학과</option><option>영상의학과</option><option>진단검사의학과</option>
-            <option>약제부</option><option>간호부</option><option>원무과</option>
-            <option>행정부</option><option>영양팀</option><option>물리치료실</option>
-            <option>재활의학과</option><option>피부과</option><option>안과</option>
-            <option>이비인후과</option><option>기타</option>
-          </select>
-          <div class="form-error" id="err-dept">부서를 선택해주세요</div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">연락처 <span class="req">*</span></label>
-          <input type="tel" class="form-input" id="f-phone" placeholder="010-0000-0000" autocomplete="tel">
-          <div class="form-error" id="err-phone">연락처를 입력해주세요</div>
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">이메일</label>
-          <input type="email" class="form-input" id="f-email" placeholder="선택 입력" autocomplete="email">
-        </div>
-        <div class="form-group">
-          <label class="form-label">신발 사이즈 <span class="req">*</span></label>
-          <select class="form-select" id="f-shoe">
-            <option value="">사이즈 선택 (mm)</option>
-            <option>220</option><option>225</option><option>230</option><option>235</option>
-            <option>240</option><option>245</option><option>250</option><option>255</option>
-            <option>260</option><option>265</option><option>270</option><option>275</option>
-            <option>280</option><option>285</option><option>290</option><option>295</option>
-            <option>300</option>
-          </select>
-          <div class="form-error" id="err-shoe">신발 사이즈를 선택해주세요</div>
-        </div>
-      </div>
-
-      <div class="form-section-label">👨‍👩‍👧 가족 참여</div>
-      <div class="form-group">
-        <label class="form-label">가족 참여 여부 <span class="req">*</span></label>
-        <div class="radio-group">
-          <label class="radio-label"><input type="radio" name="family" value="no" checked onchange="toggleFamily(this)"> 본인만 참여</label>
-          <label class="radio-label"><input type="radio" name="family" value="yes" onchange="toggleFamily(this)"> 가족과 함께 참여</label>
-        </div>
-      </div>
-      <div id="family-detail" style="display:none">
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">가족 참여 인원 <span class="req">*</span> <span style="font-size:11px;color:var(--text-3)">(본인 제외)</span></label>
-            <select class="form-select" id="f-family-cnt">
-              <option value="1">1명</option><option value="2">2명</option>
-              <option value="3">3명</option><option value="4">4명 이상</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">가족 신발 사이즈</label>
-            <input type="text" class="form-input" id="f-family-shoe" placeholder="예: 245, 230 (쉼표 구분)">
-            <div class="form-hint">가족 구성원 각각의 사이즈를 쉼표로 구분</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="form-section-label">📝 추가 정보</div>
-      <div class="form-group">
-        <label class="form-label">기타 사항</label>
-        <textarea class="form-textarea" id="f-note" placeholder="알레르기, 건강 관련 특이사항, 기타 요청사항 등 (선택)"></textarea>
-      </div>
-
-      <div class="divider"></div>
-
-      <div class="consent-box">
-        <p class="consent-text">
-          수집된 개인정보(이름, 사번, 부서, 연락처, 신발 사이즈)는 <strong>건강 챌린지 운영 및 선물 지급 목적으로만</strong> 활용되며,
-          챌린지 종료 후 즉시 파기됩니다. 가족 참여 시 가족의 정보도 동일하게 처리됩니다.
-          정보 제공을 거부하실 수 있으나, 이 경우 챌린지 참가 및 선물 수령이 어렵습니다.
-        </p>
-        <label class="consent-check">
-          <input type="checkbox" id="f-consent">
-          개인정보 수집·이용에 동의합니다 <span class="req">*</span>
-        </label>
-        <div class="form-error" id="err-consent" style="margin-top:6px">개인정보 동의가 필요합니다</div>
-      </div>
-
-      <button type="submit" class="form-submit">✍️ 신청 완료하기</button>
-      <p class="submit-note">
-        신청 완료 후 3월 19일(목)부터 담당자가 순차적으로 확인합니다<br>
-        문의: 건강증진팀 내선 ○○○○
-      </p>
-    </form>
-  </div>
-
-  <div class="success-wrap" id="success-wrap">
-    <div class="success-icon">🎉</div>
-    <h3 class="success-title">신청이 완료되었습니다!</h3>
-    <p class="success-desc">
-      건강 챌린지에 신청해 주셔서 감사합니다.<br>
-      3월 19일(목)부터 참가자를 확정하여 개별 안내 드리겠습니다.<br><br>
-      선물은 4월 1일(수)부터 입고 순서대로 지급됩니다.
-    </p>
-    <div class="success-id" id="success-id">신청번호: HC-000000</div>
-    <div style="margin-top:20px">
-      <button onclick="location.reload()" style="padding:10px 24px;border:1px solid var(--border);border-radius:20px;background:none;cursor:pointer;font-size:13px;font-family:inherit">다른 신청하기</button>
-    </div>
-  </div>
-</section>
-
-<!-- FOOTER -->
-<footer>
-  <div class="ft-logo">💙 HI Health 건강 챌린지 2026</div>
-  <p class="ft-desc">
-    문의: 건강증진팀 내선 ○○○○ · 이메일: health@hospital.kr<br>
-    © 2026 HI Health. 직원 건강 증진 프로그램<br>
-    <a href="challenge-admin.html" class="ft-link">관리자 페이지</a>
-  </p>
-</footer>
-
 <script>
-const REG_KEY = 'hi_health_registrations_v2';
+/* ════════════════════════════════════════
+   HAPTIC
+════════════════════════════════════════ */
+function haptic(type) {
+  if (!navigator.vibrate) return;
+  const patterns = {
+    light:   [30],
+    medium:  [60],
+    success: [40, 30, 80],
+    error:   [80, 50, 80],
+    levelup: [50, 40, 50, 40, 120],
+    delete:  [20, 20, 40],
+  };
+  navigator.vibrate(patterns[type] || [30]);
+}
 
-/* ── Countdown ── */
-function tick() {
-  const target = new Date('2026-03-16T09:00:00');
+/* ════════════════════════════════════════
+   CONSTANTS
+════════════════════════════════════════ */
+const AVATARS = ['🏃','🚴','🏊','🤸','💪','🧘','🏋️','⚽','🎯','🌟'];
+
+const PROFILE_TAGS = [
+  {
+    cat: '🩺 치료 단계',
+    tags: ['🌱 준비 중', '💉 배란 유도중', '🥚 채란 완료', '🔬 배아 배양중', '🌡️ 이식 완료', '🤞 착상 기다리는 중', '✅ 임신 확인!', '❄️ 동결배아 보관중', '🔄 다음 시도 준비중', '⏸️ 잠시 휴식중', '🏁 최종 단계'],
+  },
+  {
+    cat: '🔢 시술 차수',
+    tags: ['1️⃣ 1차 시험관', '2️⃣ 2차 시험관', '3️⃣ 3차 시험관', '4️⃣ 4차 이상', '🔁 인공수정 병행', '🌿 자연임신 시도중'],
+  },
+  {
+    cat: '💊 치료 방법',
+    tags: ['🧪 신선 배아 이식', '🧊 동결 배아 이식', '💉 호르몬 치료', '🌿 한방 병행', '🔬 PGT 검사', '🏥 대학병원', '🏨 전문 클리닉', '💊 면역 치료', '🩸 혈액 검사중', '🧬 유전자 검사', '📋 자궁 검사중'],
+  },
+  {
+    cat: '💪 건강 습관',
+    tags: ['🥗 식단 관리', '🧘 스트레스 관리', '🏃 매일 걷기', '😴 수면 개선', '🚫 금주 실천', '🚭 금연 중', '💊 엽산 복용', '🐟 오메가3 챙기기', '🌿 영양 관리', '⚖️ 체중 관리', '🧖 림프 마사지'],
+  },
+  {
+    cat: '💬 나의 다짐',
+    tags: ['💪 포기 안 해요', '🌈 희망 잃지 않아요', '🤝 함께 이겨내요', '💕 남편과 함께', '🙏 간절히 기원중', '🌸 긍정 마인드', '👶 아기 기다려요', '🦋 내 몸 믿어요', '🌟 나를 응원해요', '💌 좋은 소식 기대해요'],
+  },
+];
+
+const LEVELS = [
+  { lv:1, name:'새싹',    icon:'🌱', min:0,    max:199,  color:'#22C55E' },
+  { lv:2, name:'초보자',  icon:'🌿', min:200,  max:499,  color:'#84CC16' },
+  { lv:3, name:'활동가',  icon:'🌸', min:500,  max:999,  color:'#EC4899' },
+  { lv:4, name:'도전자',  icon:'🌺', min:1000, max:1999, color:'#F97316' },
+  { lv:5, name:'챔피언',  icon:'🌳', min:2000, max:3999, color:'#3B82F6' },
+  { lv:6, name:'레전드',  icon:'⭐', min:4000, max:Infinity, color:'#F59E0B' },
+];
+
+const EX_TYPES = [
+  { id:'walking',   name:'걷기',    icon:'🚶', ppm:0.5,  bg:'#DCFCE7' },
+  { id:'running',   name:'달리기',  icon:'🏃', ppm:1.0,  bg:'#FFE4E6' },
+  { id:'swimming',  name:'수영',    icon:'🏊', ppm:1.2,  bg:'#DBEAFE' },
+  { id:'cycling',   name:'자전거',  icon:'🚴', ppm:0.8,  bg:'#FEF3C7' },
+  { id:'yoga',      name:'요가',    icon:'🧘', ppm:0.7,  bg:'#F3E8FF' },
+  { id:'strength',  name:'근력운동',icon:'💪', ppm:1.0,  bg:'#FCE7F3' },
+  { id:'stretching',  name:'스트레칭',   icon:'🤸', ppm:0.4,  bg:'#CFFAFE' },
+  { id:'hiking',      name:'등산',       icon:'🥾', ppm:0.9,  bg:'#D1FAE5' },
+  { id:'tennis',      name:'테니스',     icon:'🎾', ppm:0.9,  bg:'#ECFCCB' },
+  { id:'aerial-yoga', name:'플라잉요가', icon:'🪂', ppm:0.8,  bg:'#FDF4FF' },
+  { id:'climbing',    name:'클라이밍',   icon:'🧗', ppm:1.1,  bg:'#FFF7ED' },
+  { id:'custom',      name:'기타',       icon:'✏️', ppm:0.8,  bg:'#F3F4F6' },
+];
+
+const STICKERS = [
+  { id:'cheer',    emoji:'💪', label:'응원해요' },
+  { id:'love',     emoji:'❤️', label:'사랑해요' },
+  { id:'congrats', emoji:'🎉', label:'축하해요' },
+  { id:'cool',     emoji:'🌟', label:'최고예요' },
+  { id:'together', emoji:'🤗', label:'함께해요' },
+];
+
+const REWARDS_DATA = [
+  { id:'r1', emoji:'☕', name:'병원 카페 아메리카노', cost:300, desc:'원내 카페 무료 음료' },
+  { id:'r2', emoji:'🧴', name:'핸드크림 세트',      cost:500, desc:'보습 케어 선물' },
+  { id:'r3', emoji:'🎟️', name:'건강검진 할인 쿠폰', cost:800, desc:'추가 검사 10% 할인' },
+  { id:'r4', emoji:'🎁', name:'웰니스 선물 세트',   cost:1200,desc:'건강 용품 패키지' },
+  { id:'r5', emoji:'👕', name:'운동복 할인권',       cost:600, desc:'제휴 쇼핑몰 20% 할인' },
+  { id:'r6', emoji:'🍎', name:'과일 바구니',         cost:400, desc:'신선한 제철 과일' },
+];
+
+const ACHIEVEMENTS_DATA = [
+  { id:'a1', emoji:'🥇', name:'첫 걸음',     desc:'처음으로 운동을 기록했어요',   goal:1,   key:'totalWorkouts' },
+  { id:'a2', emoji:'🔥', name:'3일 연속',    desc:'3일 연속 운동에 성공했어요',   goal:3,   key:'streak' },
+  { id:'a3', emoji:'⚡', name:'10회 달성',   desc:'운동 10회를 기록했어요',       goal:10,  key:'totalWorkouts' },
+  { id:'a4', emoji:'💎', name:'7일 연속',    desc:'일주일 내내 운동했어요',       goal:7,   key:'streak' },
+  { id:'a5', emoji:'🚀', name:'30회 달성',   desc:'운동 30회를 기록했어요',       goal:30,  key:'totalWorkouts' },
+  { id:'a6', emoji:'🏆', name:'포인트 왕',   desc:'총 1000 포인트 달성',         goal:1000,key:'points' },
+  { id:'a7', emoji:'🌟', name:'레전드',      desc:'레벨 6에 도달했어요',         goal:6,   key:'level' },
+  { id:'a8', emoji:'❤️', name:'커뮤니티 스타',desc:'응원 스티커 50개 받기',      goal:50,  key:'stickersReceived' },
+];
+
+const MOCK_USERS = [
+  { id:101, name:'박지수',  avatar:'👩',   lv:5, pts:2840, wPts:320, change:2,  tags:['💉 배란 유도중','💪 꾸준한 운동','🌸 긍정 마인드'] },
+  { id:102, name:'이준호',  avatar:'🧑',   lv:5, pts:2750, wPts:290, change:-1, tags:['🧪 신선 배아 이식','🏃 매일 걷기','😴 수면 개선'] },
+  { id:103, name:'김서연',  avatar:'👩‍🦱', lv:4, pts:1930, wPts:270, change:1,  tags:['🤞 착상 기다리는 중','🌿 한방 병행','🧘 스트레스 관리'] },
+  { id:104, name:'최민수',  avatar:'👨',   lv:4, pts:1820, wPts:240, change:0,  tags:['❄️ 동결배아 보관중','💊 엽산 복용','🚫 금주 실천'] },
+  { id:105, name:'정예린',  avatar:'👧',   lv:3, pts:870,  wPts:210, change:3,  tags:['🌱 준비 중','🥗 식단 관리','💕 남편과 함께'] },
+  { id:106, name:'강동현',  avatar:'👦',   lv:3, pts:720,  wPts:195, change:-2, tags:['2️⃣ 2차 시험관','🏥 대학병원','🌈 희망 잃지 않아요'] },
+  { id:107, name:'한소희',  avatar:'🙋‍♀️', lv:2, pts:460,  wPts:175, change:1,  tags:['1️⃣ 1차 시험관','💪 포기 안 해요','👶 아기 기다려요'] },
+  { id:108, name:'오태준',  avatar:'🙋',   lv:2, pts:380,  wPts:150, change:-1, tags:['🔬 PGT 검사','🏨 전문 클리닉'] },
+  { id:109, name:'유미래',  avatar:'👩‍🦰', lv:1, pts:180,  wPts:120, change:0,  tags:['🌱 준비 중','💊 엽산 복용'] },
+  { id:110, name:'임건우',  avatar:'👨‍🦱', lv:1, pts:90,   wPts:80,  change:-2, tags:['🥗 식단 관리'] },
+];
+
+const MOCK_POSTS_SEED = [
+  {
+    id:1001, userId:101, name:'박지수', avatar:'👩', lv:5,
+    body:'오늘 달리기 30분 완료! 연속 14일 도전 중이에요 💪 매일 조금씩 나아지는 느낌이 너무 좋아요!',
+    exTag:'🏃 달리기 30분',
+    userTags:['💉 배란 유도중','💪 꾸준한 운동'],
+    time:'10분 전',
+    stickers:{ cheer:12, love:5, cool:8, congrats:2, together:3 },
+    myReactions:[], comments:3,
+    commentList:[
+      { id:9001, name:'이준호', avatar:'🧑', lv:5, body:'14일 연속이면 대단해요! 저도 자극받았어요 💪', time:'7분 전' },
+      { id:9002, name:'김서연', avatar:'👩‍🦱', lv:4, body:'저도 달리기 시작해야겠다는 생각이 드네요 🏃', time:'5분 전' },
+      { id:9003, name:'한소희', avatar:'🙋‍♀️', lv:2, body:'응원해요!! 계속 파이팅하세요 🌟', time:'2분 전' },
+    ],
+  },
+  {
+    id:1002, userId:103, name:'김서연', avatar:'👩‍🦱', lv:4,
+    body:'요가 수업 처음 들었는데 생각보다 너무 재밌었어요! 몸이 한결 가벼워진 기분 🧘',
+    exTag:'🧘 요가 45분',
+    userTags:['🤞 착상 기다리는 중','🌿 한방 병행'],
+    time:'1시간 전',
+    stickers:{ cheer:7, love:11, cool:4, congrats:1, together:6 },
+    myReactions:[], comments:5,
+    commentList:[
+      { id:9011, name:'박지수', avatar:'👩', lv:5, body:'저도 요가 배우고 싶은데 어디서 들으셨어요?', time:'55분 전' },
+      { id:9012, name:'정예린', avatar:'👧', lv:3, body:'요가는 스트레스 해소에도 정말 좋죠 🧘‍♀️', time:'50분 전' },
+      { id:9013, name:'이준호', avatar:'🧑', lv:5, body:'저희 병원 헬스장에서도 요가 수업 있던데 같이 가요!', time:'40분 전' },
+      { id:9014, name:'한소희', avatar:'🙋‍♀️', lv:2, body:'부럽다~ 저도 언젠가 해봐야겠어요', time:'30분 전' },
+      { id:9015, name:'김서연', avatar:'👩‍🦱', lv:4, body:'@박지수 2층 웰니스센터에서 들었어요! 화수금 오전에 해요 😊', time:'20분 전' },
+    ],
+  },
+  {
+    id:1003, userId:105, name:'정예린', avatar:'👧', lv:3,
+    body:'처음으로 5km 걷기 완주했어요!! 힘들었지만 정말 뿌듯하네요 😭 다들 응원해주셔서 감사해요!',
+    exTag:'🚶 걷기 60분',
+    userTags:['🌱 준비 중','💕 남편과 함께'],
+    time:'3시간 전',
+    stickers:{ cheer:20, love:15, cool:9, congrats:18, together:11 },
+    myReactions:[], comments:4,
+    commentList:[
+      { id:9021, name:'박지수', avatar:'👩', lv:5, body:'와 대단해요!! 처음 완주 정말 뿌듯하죠 🎉', time:'2시간 전' },
+      { id:9022, name:'이준호', avatar:'🧑', lv:5, body:'첫 5km 축하해요! 다음엔 10km 도전!', time:'2시간 전' },
+      { id:9023, name:'김서연', avatar:'👩‍🦱', lv:4, body:'진짜 대단해요 짝짝짝 👏👏👏', time:'1시간 전' },
+      { id:9024, name:'한소희', avatar:'🙋‍♀️', lv:2, body:'저도 언젠가 5km 완주 해보고 싶어요!', time:'30분 전' },
+    ],
+  },
+  {
+    id:1004, userId:102, name:'이준호', avatar:'🧑', lv:5,
+    body:'주말에 등산 다녀왔어요. 정상에서 바라본 뷰가 최고였습니다 🏔️ 건강도 챙기고 힐링도 하고!',
+    exTag:'🥾 등산 120분',
+    userTags:['🧪 신선 배아 이식','🏃 매일 걷기'],
+    time:'어제',
+    stickers:{ cheer:9, love:7, cool:14, congrats:3, together:5 },
+    myReactions:[], comments:3,
+    commentList:[
+      { id:9031, name:'박지수', avatar:'👩', lv:5, body:'어디 산 가셨어요? 뷰 사진 보고 싶어요 📸', time:'어제' },
+      { id:9032, name:'정예린', avatar:'👧', lv:3, body:'저도 등산 좋아하는데 다음엔 같이 가요!', time:'어제' },
+      { id:9033, name:'이준호', avatar:'🧑', lv:5, body:'@박지수 북한산 갔어요! 다음엔 같이 가요 😄', time:'어제' },
+    ],
+  },
+  {
+    id:1005, userId:107, name:'한소희', avatar:'🙋‍♀️', lv:2,
+    body:'수영 시작한 지 2주가 됐어요. 아직 25m도 힘들지만 포기 안 하고 꾸준히 해볼게요! 다들 화이팅!',
+    exTag:'🏊 수영 40분',
+    userTags:['1️⃣ 1차 시험관','💪 포기 안 해요'],
+    time:'어제',
+    stickers:{ cheer:16, love:8, cool:5, congrats:2, together:13 },
+    myReactions:[], comments:3,
+    commentList:[
+      { id:9041, name:'박지수', avatar:'👩', lv:5, body:'2주면 정말 잘 하고 계신 거예요! 화이팅 🏊', time:'어제' },
+      { id:9042, name:'이준호', avatar:'🧑', lv:5, body:'수영 처음에 힘들지만 1달 지나면 확 늘어요!', time:'어제' },
+      { id:9043, name:'김서연', avatar:'👩‍🦱', lv:4, body:'같은 병원 직원으로서 응원해요 💪', time:'어제' },
+    ],
+  },
+];
+
+const WEEK_DAYS = ['일','월','화','수','목','금','토'];
+
+/* ════════════════════════════════════════
+   STATE
+════════════════════════════════════════ */
+let S = {
+  user: { name:'김민준', avatar:'🏃', points:0, streak:0, stickersReceived:0, registrationId:null, tags:[] },
+  workouts: [],
+  posts: JSON.parse(JSON.stringify(MOCK_POSTS_SEED)),
+  redeemedRewards: [],
+  selectedEx: 'walking',
+  duration: 30,
+  leagueTab: 'weekly',
+  myReactions: {},   // postId -> [stickerId,...]
+  glucoseRecords: [], // { id, value, timing, ts }
+};
+
+/* ════════════════════════════════════════
+   STORAGE
+════════════════════════════════════════ */
+function save() {
+  try {
+    localStorage.setItem('hi_health_v2', JSON.stringify({
+      user: S.user,
+      workouts: S.workouts,
+      posts: S.posts,
+      redeemedRewards: S.redeemedRewards,
+      myReactions: S.myReactions,
+      glucoseRecords: S.glucoseRecords,
+    }));
+  } catch(e) {}
+}
+function load() {
+  try {
+    const d = JSON.parse(localStorage.getItem('hi_health_v2') || 'null');
+    if (!d) return;
+    S.user = { ...S.user, ...d.user };
+    S.workouts = d.workouts || [];
+    S.posts = d.posts || JSON.parse(JSON.stringify(MOCK_POSTS_SEED));
+    S.redeemedRewards = d.redeemedRewards || [];
+    S.myReactions = d.myReactions || {};
+    S.glucoseRecords = d.glucoseRecords || [];
+  } catch(e) {}
+}
+
+/* ════════════════════════════════════════
+   HELPERS
+════════════════════════════════════════ */
+function getLevel(pts) {
+  return LEVELS.slice().reverse().find(l => pts >= l.min) || LEVELS[0];
+}
+function getExType(id) {
+  return EX_TYPES.find(e => e.id === id) || EX_TYPES[0];
+}
+function calcPts(exId, dur) {
+  const ex = getExType(exId);
+  return Math.round(ex.ppm * dur);
+}
+function totalWorkouts() { return S.workouts.length; }
+function todayWorkouts() {
+  const today = new Date().toDateString();
+  return S.workouts.filter(w => new Date(w.ts).toDateString() === today);
+}
+function weekData() {
   const now = new Date();
-  const diff = target - now;
-  if (diff <= 0) {
-    document.getElementById('countdown').innerHTML = '<div style="font-size:14px;opacity:0.8;color:#fff">🎉 신청 기간입니다! 지금 신청하세요</div>';
+  const dow = now.getDay(); // 0=Sun
+  return Array.from({length:7}, (_,i) => {
+    const d = new Date(now); d.setDate(now.getDate() - dow + i);
+    const ds = d.toDateString();
+    const mins = S.workouts
+      .filter(w => new Date(w.ts).toDateString() === ds)
+      .reduce((s,w) => s + w.duration, 0);
+    return { label: WEEK_DAYS[i], mins, isToday: ds === now.toDateString() };
+  });
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
+function fmtTime(ts) {
+  const diff = Date.now() - ts;
+  const m = Math.floor(diff/60000);
+  if (m < 1)  return '방금 전';
+  if (m < 60) return m + '분 전';
+  const h = Math.floor(m/60);
+  if (h < 24) return h + '시간 전';
+  return Math.floor(h/24) + '일 전';
+}
+function updateStreak() {
+  // Calculate streak from workouts
+  if (!S.workouts.length) { S.user.streak = 0; return; }
+  const today = new Date(); today.setHours(0,0,0,0);
+  let streak = 0;
+  for (let i = 0; i < 365; i++) {
+    const d = new Date(today); d.setDate(today.getDate() - i);
+    const ds = d.toDateString();
+    const hasWorkout = S.workouts.some(w => new Date(w.ts).toDateString() === ds);
+    if (hasWorkout) streak++;
+    else if (i > 0) break;
+  }
+  S.user.streak = streak;
+}
+function earnedAchs() {
+  const lv = getLevel(S.user.points).lv;
+  return ACHIEVEMENTS_DATA.filter(a => {
+    const val = a.key === 'totalWorkouts' ? totalWorkouts()
+              : a.key === 'streak'        ? S.user.streak
+              : a.key === 'points'        ? S.user.points
+              : a.key === 'level'         ? lv
+              : a.key === 'stickersReceived' ? S.user.stickersReceived
+              : 0;
+    return val >= a.goal;
+  });
+}
+function myLeagueRank() {
+  const tab = S.leagueTab;
+  const myPts = tab === 'weekly' ? weekData().reduce((s,d) => s+Math.round(d.mins*0.8),0)
+               : tab === 'monthly' ? S.user.points
+               : S.user.points;
+  const others = MOCK_USERS.map(u => tab === 'weekly' ? u.wPts : u.pts);
+  return others.filter(p => p > myPts).length + 1;
+}
+function myWeekPts() {
+  return weekData().reduce((s,d) => s + Math.round(d.mins*0.8), 0);
+}
+
+/* ════════════════════════════════════════
+   NAVIGATION
+════════════════════════════════════════ */
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const pg = document.getElementById('page-' + page);
+  if (pg) pg.classList.add('active');
+  const nb = document.querySelector(`.nav-btn[data-page="${page}"]`);
+  if (nb) nb.classList.add('active');
+  // Render the page
+  if (page === 'home')      renderHome();
+  if (page === 'exercise')  renderExercise();
+  if (page === 'league')    renderLeague();
+  if (page === 'community') renderCommunity();
+  if (page === 'rewards')   renderRewards();
+  if (page === 'challenge') renderChallenge();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ════════════════════════════════════════
+   RENDER: HEADER
+════════════════════════════════════════ */
+function renderHeader() {
+  document.getElementById('hpts-val').textContent = S.user.points;
+  document.getElementById('header-avatar').textContent = S.user.avatar;
+}
+
+/* ════════════════════════════════════════
+   RENDER: HOME
+════════════════════════════════════════ */
+function renderHome() {
+  const lv = getLevel(S.user.points);
+  const tw = todayWorkouts();
+  const todayMins = tw.reduce((s,w) => s+w.duration, 0);
+  const todayPts  = tw.reduce((s,w) => s+w.points, 0);
+
+  document.getElementById('hero-name').textContent = S.user.name + '님';
+  const tagsEl = document.getElementById('hero-tags');
+  if (tagsEl) {
+    tagsEl.innerHTML = (S.user.tags || []).map(t => `<span class="hero-tag">${t}</span>`).join('');
+  }
+  document.getElementById('today-cnt').textContent = tw.length;
+  document.getElementById('today-min').textContent = todayMins;
+  document.getElementById('today-pts').textContent = '+' + todayPts;
+  document.getElementById('lv-icon').textContent = lv.icon;
+  document.getElementById('lv-name').textContent = lv.name;
+  document.getElementById('lv-num').textContent  = '레벨 ' + lv.lv;
+  document.getElementById('streak-num').textContent = S.user.streak;
+
+  // Level bar
+  const nextLv = LEVELS.find(l => l.lv === lv.lv + 1);
+  if (nextLv) {
+    const pct = ((S.user.points - lv.min) / (nextLv.min - lv.min) * 100).toFixed(1);
+    document.getElementById('lv-bar').style.width = pct + '%';
+    document.getElementById('lv-cur-pts').textContent = S.user.points + 'p';
+    document.getElementById('lv-next-pts').textContent = '다음 레벨까지 ' + (nextLv.min - S.user.points) + 'p';
+  } else {
+    document.getElementById('lv-bar').style.width = '100%';
+    document.getElementById('lv-cur-pts').textContent = S.user.points + 'p';
+    document.getElementById('lv-next-pts').textContent = '최고 레벨 달성! 🎉';
+  }
+
+  // Quick action subtitles
+  document.getElementById('my-rank-quick').textContent = myLeagueRank() + '위';
+  document.getElementById('pts-quick').textContent = S.user.points + 'p 보유';
+
+  // Weekly chart
+  const wd = weekData();
+  const maxMins = Math.max(...wd.map(d => d.mins), 1);
+  const totalWeekMins = wd.reduce((s,d) => s+d.mins, 0);
+  document.getElementById('week-total-badge').textContent = totalWeekMins + '분';
+  document.getElementById('week-grid').innerHTML = wd.map(d => `
+    <div class="week-day ${d.isToday ? 'today' : ''}">
+      <span class="week-label">${d.label}</span>
+      <div class="week-bar">
+        <div class="week-fill" style="height:${d.mins ? Math.max(10, (d.mins/maxMins*100)) : 0}%"></div>
+      </div>
+      <span class="week-val">${d.mins || ''}</span>
+    </div>
+  `).join('');
+
+  // Achievements strip
+  const earned = earnedAchs();
+  document.getElementById('ach-count-badge').textContent = earned.length + '개';
+  document.getElementById('ach-strip-home').innerHTML = ACHIEVEMENTS_DATA.map(a => {
+    const isEarned = earned.find(e => e.id === a.id);
+    return `
+      <div class="ach-chip">
+        <div class="ach-circle ${isEarned ? 'earned' : 'locked'}">${a.emoji}</div>
+        <div class="ach-label">${a.name}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ════════════════════════════════════════
+   RENDER: EXERCISE
+════════════════════════════════════════ */
+function renderExercise() {
+  // Exercise type buttons
+  document.getElementById('ex-type-grid').innerHTML = EX_TYPES.map(e => `
+    <button class="ex-type-btn ${S.selectedEx === e.id ? 'selected' : ''}"
+            onclick="selectEx('${e.id}')">
+      <span class="ex-type-icon">${e.icon}</span>
+      <span class="ex-type-name">${e.name}</span>
+      <span class="ex-type-pts">${e.ppm}/분</span>
+    </button>
+  `).join('');
+
+  updatePtsPreview();
+
+  // Show/hide custom exercise input
+  const cw = document.getElementById('custom-ex-wrap');
+  if (cw) cw.classList.toggle('show', S.selectedEx === 'custom');
+
+  // History
+  const wo = document.getElementById('wo-history');
+  document.getElementById('wo-total-badge').textContent = '총 ' + S.workouts.length + '회';
+  if (!S.workouts.length) {
+    wo.innerHTML = `<div class="empty-state"><div class="ei">🏃</div><p>아직 기록된 운동이 없어요.<br>첫 운동을 기록해보세요!</p></div>`;
     return;
   }
-  const d = Math.floor(diff / 86400000);
-  const h = Math.floor((diff % 86400000) / 3600000);
-  const m = Math.floor((diff % 3600000) / 60000);
-  const s = Math.floor((diff % 60000) / 1000);
-  document.getElementById('cd-d').textContent = String(d).padStart(2,'0');
-  document.getElementById('cd-h').textContent = String(h).padStart(2,'0');
-  document.getElementById('cd-m').textContent = String(m).padStart(2,'0');
-  document.getElementById('cd-s').textContent = String(s).padStart(2,'0');
+  wo.innerHTML = [...S.workouts].reverse().slice(0,20).map(w => {
+    const ex = getExType(w.exId);
+    return `
+      <div class="workout-item">
+        <div class="wo-icon" style="background:${ex.bg}">${ex.icon}</div>
+        <div class="wo-info">
+          <div class="wo-name">${w.customName || ex.name}</div>
+          <div class="wo-meta">${w.duration}분 · ${fmtTime(w.ts)}${w.memo ? ' · '+w.memo : ''}</div>
+          ${(w.diet || w.mealTypes || w.sleep != null || w.supp != null || w.suppList || w.glucose != null) ? `
+          <div class="wo-health-tags">
+            ${w.diet  ? `<span class="wo-health-tag">🥗 ${w.diet}</span>` : ''}
+            ${w.mealTypes ? `<span class="wo-health-tag">🍽️ ${w.mealTypes.join('·')}</span>` : ''}
+            ${w.sleep != null ? `<span class="wo-health-tag">😴 ${w.sleep}h</span>` : ''}
+            ${w.supp === true && !w.suppList ? `<span class="wo-health-tag">💊 영양제</span>` : ''}
+            ${w.suppList ? `<span class="wo-health-tag">💊 ${w.suppList.join('·')}</span>` : ''}
+            ${w.supp === false ? `<span class="wo-health-tag wo-health-tag-muted">💊 미복용</span>` : ''}
+            ${w.glucose != null ? `<span class="wo-health-tag wo-health-tag-glucose">🩸 ${w.glucose} mg/dL</span>` : ''}
+          </div>` : ''}
+        </div>
+        ${w.photo ? `<img class="wo-photo" src="${w.photo}" onclick="viewPhoto(${w.id})" alt="인증">` : ''}
+        <div class="wo-pts">+${w.points}p</div>
+        <button type="button" class="wo-del" onclick="deleteWorkout(${w.id})" title="삭제">🗑️</button>
+      </div>
+    `;
+  }).join('');
+
+  renderGlucose();
 }
-tick(); setInterval(tick, 1000);
 
-/* ── Duplicate check ── */
-function checkDuplicate() {
-  const empId = document.getElementById('f-empid').value.trim().toUpperCase();
-  if (!empId) { document.getElementById('dup-warning').classList.remove('show'); return; }
-  const regs = JSON.parse(localStorage.getItem(REG_KEY) || '[]');
-  const dup = regs.find(r => r.empId.toUpperCase() === empId);
-  document.getElementById('dup-warning').classList.toggle('show', !!dup);
+function selectEx(id) {
+  haptic('light');
+  S.selectedEx = id;
+  renderExercise();
+  if (_shareOn) updateSharePreview();
+}
+function changeDur(delta) {
+  S.duration = Math.max(5, Math.min(180, S.duration + delta));
+  document.getElementById('dur-val').textContent = S.duration;
+  updatePtsPreview();
+  if (_shareOn) updateSharePreview();
+}
+let _shareOn = false;
+
+function toggleShare() {
+  haptic('light');
+  _shareOn = !_shareOn;
+  document.getElementById('share-toggle-btn').classList.toggle('on', _shareOn);
+  document.getElementById('share-expand').classList.toggle('show', _shareOn);
+  if (_shareOn) updateSharePreview();
 }
 
-/* ── Family toggle ── */
-function toggleFamily(el) {
-  const show = el.value === 'yes';
-  document.getElementById('family-detail').style.display = show ? 'block' : 'none';
-}
+let _sharePhoto  = false;
+let _shareHealth = false;
 
-/* ── Validate ── */
-function validate() {
-  let ok = true;
-  const rules = [
-    { id:'f-name',    err:'err-name',    check: v => v.trim().length >= 2,  msg:'이름을 정확히 입력해주세요' },
-    { id:'f-empid',   err:'err-empid',   check: v => v.trim().length >= 2,  msg:'사번을 입력해주세요' },
-    { id:'f-dept',    err:'err-dept',    check: v => v !== '',              msg:'부서를 선택해주세요' },
-    { id:'f-phone',   err:'err-phone',   check: v => v.trim().length >= 9,  msg:'연락처를 입력해주세요' },
-    { id:'f-shoe',    err:'err-shoe',    check: v => v !== '',              msg:'신발 사이즈를 선택해주세요' },
-  ];
-  rules.forEach(r => {
-    const el  = document.getElementById(r.id);
-    const err = document.getElementById(r.err);
-    const valid = r.check(el.value);
-    el.classList.toggle('error', !valid);
-    err.textContent = r.msg;
-    err.classList.toggle('show', !valid);
-    if (!valid) ok = false;
-  });
-  const consent = document.getElementById('f-consent');
-  const cErr = document.getElementById('err-consent');
-  consent.parentElement.parentElement.style.borderColor = consent.checked ? 'var(--border)' : 'var(--red)';
-  cErr.classList.toggle('show', !consent.checked);
-  if (!consent.checked) ok = false;
+function updateSharePreview() {
+  const ex = EX_TYPES.find(e => e.id === S.selectedEx);
+  if (!ex) return;
+  const name = S.selectedEx === 'custom'
+    ? (document.getElementById('custom-ex-name')?.value.trim() || '기타 운동')
+    : ex.name;
+  const tag = ex.icon + ' ' + name + ' ' + S.duration + '분';
+  const tagEl = document.getElementById('share-ex-tag');
+  if (tagEl) tagEl.textContent = tag;
 
-  // Duplicate check
-  const empId = document.getElementById('f-empid').value.trim().toUpperCase();
-  const regs = JSON.parse(localStorage.getItem(REG_KEY) || '[]');
-  if (empId && regs.find(r => r.empId.toUpperCase() === empId)) {
-    document.getElementById('dup-warning').classList.add('show');
-    ok = false;
+  // Memo preview
+  const memo = document.getElementById('ex-memo')?.value.trim();
+  const memoEl = document.getElementById('share-memo-preview');
+  if (memoEl) {
+    if (memo) {
+      memoEl.textContent = memo;
+      memoEl.classList.remove('pm-hidden');
+    } else {
+      memoEl.classList.add('pm-hidden');
+    }
   }
-  return ok;
+
+  // Auto-fill message only if empty
+  const msgEl = document.getElementById('share-msg');
+  if (msgEl && !msgEl.value.trim()) {
+    msgEl.value = '오늘 ' + name + ' ' + S.duration + '분 완료했어요! 💪';
+  }
+
+  renderShareOptions();
 }
 
-/* ── Submit ── */
-function submitForm(e) {
-  e.preventDefault();
-  if (!validate()) return;
+function renderShareOptions() {
+  const el = document.getElementById('share-options');
+  if (!el) return;
+  const hasPhoto  = !!_photoData;
+  const hasSleep  = document.getElementById('hc-sleep-sec')?.classList.contains('show');
+  const hasHealth = !!(_dietRating || _mealTypes.length || hasSleep || _suppTaken);
+  if (!hasPhoto && !hasHealth) { el.innerHTML = ''; return; }
+  let html = '<div class="share-opts-label">함께 공유할 항목</div><div class="share-opts-row">';
+  if (hasPhoto)  html += `<button type="button" class="share-opt-chip${_sharePhoto  ? ' on' : ''}" onclick="toggleShareOpt('photo')">📸 사진</button>`;
+  if (hasHealth) html += `<button type="button" class="share-opt-chip${_shareHealth ? ' on' : ''}" onclick="toggleShareOpt('health')">🏥 건강체크</button>`;
+  html += '</div>';
+  el.innerHTML = html;
+}
 
-  const familyVal = document.querySelector('input[name="family"]:checked').value;
-  const id = 'HC-' + String(Date.now()).slice(-6);
-  const data = {
-    id,
-    name:    document.getElementById('f-name').value.trim(),
-    empId:   document.getElementById('f-empid').value.trim().toUpperCase(),
-    dept:    document.getElementById('f-dept').value,
-    phone:   document.getElementById('f-phone').value.trim(),
-    email:   document.getElementById('f-email').value.trim(),
-    shoeSize: document.getElementById('f-shoe').value,
-    familyParticipation: familyVal === 'yes',
-    familyCount: familyVal === 'yes' ? parseInt(document.getElementById('f-family-cnt').value) : 0,
-    familyShoeSize: familyVal === 'yes' ? document.getElementById('f-family-shoe').value.trim() : '',
-    note:    document.getElementById('f-note').value.trim(),
-    status:  'pending',
-    adminNote: '',
-    registeredAt: new Date().toISOString(),
+function toggleShareOpt(type) {
+  haptic('light');
+  if (type === 'photo')  _sharePhoto  = !_sharePhoto;
+  if (type === 'health') _shareHealth = !_shareHealth;
+  renderShareOptions();
+}
+
+function updatePtsPreview() {
+  const pts = calcPts(S.selectedEx, S.duration);
+  document.getElementById('pts-prev').textContent = '+' + pts;
+}
+function logExercise() {
+  const customName = S.selectedEx === 'custom'
+    ? document.getElementById('custom-ex-name').value.trim()
+    : '';
+  if (S.selectedEx === 'custom' && !customName) {
+    haptic('error');
+    showToast('⚠️ 운동 이름을 입력해주세요');
+    document.getElementById('custom-ex-name').focus();
+    return;
+  }
+  const basePts = calcPts(S.selectedEx, S.duration);
+  const photoBonus = _photoData ? 5 : 0;
+  const pts = basePts + photoBonus;
+  const memo = document.getElementById('ex-memo').value.trim();
+  S.workouts.push({
+    id: Date.now(),
+    exId: S.selectedEx,
+    customName: customName || null,
+    duration: S.duration,
+    points: pts,
+    memo,
+    photo: _photoData || null,
+    diet:      _dietRating,
+    mealTypes: _mealTypes.length ? [..._mealTypes] : null,
+    sleep:     document.getElementById('hc-sleep-sec').classList.contains('show') ? _sleepHours : null,
+    supp:      _suppTaken,
+    suppList:  _suppList.length ? [..._suppList] : null,
+    ts: Date.now(),
+  });
+  S.user.points += pts;
+  updateStreak();
+  const wasShared = _shareOn;
+  // Community share
+  if (_shareOn) {
+    const ex = EX_TYPES.find(e => e.id === S.selectedEx);
+    const exName = customName || (ex ? ex.name : '운동');
+    const exIcon = ex ? ex.icon : '💪';
+    const shareMsg = document.getElementById('share-msg').value.trim()
+      || '오늘 ' + exName + ' ' + S.duration + '분 완료했어요! 💪';
+    const curLv = getLevel(S.user.points);
+    const hasSleep = document.getElementById('hc-sleep-sec').classList.contains('show');
+    S.posts.unshift({
+      id: Date.now(),
+      userId: 0,
+      name: S.user.name,
+      avatar: S.user.avatar,
+      lv: curLv.lv,
+      body: shareMsg,
+      exTag: exIcon + ' ' + exName + ' ' + S.duration + '분',
+      userTags: [...(S.user.tags || [])],
+      sharePhoto:  (_sharePhoto && _photoData) ? _photoData : null,
+      shareHealth: _shareHealth ? {
+        diet:      _dietRating,
+        mealTypes: _mealTypes.length ? [..._mealTypes] : null,
+        sleep:     hasSleep ? _sleepHours : null,
+        supp:      _suppTaken,
+        suppList:  _suppList.length ? [..._suppList] : null,
+      } : null,
+      time: '방금 전',
+      stickers: { cheer:0, love:0, congrats:0, cool:0, together:0 },
+      myReactions: [],
+      comments: 0,
+      commentList: [],
+    });
+    document.getElementById('share-msg').value = '';
+  }
+  // Reset share toggle
+  _shareOn = false;
+  _sharePhoto  = false;
+  _shareHealth = false;
+  document.getElementById('share-toggle-btn').classList.remove('on');
+  document.getElementById('share-expand').classList.remove('show');
+  document.getElementById('share-options').innerHTML = '';
+
+  document.getElementById('ex-memo').value = '';
+  if (S.selectedEx === 'custom') document.getElementById('custom-ex-name').value = '';
+  clearPhoto(null);
+  resetHealthChecks();
+  save();
+  renderHeader();
+  haptic('success');
+  if (wasShared) {
+    showToast(`🎉 운동 기록 완료! +${pts}p 획득! 📣 커뮤니티에 공유됐어요!`);
+  } else {
+    showToast(photoBonus ? `🎉 운동 기록 완료! +${pts}p (사진 인증 +5p 포함!)` : `🎉 운동 기록 완료! +${pts}p 획득!`);
+  }
+  renderExercise();
+
+  // Check level up
+  const lv = getLevel(S.user.points);
+  const prevPts = S.user.points - pts;
+  const prevLv = getLevel(prevPts);
+  if (lv.lv > prevLv.lv) {
+    setTimeout(() => { haptic('levelup'); showToast('🆙 레벨 업! ' + lv.icon + ' ' + lv.name + ' 달성!'); }, 1200);
+  }
+}
+
+function deleteWorkout(id) {
+  const idx = S.workouts.findIndex(w => w.id === id);
+  if (idx === -1) return;
+  const wo = S.workouts[idx];
+  const ex = EX_TYPES.find(e => e.id === wo.exId);
+  const exName = wo.customName || (ex ? ex.name : '운동');
+  showConfirm({
+    icon: '🏋️',
+    title: '운동 기록 삭제',
+    msg: exName + ' ' + wo.duration + '분 기록을 삭제할까요?\n포인트 ' + wo.points + 'p가 차감됩니다.',
+    okLabel: '삭제',
+    onOk: () => {
+      haptic('delete');
+      S.workouts.splice(idx, 1);
+      S.user.points = Math.max(0, S.user.points - wo.points);
+      updateStreak();
+      save();
+      renderHeader();
+      renderExercise();
+      showToast('운동 기록이 삭제되었습니다');
+    },
+  });
+}
+
+/* ── Photo ── */
+let _photoData = null;
+
+/* ── Health Check ── */
+let _dietRating = null;
+let _mealTypes  = [];
+let _sleepHours = 7;
+let _suppTaken  = null;
+let _suppList   = [];
+
+function toggleHC(type) {
+  haptic('light');
+  const sec = document.getElementById('hc-' + type + '-sec');
+  const btn = document.getElementById('hc-' + type + '-btn');
+  const opening = !sec.classList.contains('show');
+  sec.classList.toggle('show', opening);
+  btn.classList.toggle('active', opening);
+  if (!opening) {
+    if (type === 'diet')  { _dietRating = null; _mealTypes = []; document.querySelectorAll('[id^="diet-"],.hc-meal-chip').forEach(e => e.classList.remove('on')); }
+    if (type === 'sleep') { _sleepHours = 7; document.getElementById('sleep-val').textContent = '7'; }
+    if (type === 'supp')  { clearSuppSection(); }
+  }
+}
+function setDiet(rating) {
+  haptic('light');
+  _dietRating = rating;
+  const map = { '잘먹음':'diet-good', '보통':'diet-norm', '과식':'diet-over', '불량':'diet-bad' };
+  document.querySelectorAll('[id^="diet-"]').forEach(e => e.classList.remove('on'));
+  document.getElementById(map[rating]).classList.add('on');
+}
+function changeSleep(delta) {
+  haptic('light');
+  _sleepHours = Math.max(2, Math.min(12, _sleepHours + delta));
+  document.getElementById('sleep-val').textContent = _sleepHours % 1 === 0 ? _sleepHours : _sleepHours.toFixed(1);
+}
+function setSupp(val) {
+  haptic('light');
+  _suppTaken = val;
+  document.getElementById('supp-yes').classList.toggle('on', val === true);
+  document.getElementById('supp-no').classList.toggle('on',  val === false);
+  document.getElementById('hc-supp-detail').classList.toggle('show', val === true);
+  if (val === false) {
+    _suppList = [];
+    document.querySelectorAll('.hc-supp-preset').forEach(e => e.classList.remove('on'));
+    document.getElementById('supp-custom-list').innerHTML = '';
+    document.getElementById('supp-custom-input').value = '';
+  }
+}
+function resetHealthChecks() {
+  ['diet','sleep','supp'].forEach(t => {
+    document.getElementById('hc-' + t + '-sec').classList.remove('show');
+    document.getElementById('hc-' + t + '-btn').classList.remove('active');
+  });
+  document.querySelectorAll('[id^="diet-"]').forEach(e => e.classList.remove('on'));
+  _dietRating = null; _mealTypes = []; _sleepHours = 7;
+  document.getElementById('sleep-val').textContent = '7';
+  clearSuppSection();
+}
+function clearSuppSection() {
+  _suppTaken = null; _suppList = [];
+  document.getElementById('supp-yes').classList.remove('on');
+  document.getElementById('supp-no').classList.remove('on');
+  document.getElementById('hc-supp-detail').classList.remove('show');
+  document.querySelectorAll('.hc-supp-preset').forEach(e => e.classList.remove('on'));
+  document.getElementById('supp-custom-list').innerHTML = '';
+  document.getElementById('supp-custom-input').value = '';
+}
+
+/* ── Meal / Supplement detail ── */
+function toggleMeal(name) {
+  haptic('light');
+  const idx = _mealTypes.indexOf(name);
+  if (idx === -1) _mealTypes.push(name); else _mealTypes.splice(idx, 1);
+  const btn = document.querySelector('.hc-meal-chip[data-name="' + name + '"]');
+  if (btn) btn.classList.toggle('on', _mealTypes.includes(name));
+}
+function toggleSuppItem(name) {
+  haptic('light');
+  const idx = _suppList.indexOf(name);
+  if (idx === -1) _suppList.push(name); else _suppList.splice(idx, 1);
+  const btn = document.querySelector('.hc-supp-preset[data-name="' + name + '"]');
+  if (btn) btn.classList.toggle('on', _suppList.includes(name));
+}
+function addCustomSupp() {
+  const input = document.getElementById('supp-custom-input');
+  const val = input.value.trim();
+  if (!val || _suppList.includes(val)) { input.value = ''; return; }
+  haptic('light');
+  _suppList.push(val);
+  input.value = '';
+  const list = document.getElementById('supp-custom-list');
+  const chip = document.createElement('button');
+  chip.type = 'button';
+  chip.className = 'hc-sub-chip on';
+  chip.textContent = val + ' ✕';
+  chip.onclick = () => { _suppList = _suppList.filter(s => s !== val); chip.remove(); };
+  list.appendChild(chip);
+}
+
+/* ── Blood Glucose ── */
+let _glucoseVal    = 100;
+let _glucoseTiming = null;
+
+const GLUCOSE_TIMINGS = ['공복','식후2h','식전','취침전'];
+const TIMING_ID_MAP = { '공복':'fasting', '식후2h':'after2h', '식전':'before', '취침전':'bedtime' };
+
+function getGlucoseStatus(val) {
+  if (val < 70)  return { label:'저혈당', cls:'glucose-status-low' };
+  if (val < 140) return { label:'정상',   cls:'glucose-status-ok' };
+  if (val < 180) return { label:'주의',   cls:'glucose-status-warn' };
+  return             { label:'고혈당', cls:'glucose-status-high' };
+}
+
+function syncGlucoseUI() {
+  const numEl = document.getElementById('sa-glucose-num');
+  if (numEl) numEl.textContent = _glucoseVal;
+  GLUCOSE_TIMINGS.forEach(t => {
+    const el = document.getElementById('sa-gt-' + TIMING_ID_MAP[t]);
+    if (el) el.classList.toggle('on', _glucoseTiming === t);
+  });
+}
+
+function changeGlucoseVal(delta) {
+  haptic('light');
+  _glucoseVal = Math.max(40, Math.min(400, _glucoseVal + delta));
+  syncGlucoseUI();
+}
+
+function setGlucoseTiming(timing) {
+  haptic('light');
+  _glucoseTiming = _glucoseTiming === timing ? null : timing;
+  syncGlucoseUI();
+}
+
+function logGlucoseStandalone() {
+  if (!_glucoseTiming) { haptic('error'); showToast('측정 시점을 선택해주세요'); return; }
+  haptic('success');
+  const rec = { id: Date.now(), value: _glucoseVal, timing: _glucoseTiming, ts: new Date().toISOString() };
+  S.glucoseRecords.unshift(rec);
+  save();
+  _glucoseVal = 100; _glucoseTiming = null;
+  syncGlucoseUI('sa');
+  renderGlucose();
+  const st = getGlucoseStatus(rec.value);
+  showToast('🩸 혈당 기록 완료! ' + rec.value + ' mg/dL (' + st.label + ')');
+}
+
+function deleteGlucose(id) {
+  haptic('delete');
+  S.glucoseRecords = S.glucoseRecords.filter(r => r.id !== id);
+  save();
+  renderGlucose();
+}
+
+function renderGlucose() {
+  const el = document.getElementById('glucose-history');
+  const badge = document.getElementById('glucose-total-badge');
+  if (!el) return;
+  const recs = S.glucoseRecords;
+  if (badge) badge.textContent = '총 ' + recs.length + '회';
+  if (recs.length === 0) {
+    el.innerHTML = '<div class="wo-empty">아직 혈당 기록이 없어요</div>';
+    return;
+  }
+  el.innerHTML = recs.map(r => {
+    const st = getGlucoseStatus(r.value);
+    const d  = new Date(r.ts);
+    const timeStr = (d.getMonth()+1) + '/' + d.getDate() + ' ' +
+                    String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+    return `<div class="glucose-item">
+      <div class="glucose-badge"><span class="glucose-badge-val">${r.value}</span><span class="glucose-val-unit">mg/dL</span></div>
+      <div class="glucose-info">
+        <span class="glucose-timing-lbl">${r.timing}</span>
+        <span class="glucose-time">${timeStr}</span>
+      </div>
+      <span class="glucose-status-tag ${st.cls}">${st.label}</span>
+      <button class="glucose-del" onclick="deleteGlucose(${r.id})">✕</button>
+    </div>`;
+  }).join('');
+}
+function triggerPhotoInput() { document.getElementById('photo-input').click(); }
+function handlePhotoInput(input) {
+  if (!input.files || !input.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = e => compressImage(e.target.result, data => {
+    _photoData = data;
+    document.getElementById('photo-preview-img').src = data;
+    document.getElementById('photo-preview-img').style.display = 'block';
+    document.getElementById('photo-placeholder').style.display = 'none';
+    document.getElementById('photo-del-wrap').style.display = 'block';
+    document.getElementById('photo-upload-area').classList.add('has-photo');
+    if (_shareOn) renderShareOptions();
+  });
+  reader.readAsDataURL(input.files[0]);
+}
+function compressImage(dataUrl, cb) {
+  const img = new Image();
+  img.onload = () => {
+    const canvas = document.createElement('canvas');
+    const ratio = Math.min(480 / img.width, 480 / img.height, 1);
+    canvas.width  = Math.round(img.width  * ratio);
+    canvas.height = Math.round(img.height * ratio);
+    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+    cb(canvas.toDataURL('image/jpeg', 0.6));
   };
-
-  const regs = JSON.parse(localStorage.getItem(REG_KEY) || '[]');
-  regs.push(data);
-  localStorage.setItem(REG_KEY, JSON.stringify(regs));
-
-  // Show success
-  document.getElementById('form-card').style.display = 'none';
-  const sw = document.getElementById('success-wrap');
-  sw.classList.add('show');
-  document.getElementById('success-id').textContent = '신청번호: ' + id;
-  sw.scrollIntoView({ behavior:'smooth', block:'center' });
+  img.src = dataUrl;
+}
+function clearPhoto(e) {
+  if (e) e.stopPropagation();
+  _photoData = null;
+  const pi = document.getElementById('photo-preview-img');
+  pi.src = ''; pi.style.display = 'none';
+  document.getElementById('photo-placeholder').style.display = 'block';
+  document.getElementById('photo-del-wrap').style.display = 'none';
+  document.getElementById('photo-upload-area').classList.remove('has-photo');
+  document.getElementById('photo-input').value = '';
+  _sharePhoto = false;
+  if (_shareOn) renderShareOptions();
+}
+function viewPhoto(id) {
+  const w = S.workouts.find(w => w.id === id);
+  if (!w || !w.photo) return;
+  const box = document.createElement('div');
+  box.className = 'photo-lightbox';
+  box.onclick = () => box.remove();
+  const img = document.createElement('img');
+  img.src = w.photo; img.alt = '운동 인증';
+  box.appendChild(img);
+  document.body.appendChild(box);
 }
 
-/* ── Scroll animations ── */
-const obs = new IntersectionObserver(entries => {
-  entries.forEach(en => { if (en.isIntersecting) en.target.classList.add('vis'); });
-}, { threshold: 0.1 });
-document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
+let _selAvatar = '🏃';
+let _selTags   = [];
+function openProfileModal() {
+  document.getElementById('pm-name').value = S.user.name;
+  _selAvatar = S.user.avatar;
+  _selTags   = [...(S.user.tags || [])];
+  document.getElementById('pm-avatar-grid').innerHTML = AVATARS.map(a =>
+    `<button type="button" class="avatar-opt${a===_selAvatar?' selected':''}" onclick="pickAvatar('${a}')">${a}</button>`
+  ).join('');
+  renderPmTags();
+  document.getElementById('profile-modal').classList.remove('pm-hidden');
+}
+function renderPmTags() {
+  const listEl = document.getElementById('pm-tag-list');
+  if (!listEl) return;
+  listEl.innerHTML = PROFILE_TAGS.map((cat, ci) => `
+    <div class="pm-tag-category">
+      <div class="pm-tag-cat-title">${cat.cat}</div>
+      <div class="pm-tag-chips" id="pm-cat-${ci}"></div>
+    </div>
+  `).join('');
+  // Attach buttons via JS to avoid any HTML attribute string-encoding issues
+  PROFILE_TAGS.forEach((cat, ci) => {
+    const row = document.getElementById('pm-cat-' + ci);
+    cat.tags.forEach((tag, ti) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'pm-tag-chip' + (_selTags.includes(tag) ? ' selected' : '');
+      btn.textContent = tag;
+      btn.addEventListener('click', () => togglePmTag(ci, ti));
+      row.appendChild(btn);
+    });
+  });
+  const cnt = _selTags.length;
+  document.getElementById('pm-sel-count').textContent = cnt ? cnt + '개 선택됨' : '';
+}
+function togglePmTag(ci, ti) {
+  haptic('light');
+  const tag = PROFILE_TAGS[ci].tags[ti];
+  const idx = _selTags.indexOf(tag);
+  if (idx === -1) _selTags.push(tag); else _selTags.splice(idx, 1);
+  renderPmTags();
+}
+function pickAvatar(a) {
+  _selAvatar = a;
+  document.querySelectorAll('.avatar-opt').forEach(el =>
+    el.classList.toggle('selected', el.textContent.trim() === a)
+  );
+}
+function saveProfile() {
+  const name = document.getElementById('pm-name').value.trim();
+  if (!name) { haptic('error'); showToast('이름을 입력해주세요'); return; }
+  S.user.name   = name;
+  S.user.avatar = _selAvatar;
+  S.user.tags   = [..._selTags];
+  save();
+  renderHeader();
+  renderHome();
+  document.getElementById('profile-modal').classList.add('pm-hidden');
+  haptic('medium');
+  showToast('프로필이 저장되었습니다');
+}
+function logout() {
+  if (!confirm('로그아웃 하면 이 기기의 운동 기록, 포인트 등 모든 데이터가 초기화됩니다.\n계속하시겠어요?')) return;
+  localStorage.removeItem('hi_health_v2');
+  S = {
+    user: { name:'', avatar:'🏃', points:0, streak:0, stickersReceived:0, registrationId:null, tags:[] },
+    workouts: [],
+    posts: JSON.parse(JSON.stringify(MOCK_POSTS_SEED)),
+    redeemedRewards: [],
+    selectedEx: 'walking',
+    duration: 30,
+    leagueTab: 'weekly',
+    myReactions: {},
+  };
+  document.getElementById('profile-modal').classList.add('pm-hidden');
+  navigate('home');
+  renderHeader();
+  showToast('로그아웃 되었습니다');
+  setTimeout(openProfileModal, 500);
+}
+
+/* ════════════════════════════════════════
+   RENDER: LEAGUE
+════════════════════════════════════════ */
+function renderLeague() {
+  const tab = S.leagueTab;
+  const myPts   = tab === 'weekly' ? myWeekPts() : S.user.points;
+  const myRank  = myLeagueRank();
+  const myLv    = getLevel(S.user.points);
+  const total   = MOCK_USERS.length + 1;
+  const pct     = Math.round((myRank / total) * 100);
+
+  // My rank card
+  document.getElementById('my-rank-card').innerHTML = `
+    <div class="my-rank-left">
+      <div class="mrl-label">내 순위</div>
+      <div class="mrl-rank">${myRank}위</div>
+      <div class="mrl-pct">상위 ${pct}%</div>
+    </div>
+    <div class="my-rank-right">
+      <div class="mrr-label">${tab === 'weekly' ? '이번주' : tab === 'monthly' ? '이번달' : '전체'} 포인트</div>
+      <div class="mrr-pts">⭐ ${myPts}p</div>
+      <div class="mrr-change">내 레벨: ${myLv.icon} ${myLv.name}</div>
+    </div>
+  `;
+
+  // Build sorted list including me
+  const me = {
+    id:0, name: S.user.name + ' (나)', avatar: S.user.avatar,
+    lv: getLevel(S.user.points).lv, pts: S.user.points,
+    wPts: myWeekPts(), change:0, isMe: true, tags: S.user.tags || [],
+  };
+  const list = [
+    ...MOCK_USERS.map(u => ({ ...u, pts: u.pts, wPts: u.wPts, isMe: false })),
+    me
+  ].sort((a,b) => (tab === 'weekly' ? b.wPts - a.wPts : b.pts - a.pts))
+   .map((u,i) => ({ ...u, rank: i+1 }));
+
+  // Podium (top 3)
+  const top3 = list.slice(0,3);
+  const podOrder = [top3[1], top3[0], top3[2]]; // silver, gold, bronze
+  const standClass = ['stand-silver','stand-gold','stand-bronze'];
+  const standNum   = ['2','1','3'];
+  document.getElementById('podium').innerHTML = podOrder.map((u,i) => `
+    <div class="podium-item">
+      <div class="podium-avatar">${u ? u.avatar : ''}</div>
+      <div class="podium-name">${u ? u.name : ''}</div>
+      <div class="podium-pts">${u ? (tab==='weekly'?u.wPts:u.pts)+'p' : ''}</div>
+      <div class="podium-stand ${standClass[i]}">${standNum[i]}</div>
+    </div>
+  `).join('');
+
+  // Full list from rank 4+
+  document.getElementById('lb-list').innerHTML = list.slice(3).map(u => {
+    const lv    = LEVELS[Math.min(u.lv-1, LEVELS.length-1)];
+    const chg   = tab==='weekly' ? u.change : 0;
+    const chgHtml = chg > 0 ? `<span class="lb-change ch-up">▲${chg}</span>`
+                  : chg < 0 ? `<span class="lb-change ch-dn">▼${Math.abs(chg)}</span>`
+                  :           `<span class="lb-change ch-eq">−</span>`;
+    return `
+      <div class="lb-item ${u.isMe ? 'me' : ''}">
+        <div class="lb-rank ${u.rank<=3?'top3':''}">${u.rank}</div>
+        <div class="lb-avatar">${u.avatar}</div>
+        <div class="lb-info">
+          <div class="lb-name">${u.name}</div>
+          <div class="lb-level">${lv.icon} ${lv.name}</div>
+          ${(u.tags || []).length ? `<div class="lb-tags">${(u.tags).map(t => `<span class="profile-tag">${t}</span>`).join('')}</div>` : ''}
+        </div>
+        <div class="lb-right">
+          <div class="lb-pts">⭐ ${tab==='weekly'?u.wPts:u.pts}p</div>
+          ${chgHtml}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function setTab(el, tab) {
+  document.querySelectorAll('.league-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  S.leagueTab = tab;
+  renderLeague();
+}
+
+/* ════════════════════════════════════════
+   RENDER: COMMUNITY
+════════════════════════════════════════ */
+let _feedFilter = 'all';
+let _commentPostId = null;
+
+function buildPostHealthHtml(h) {
+  const chips = [];
+  if (h.diet) {
+    const dietLabel = { '잘먹음':'🥗 잘먹음', '보통':'🍽️ 보통', '과식':'🍔 과식', '불량':'😔 식단불량' };
+    chips.push(dietLabel[h.diet] || h.diet);
+  }
+  if (h.mealTypes?.length) chips.push('☀️ ' + h.mealTypes.join(' · '));
+  if (h.sleep != null) chips.push('😴 수면 ' + h.sleep + 'h');
+  if (h.supp === 'done') chips.push('💊 영양제 ✓');
+  if (h.supp === 'skip') chips.push('💊 스킵');
+  if (h.suppList?.length) chips.push(...h.suppList.map(s => s));
+  if (!chips.length) return '';
+  return `<div class="post-health-card">
+    <div class="post-health-title">🏥 건강체크</div>
+    <div class="post-health-chips">${chips.map(c => `<span class="post-health-chip">${c}</span>`).join('')}</div>
+  </div>`;
+}
+
+function renderCommunity() {
+  document.getElementById('compose-av').textContent = S.user.avatar;
+
+  // Build filter chips from unique userTags
+  const filterRow = document.getElementById('feed-filter-row');
+  const tagSet = new Set();
+  S.posts.forEach(p => { (p.userTags || []).forEach(t => tagSet.add(t)); });
+  const filters = [{ key:'all', label:'전체' }, ...[...tagSet].map(t => ({ key:t, label:t }))];
+  filterRow.innerHTML = '';
+  filters.forEach(f => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'feed-filter-chip' + (_feedFilter === f.key ? ' on' : '');
+    btn.textContent = f.label;
+    btn.addEventListener('click', () => setFeedFilter(f.key));
+    filterRow.appendChild(btn);
+  });
+
+  // Sort newest first, then filter
+  const sorted = [...S.posts].sort((a, b) => b.id - a.id);
+  const visible = sorted.filter(p => {
+    if (_feedFilter === 'all') return true;
+    return (p.userTags || []).includes(_feedFilter);
+  });
+
+  const feed = document.getElementById('posts-feed');
+  if (!visible.length) {
+    feed.innerHTML = `<div class="empty-state"><div class="ei">💬</div><p>해당하는 게시물이 없어요</p></div>`;
+    return;
+  }
+  feed.innerHTML = visible.map(p => {
+    const lv = LEVELS[Math.min(p.lv - 1, LEVELS.length - 1)];
+    const myR = S.myReactions[p.id] || [];
+    const stickersHtml = STICKERS.map(s => {
+      const cnt = p.stickers[s.id] || 0;
+      const on  = myR.includes(s.id);
+      return `<button type="button" class="sticker-btn ${on?'on':''}" onclick="react(${p.id},'${s.id}')">
+        <span class="sticker-emoji">${s.emoji}</span>
+        <span class="sticker-cnt">${cnt > 0 ? cnt : ''} ${s.label}</span>
+      </button>`;
+    }).join('');
+    const cmCount = (p.commentList || []).length;
+    return `
+      <div class="post-card" id="post-${p.id}">
+        <div class="post-head">
+          <span class="post-av">${p.avatar}</span>
+          <div>
+            <div class="post-uname">${p.name}</div>
+            <div class="post-meta">
+              <span>${lv.icon} ${lv.name}</span>
+              <span>·</span>
+              <span>${p.time}</span>
+            </div>
+          </div>
+          ${p.userId === 0 ? `<button type="button" class="post-del" onclick="deletePost(${p.id})" title="게시물 삭제">🗑️</button>` : ''}
+        </div>
+        ${(p.userTags || []).length ? `<div class="post-tags-row">${(p.userTags).map(t => `<span class="profile-tag">${t}</span>`).join('')}</div>` : ''}
+        <div class="post-body">${p.body}</div>
+        ${p.exTag ? `<div class="post-exercise-tag">${p.exTag}</div>` : ''}
+        ${p.sharePhoto ? `<div class="post-photo-wrap"><img class="post-photo" src="${p.sharePhoto}" alt="운동 사진"></div>` : ''}
+        ${p.shareHealth ? buildPostHealthHtml(p.shareHealth) : ''}
+        <div class="sticker-row">${stickersHtml}</div>
+        <button type="button" class="comment-btn" onclick="openComments(${p.id})">💬 댓글 ${cmCount}개</button>
+      </div>
+    `;
+  }).join('');
+}
+
+function setFeedFilter(key) {
+  haptic('light');
+  _feedFilter = key;
+  renderCommunity();
+}
+
+/* ── Comments ── */
+function openComments(postId) {
+  haptic('light');
+  _commentPostId = postId;
+  document.getElementById('cm-av').textContent = S.user.avatar;
+  document.getElementById('cm-input').value = '';
+  renderCommentList();
+  document.getElementById('comment-overlay').classList.remove('pm-hidden');
+  setTimeout(() => document.getElementById('cm-input').focus(), 300);
+}
+function closeComments() {
+  document.getElementById('comment-overlay').classList.add('pm-hidden');
+  _commentPostId = null;
+}
+function renderCommentList() {
+  const post = S.posts.find(p => p.id === _commentPostId);
+  if (!post) return;
+  const list = post.commentList || [];
+  const el = document.getElementById('cm-list');
+  if (!list.length) {
+    el.innerHTML = '<div class="cm-empty">아직 댓글이 없어요.<br>첫 댓글을 남겨보세요! 💬</div>';
+    return;
+  }
+  el.innerHTML = list.map(c => {
+    const clv = LEVELS[Math.min((c.lv || 1) - 1, LEVELS.length - 1)];
+    return `<div class="cm-item">
+      <span class="cm-av">${c.avatar}</span>
+      <div class="cm-bubble">
+        <div class="cm-name">${c.name} <span style="font-weight:400;color:var(--text-secondary)">${clv.icon}</span></div>
+        <div class="cm-body">${c.body}</div>
+        <div class="cm-time">${c.time}</div>
+      </div>
+    </div>`;
+  }).join('');
+  el.scrollTop = el.scrollHeight;
+}
+function submitComment() {
+  const input = document.getElementById('cm-input');
+  const body = input.value.trim();
+  if (!body) return;
+  haptic('medium');
+  const post = S.posts.find(p => p.id === _commentPostId);
+  if (!post) return;
+  if (!post.commentList) post.commentList = [];
+  const lv = getLevel(S.user.points);
+  post.commentList.push({
+    id: Date.now(),
+    name: S.user.name,
+    avatar: S.user.avatar,
+    lv: lv.lv,
+    body,
+    time: '방금 전',
+  });
+  post.comments = post.commentList.length;
+  input.value = '';
+  save();
+  renderCommentList();
+  renderCommunity();
+}
+
+function react(postId, stickerId) {
+  haptic('light');
+  const post = S.posts.find(p => p.id === postId);
+  if (!post) return;
+  if (!S.myReactions[postId]) S.myReactions[postId] = [];
+  const myR = S.myReactions[postId];
+  const idx = myR.indexOf(stickerId);
+  if (idx >= 0) {
+    myR.splice(idx,1);
+    post.stickers[stickerId] = Math.max(0, (post.stickers[stickerId]||0) - 1);
+  } else {
+    myR.push(stickerId);
+    post.stickers[stickerId] = (post.stickers[stickerId]||0) + 1;
+    // Stickers to poster
+    if (post.userId !== 0) S.user.stickersReceived++;
+  }
+  save();
+  renderCommunity();
+}
+
+let _confirmCallback = null;
+function showConfirm({ icon = '🗑️', title, msg, okLabel = '삭제', onOk }) {
+  document.getElementById('confirm-icon').textContent  = icon;
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-msg').textContent   = msg;
+  document.getElementById('confirm-ok-btn').textContent = okLabel;
+  _confirmCallback = onOk;
+  document.getElementById('confirm-overlay').classList.remove('pm-hidden');
+}
+function closeConfirm() {
+  document.getElementById('confirm-overlay').classList.add('pm-hidden');
+  _confirmCallback = null;
+}
+function confirmOk() {
+  closeConfirm();
+  if (_confirmCallback) _confirmCallback();
+}
+
+function deletePost(id) {
+  showConfirm({
+    icon: '🗑️',
+    title: '게시물 삭제',
+    msg: '정말 삭제하시겠어요?\n삭제한 글은 복구할 수 없습니다.',
+    okLabel: '삭제',
+    onOk: () => {
+      haptic('delete');
+      S.posts = S.posts.filter(p => p.id !== id);
+      save();
+      renderCommunity();
+      showToast('게시물이 삭제되었습니다');
+    },
+  });
+}
+
+function submitPost() {
+  const input = document.getElementById('post-input');
+  const body  = input.value.trim();
+  if (!body) { haptic('error'); showToast('내용을 입력해주세요 ✏️'); return; }
+  const lv = getLevel(S.user.points);
+  const newPost = {
+    id: Date.now(),
+    userId: 0,
+    name: S.user.name,
+    avatar: S.user.avatar,
+    lv: lv.lv,
+    body,
+    exTag: null,
+    userTags: [...(S.user.tags || [])],
+    time: '방금 전',
+    stickers: { cheer:0, love:0, congrats:0, cool:0, together:0 },
+    myReactions: [],
+    comments: 0,
+    commentList: [],
+  };
+  S.posts.unshift(newPost);
+  input.value = '';
+  save();
+  haptic('medium');
+  showToast('📣 게시물이 등록되었어요!');
+  renderCommunity();
+}
+
+/* ════════════════════════════════════════
+   RENDER: REWARDS
+════════════════════════════════════════ */
+function renderRewards() {
+  document.getElementById('bal-display').textContent = S.user.points;
+
+  // Rewards grid
+  document.getElementById('reward-grid').innerHTML = REWARDS_DATA.map(r => {
+    const done = S.redeemedRewards.includes(r.id);
+    const can  = !done && S.user.points >= r.cost;
+    return `
+      <div class="reward-card ${done?'done':''} ${can&&!done?'can':''}"
+           onclick="${done ? '' : 'redeemReward(\''+r.id+'\')'}">
+        <div class="reward-emoji">${r.emoji}</div>
+        <div class="reward-name">${r.name}</div>
+        ${done
+          ? `<div class="reward-done-label">✅ 교환 완료</div>`
+          : `<div class="reward-cost">⭐ ${r.cost}p</div>`
+        }
+      </div>
+    `;
+  }).join('');
+
+  // Achievements list
+  const earned = earnedAchs();
+  document.getElementById('ach-list').innerHTML = ACHIEVEMENTS_DATA.map(a => {
+    const isEarned = !!earned.find(e => e.id === a.id);
+    const lv = getLevel(S.user.points);
+    const curVal = a.key === 'totalWorkouts' ? totalWorkouts()
+                 : a.key === 'streak'        ? S.user.streak
+                 : a.key === 'points'        ? S.user.points
+                 : a.key === 'level'         ? lv.lv
+                 : S.user.stickersReceived;
+    const pct = Math.min(100, Math.round((curVal/a.goal)*100));
+    return `
+      <div class="ach-item ${isEarned ? '' : 'locked'}">
+        <div class="ach-badge ${isEarned ? 'earned' : 'pending'}">${a.emoji}</div>
+        <div class="ach-info">
+          <div class="ach-name">${a.name} ${isEarned ? '✅' : ''}</div>
+          <div class="ach-desc">${a.desc}</div>
+          ${!isEarned ? `
+            <div class="ach-prog-bar">
+              <div class="ach-prog-fill" style="width:${pct}%"></div>
+            </div>
+          ` : ''}
+        </div>
+        ${!isEarned ? `<div style="font-size:11px;color:var(--text-secondary);text-align:right;min-width:36px">${curVal}/${a.goal}</div>` : ''}
+      </div>
+    `;
+  }).join('');
+
+  // Level guide
+  const myLv = getLevel(S.user.points);
+  document.getElementById('level-guide').innerHTML = LEVELS.map(l => `
+    <div class="lg-row ${l.lv === myLv.lv ? 'current-level' : ''}">
+      <div class="lg-icon">${l.icon}</div>
+      <div class="lg-info">
+        <div class="lg-name">레벨 ${l.lv} · ${l.name}</div>
+        <div class="lg-range">${l.min}p ~ ${l.max === Infinity ? '∞' : l.max+'p'}</div>
+      </div>
+      ${l.lv === myLv.lv ? `<div class="lg-current">현재 레벨</div>` : ''}
+    </div>
+  `).join('');
+}
+
+function redeemReward(id) {
+  const r = REWARDS_DATA.find(x => x.id === id);
+  if (!r) return;
+  if (S.redeemedRewards.includes(id)) { haptic('error'); showToast('이미 교환한 보상이에요'); return; }
+  if (S.user.points < r.cost) { haptic('error'); showToast('⚠️ 포인트가 부족해요 (필요: ' + r.cost + 'p)'); return; }
+  if (!confirm(`"${r.name}"을(를) ${r.cost}p로 교환하시겠어요?`)) return;
+  S.user.points -= r.cost;
+  S.redeemedRewards.push(id);
+  save();
+  renderHeader();
+  haptic('success');
+  showToast('🎁 ' + r.name + ' 교환 완료!');
+  renderRewards();
+}
+
+/* ════════════════════════════════════════
+   CHALLENGE
+════════════════════════════════════════ */
+const CH = {
+  announce:  new Date('2026-02-27T00:00:00'),
+  deadline:  new Date('2026-03-18T23:59:59'),
+  confirm:   new Date('2026-03-19T00:00:00'),
+  giftStart: new Date('2026-04-01T00:00:00'),
+  preStart:  new Date('2026-03-22T00:00:00'),
+  preEnd:    new Date('2026-04-04T23:59:59'),
+  mainStart: new Date('2026-04-05T00:00:00'),
+  mainEnd:   new Date('2026-04-14T23:59:59'),
+};
+const CH_REG_KEY = 'hi_health_registrations_v2';
+
+function getChPhase() {
+  const now = new Date();
+  if (now < CH.announce)  return 'before';
+  if (now <= CH.deadline) return 'registration';
+  if (now < CH.preStart)  return 'preparing';
+  if (now <= CH.preEnd)   return 'pre';
+  if (now <= CH.mainEnd)  return 'main';
+  return 'ended';
+}
+function chDays(a, b) { return Math.ceil((b - a) / 86400000); }
+function getMyReg() {
+  if (!S.user.registrationId) return null;
+  return (JSON.parse(localStorage.getItem(CH_REG_KEY) || '[]'))
+    .find(r => r.id === S.user.registrationId) || null;
+}
+
+function renderChallenge() {
+  const phase = getChPhase();
+  const now   = new Date();
+
+  /* ── Phase card ── */
+  const phaseMap = {
+    before: {
+      grad: 'linear-gradient(135deg,#8B5CF6,#6D28D9)', badge: '📢 모집 예정',
+      title: '챌린지 모집이 곧 시작됩니다!', desc: '3월 16일(월)부터 신청 접수를 시작합니다',
+      stats: [
+        { v: 'D-' + chDays(now, CH.announce), l: '모집 시작까지' },
+        { v: '2주', l: '프리 챌린지' }, { v: '10일', l: '본 챌린지' }
+      ]
+    },
+    registration: {
+      grad: 'linear-gradient(135deg,#F59E0B,#D97706)', badge: '✅ 신청 기간',
+      title: '지금 신청하세요!', desc: '신발 사이즈 및 가족 참여 여부 필수 기재',
+      stats: [
+        { v: 'D-' + chDays(now, CH.deadline), l: '마감까지' },
+        { v: '3/18', l: '신청 마감' }, { v: '무료', l: '참가비' }
+      ]
+    },
+    preparing: {
+      grad: 'linear-gradient(135deg,#10B981,#059669)', badge: '🎁 준비 중',
+      title: '챌린지 준비 중!', desc: '선물이 준비되고 있어요. 곧 시작됩니다!',
+      stats: [
+        { v: 'D-' + chDays(now, CH.preStart), l: '프리 시작까지' },
+        { v: '4/1~', l: '선물 지급' }, { v: '3/22', l: '프리 시작' }
+      ]
+    },
+    pre: {
+      grad: 'linear-gradient(135deg,#0EA5E9,#0284C7)', badge: '🏃 프리 챌린지 진행 중',
+      title: '주 2회 운동 인증 기간!', desc: '혈당 체크 없이 가볍게 운동해요',
+      stats: [
+        { v: chDays(now, CH.preEnd) + '일', l: '남은 기간' },
+        { v: '주 2회', l: '운동 목표' },
+        { v: Math.min(100, Math.round(((now - CH.preStart) / (CH.preEnd - CH.preStart)) * 100)) + '%', l: '진행률' }
+      ]
+    },
+    main: {
+      grad: 'linear-gradient(135deg,#EF4444,#DC2626)', badge: '💪 본 챌린지 진행 중',
+      title: '주 3회 운동 인증 기간!', desc: '혈당 체크 기기 착용 + 걷기/달리기 인증',
+      stats: [
+        { v: chDays(now, CH.mainEnd) + '일', l: '남은 기간' },
+        { v: '주 3회', l: '운동 목표' },
+        { v: Math.min(100, Math.round(((now - CH.mainStart) / (CH.mainEnd - CH.mainStart)) * 100)) + '%', l: '진행률' }
+      ]
+    },
+    ended: {
+      grad: 'linear-gradient(135deg,#6B7280,#4B5563)', badge: '🏁 챌린지 종료',
+      title: '챌린지가 종료되었습니다', desc: '참여해주셔서 감사합니다! 수고 많으셨어요 🎉',
+      stats: [{ v: '완료', l: '챌린지' }, { v: '🎉', l: '수고하셨어요' }, { v: '감사', l: '합니다' }]
+    },
+  };
+  const p = phaseMap[phase];
+  document.getElementById('ch-phase-card').innerHTML = `
+    <div class="ch-phase-card" style="background:${p.grad}">
+      <div class="ch-phase-badge">${p.badge}</div>
+      <div class="ch-phase-title">${p.title}</div>
+      <div class="ch-phase-desc">${p.desc}</div>
+      <div class="ch-phase-stats">
+        ${p.stats.map(s => `<div class="ch-phase-stat"><div class="ch-phase-val">${s.v}</div><div class="ch-phase-lbl">${s.l}</div></div>`).join('')}
+      </div>
+    </div>
+  `;
+
+  /* ── Registration status / form ── */
+  const myReg = getMyReg();
+  const regEl = document.getElementById('ch-reg-status');
+
+  if (myReg) {
+    const statusLbl = { pending:'⏳ 검토 중', confirmed:'✅ 선정 완료', cancelled:'❌ 미선정' }[myReg.status];
+    regEl.innerHTML = `
+      <div class="ch-reg-card">
+        <div class="ch-reg-title">✅ 챌린지 신청 완료</div>
+        <div class="ch-reg-row"><span class="ch-reg-label">신청번호</span><span class="ch-reg-value">${myReg.id}</span></div>
+        <div class="ch-reg-row"><span class="ch-reg-label">이름</span><span class="ch-reg-value">${myReg.name}</span></div>
+        <div class="ch-reg-row"><span class="ch-reg-label">부서</span><span class="ch-reg-value">${myReg.dept}</span></div>
+        <div class="ch-reg-row"><span class="ch-reg-label">신발 사이즈</span><span class="ch-reg-value">${myReg.shoeSize}mm</span></div>
+        <div class="ch-reg-row"><span class="ch-reg-label">가족 참여</span><span class="ch-reg-value">${myReg.familyParticipation ? '예 (' + myReg.familyCount + '명)' : '본인만'}</span></div>
+        <div class="ch-reg-row"><span class="ch-reg-label">상태</span><span class="ch-reg-value">${statusLbl}</span></div>
+      </div>
+    `;
+  } else if (phase === 'registration') {
+    regEl.innerHTML = `
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">✍️ 챌린지 신청</span>
+          <span class="badge badge-warning">3/18 마감</span>
+        </div>
+        <div class="ch-dup-warn" id="ch-dup-warn">⚠️ 이미 신청하신 사번입니다</div>
+        <form id="ch-form" onsubmit="submitChReg(event)" novalidate>
+          <div class="ch-form-group">
+            <label class="form-label">이름 <span style="color:var(--accent)">*</span></label>
+            <input type="text" class="ch-form-input" id="ch-name" placeholder="홍길동" value="${S.user.name || ''}">
+          </div>
+          <div class="ch-row2">
+            <div class="ch-form-group">
+              <label class="form-label">사번 <span style="color:var(--accent)">*</span></label>
+              <input type="text" class="ch-form-input" id="ch-empid" placeholder="EMP-001" oninput="checkChDup()">
+            </div>
+            <div class="ch-form-group">
+              <label class="form-label">부서 <span style="color:var(--accent)">*</span></label>
+              <select class="ch-form-select" id="ch-dept">
+                <option value="">선택</option>
+                <option>내과</option><option>외과</option><option>정형외과</option>
+                <option>소아청소년과</option><option>산부인과</option><option>응급의학과</option>
+                <option>마취통증의학과</option><option>영상의학과</option><option>진단검사의학과</option>
+                <option>약제부</option><option>간호부</option><option>원무과</option>
+                <option>행정부</option><option>영양팀</option><option>물리치료실</option>
+                <option>재활의학과</option><option>기타</option>
+              </select>
+            </div>
+          </div>
+          <div class="ch-row2">
+            <div class="ch-form-group">
+              <label class="form-label">연락처 <span style="color:var(--accent)">*</span></label>
+              <input type="tel" class="ch-form-input" id="ch-phone" placeholder="010-0000-0000">
+            </div>
+            <div class="ch-form-group">
+              <label class="form-label">신발 사이즈 <span style="color:var(--accent)">*</span></label>
+              <select class="ch-form-select" id="ch-shoe">
+                <option value="">사이즈(mm)</option>
+                <option>220</option><option>225</option><option>230</option><option>235</option>
+                <option>240</option><option>245</option><option>250</option><option>255</option>
+                <option>260</option><option>265</option><option>270</option><option>275</option>
+                <option>280</option><option>285</option><option>290</option><option>295</option>
+                <option>300</option>
+              </select>
+            </div>
+          </div>
+          <div class="ch-form-group">
+            <label class="form-label">가족 참여 여부 <span style="color:var(--accent)">*</span></label>
+            <div class="ch-radio-group">
+              <label class="ch-radio-label"><input type="radio" name="ch-fam" value="no" checked onchange="toggleChFam(this)"> 본인만</label>
+              <label class="ch-radio-label"><input type="radio" name="ch-fam" value="yes" onchange="toggleChFam(this)"> 가족 함께</label>
+            </div>
+          </div>
+          <div id="ch-fam-detail" style="display:none">
+            <div class="ch-row2">
+              <div class="ch-form-group">
+                <label class="form-label">가족 인원 (본인 제외)</label>
+                <select class="ch-form-select" id="ch-fam-cnt">
+                  <option value="1">1명</option><option value="2">2명</option>
+                  <option value="3">3명</option><option value="4">4명 이상</option>
+                </select>
+              </div>
+              <div class="ch-form-group">
+                <label class="form-label">가족 신발 사이즈</label>
+                <input type="text" class="ch-form-input" id="ch-fam-shoe" placeholder="예: 245, 230">
+              </div>
+            </div>
+          </div>
+          <div class="ch-consent">
+            <p class="ch-consent-text">수집된 개인정보는 챌린지 운영 및 선물 지급 목적으로만 활용되며, 챌린지 종료 후 즉시 파기됩니다.</p>
+            <label class="ch-consent-check">
+              <input type="checkbox" id="ch-consent"> 개인정보 수집·이용에 동의합니다 <span style="color:var(--accent)">*</span>
+            </label>
+          </div>
+          <button type="submit" class="btn btn-primary btn-full">✍️ 신청 완료하기</button>
+        </form>
+      </div>
+    `;
+  } else if (phase === 'before') {
+    regEl.innerHTML = `
+      <div class="card" style="text-align:center;padding:28px">
+        <div style="font-size:44px;margin-bottom:12px">📢</div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:6px">3월 16일부터 신청 접수 시작</div>
+        <div style="font-size:13px;color:var(--text-secondary)">모집 기간에 이 탭에서 바로 신청할 수 있어요!</div>
+      </div>
+    `;
+  } else {
+    regEl.innerHTML = '';
+  }
+
+  /* ── Timeline ── */
+  const milestones = [
+    { date:'3/16(월)', title:'모집 공지 시작', desc:'신청 접수 시작. 신발 사이즈·가족 정보 필수 기재', tag:null,
+      status: now >= CH.announce ? 'done' : 'future' },
+    { date:'3/18(수)', title:'신청 마감', desc:'이 날 이후 추가 신청 불가', tag:null,
+      status: now > CH.deadline ? 'done' : now >= CH.announce ? 'active' : 'future' },
+    { date:'3/19(목)~', title:'인원 확정 및 선물 주문', desc:'선물 지급은 4월 1일(수)부터 입고 순서대로', tag:null,
+      status: now > CH.confirm ? 'done' : 'future' },
+    { date:'3/22(일) – 4/4(토)', title:'프리 챌린지 (2주)', desc:'주 2회 운동 인증 · 혈당 체크 없이 자유 참여', tag:'pre',
+      status: now > CH.preEnd ? 'done' : now >= CH.preStart ? 'active' : 'future' },
+    { date:'4/5(일) – 4/14(화)', title:'본 챌린지 (10일)', desc:'주 3회 운동 인증 · 혈당 체크 기기 착용 + 포인트 적립', tag:'main',
+      status: now > CH.mainEnd ? 'done' : now >= CH.mainStart ? 'active' : 'future' },
+  ];
+  document.getElementById('ch-timeline').innerHTML = milestones.map(m => `
+    <div class="ch-tl-item">
+      <div class="ch-tl-dot ${m.status}"></div>
+      <div class="ch-tl-date">${m.date}</div>
+      <div class="ch-tl-title">${m.title}</div>
+      <div class="ch-tl-desc">${m.desc}</div>
+      ${m.tag ? `<span class="ch-tl-tag ${m.tag}">${m.tag === 'pre' ? '프리 챌린지' : '본 챌린지'}</span>` : ''}
+    </div>
+  `).join('');
+}
+
+function checkChDup() {
+  const empId = document.getElementById('ch-empid').value.trim().toUpperCase();
+  if (!empId) { document.getElementById('ch-dup-warn').classList.remove('show'); return; }
+  const dup = JSON.parse(localStorage.getItem(CH_REG_KEY) || '[]').find(r => r.empId.toUpperCase() === empId);
+  document.getElementById('ch-dup-warn').classList.toggle('show', !!dup);
+}
+
+function toggleChFam(el) {
+  document.getElementById('ch-fam-detail').style.display = el.value === 'yes' ? 'block' : 'none';
+}
+
+function submitChReg(e) {
+  e.preventDefault();
+  const name  = (document.getElementById('ch-name').value || '').trim();
+  const empId = (document.getElementById('ch-empid').value || '').trim().toUpperCase();
+  const dept  = document.getElementById('ch-dept').value;
+  const phone = (document.getElementById('ch-phone').value || '').trim();
+  const shoe  = document.getElementById('ch-shoe').value;
+  const ok    = document.getElementById('ch-consent').checked;
+
+  if (!name || !empId || !dept || !phone || !shoe) { showToast('⚠️ 필수 항목을 모두 입력해주세요'); return; }
+  if (!ok) { showToast('⚠️ 개인정보 동의가 필요합니다'); return; }
+
+  const regs = JSON.parse(localStorage.getItem(CH_REG_KEY) || '[]');
+  if (regs.find(r => r.empId === empId)) { showToast('⚠️ 이미 신청하신 사번입니다'); return; }
+
+  const famVal = document.querySelector('input[name="ch-fam"]:checked').value;
+  const id = 'HC-' + String(Date.now()).slice(-6);
+  regs.push({
+    id, name, empId, dept, phone, email:'', shoeSize: shoe,
+    familyParticipation: famVal === 'yes',
+    familyCount: famVal === 'yes' ? parseInt(document.getElementById('ch-fam-cnt').value) : 0,
+    familyShoeSize: famVal === 'yes' ? document.getElementById('ch-fam-shoe').value.trim() : '',
+    note:'', status:'pending', adminNote:'',
+    registeredAt: new Date().toISOString(),
+  });
+  localStorage.setItem(CH_REG_KEY, JSON.stringify(regs));
+
+  S.user.registrationId = id;
+  S.user.name = name;
+  save();
+  renderHeader();
+  haptic('success');
+  showToast('🎉 챌린지 신청 완료! 신청번호: ' + id);
+  renderChallenge();
+}
+
+/* ════════════════════════════════════════
+   INIT
+════════════════════════════════════════ */
+function init() {
+  const isFirstVisit = !localStorage.getItem('hi_health_v2');
+  load();
+  renderHeader();
+  renderHome();
+  // Show profile setup on first visit
+  if (isFirstVisit) setTimeout(openProfileModal, 400);
+  // Animate level bar after short delay
+  setTimeout(() => {
+    const lv = getLevel(S.user.points);
+    const nextLv = LEVELS.find(l => l.lv === lv.lv + 1);
+    if (nextLv) {
+      const pct = ((S.user.points - lv.min) / (nextLv.min - lv.min) * 100).toFixed(1);
+      const bar = document.getElementById('lv-bar');
+      if (bar) { bar.style.width = '0%'; setTimeout(() => bar.style.width = pct + '%', 100); }
+    }
+  }, 200);
+}
+
+init();
 </script>
+
+<!-- Profile Modal -->
+<div id="profile-modal" class="profile-modal-overlay pm-hidden">
+  <div class="profile-modal">
+    <div class="pm-title">👤 프로필 설정</div>
+    <div class="pm-sub">이름과 아바타를 선택해주세요</div>
+    <div class="form-label">이름</div>
+    <input type="text" class="ch-form-input" id="pm-name" placeholder="이름을 입력하세요" maxlength="10">
+    <div class="form-label pm-avatar-label">아바타 선택</div>
+    <div class="avatar-grid" id="pm-avatar-grid"></div>
+    <div class="pm-tags-section">
+      <div class="pm-tags-label">🏷️ 나의 태그 <span class="pm-sel-count" id="pm-sel-count"></span></div>
+      <div id="pm-tag-list"></div>
+    </div>
+    <button type="button" class="btn btn-primary btn-full" onclick="saveProfile()">저장하기</button>
+    <div class="pm-divider"></div>
+    <button type="button" class="btn btn-danger btn-full" onclick="logout()">🚪 로그아웃 (데이터 초기화)</button>
+  </div>
+</div>
+
+<!-- Comment Modal -->
+<div id="comment-overlay" class="comment-overlay pm-hidden">
+  <div class="comment-modal">
+    <div class="cm-header">
+      <span class="cm-title">💬 댓글</span>
+      <button type="button" class="cm-close" onclick="closeComments()">✕</button>
+    </div>
+    <div class="cm-list" id="cm-list"></div>
+    <div class="cm-compose">
+      <span class="cm-compose-av" id="cm-av">🏃</span>
+      <input class="cm-input" id="cm-input" type="text" placeholder="댓글을 입력하세요..." maxlength="200"
+             onkeydown="if(event.key==='Enter')submitComment()">
+      <button type="button" class="cm-send" onclick="submitComment()">게시</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Modal -->
+<div id="confirm-overlay" class="confirm-overlay pm-hidden">
+  <div class="confirm-modal">
+    <div class="confirm-icon" id="confirm-icon">🗑️</div>
+    <div class="confirm-title" id="confirm-title">삭제하시겠어요?</div>
+    <div class="confirm-msg" id="confirm-msg">이 작업은 되돌릴 수 없습니다.</div>
+    <div class="confirm-btns">
+      <button type="button" class="btn btn-cancel btn-full" onclick="closeConfirm()">취소</button>
+      <button type="button" class="btn btn-danger btn-full" id="confirm-ok-btn" onclick="confirmOk()">삭제</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
