@@ -1394,7 +1394,7 @@
         <button class="league-tab active" data-tab="weekly"     onclick="setTab(this,'weekly')">이번 주</button>
         <button class="league-tab"        data-tab="monthly"    onclick="setTab(this,'monthly')">이번 달</button>
         <button class="league-tab"        data-tab="alltime"    onclick="setTab(this,'alltime')">전체 기록</button>
-        <button class="league-tab"        data-tab="challenger" onclick="setTab(this,'challenger')"><img src="icons/HI_icon_4.png" class="league-tab-icon" alt="챌린지"> 챌린지</button>
+        <button class="league-tab" id="league-tab-challenger" data-tab="challenger" onclick="setTab(this,'challenger')"><img src="icons/HI_icon_4.png" class="league-tab-icon" alt="챌린지"> 챌린지</button>
       </div>
 
       <div class="my-rank-card" id="my-rank-card"></div>
@@ -1969,6 +1969,12 @@ function navigate(page) {
 function renderHeader() {
   document.getElementById('hpts-val').textContent = S.user.points;
   document.getElementById('header-avatar').textContent = S.user.avatar;
+  // 챌린지 탭: 'before' 또는 'ended' 단계엔 숨김
+  const phase = getChPhase();
+  const challengeNavBtn = document.querySelector('.nav-btn[data-page="challenge"]');
+  if (challengeNavBtn) {
+    challengeNavBtn.style.display = (phase === 'before' || phase === 'ended') ? 'none' : '';
+  }
 }
 
 /* ════════════════════════════════════════
@@ -2988,6 +2994,9 @@ function setCommunityTab(tab) {
   document.getElementById('comm-league-panel').style.display = tab === 'league' ? '' : 'none';
   document.getElementById('comm-tab-feed').classList.toggle('active', tab === 'feed');
   document.getElementById('comm-tab-league').classList.toggle('active', tab === 'league');
+  // 챌린지 신청 완료 시에만 리그의 챌린지 탭 표시
+  const challengerTab = document.getElementById('league-tab-challenger');
+  if (challengerTab) challengerTab.style.display = S.user.registrationId ? '' : 'none';
   if (tab === 'league') renderLeague();
 }
 
@@ -3030,7 +3039,7 @@ function renderCommunity() {
   const filterRow = document.getElementById('feed-filter-row');
   const mainFilters = [
     { key:'all', label:'전체보기' },
-    { key:'챌린지', label:'챌린지 보기' },
+    ...(S.user.registrationId ? [{ key:'챌린지', label:'챌린지 보기' }] : []),
   ];
   const filters = [
     ...mainFilters,
