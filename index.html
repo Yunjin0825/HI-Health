@@ -619,8 +619,18 @@
     .avatar-opt { width:100%; aspect-ratio:1; border-radius:50%; background:var(--bg); border:2px solid var(--border); font-size:22px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.2s; }
     .avatar-opt.selected { border-color:var(--primary); background:#EBF0FF; transform:scale(1.1); }
     .pm-hidden { display:none !important; }
-    .pm-avatar-label { margin-top:16px; margin-bottom:8px; }
     .pm-divider { height:1px; background:var(--border); margin:20px 0; }
+    /* 실명 표시 */
+    .pm-realname-box { background:var(--bg); border-radius:8px; padding:10px 14px; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+    .pm-realname-label { font-size:11px; font-weight:700; color:var(--text-secondary); }
+    .pm-realname-value { font-size:15px; font-weight:700; }
+    /* 섹션 헤더 (접기/펼치기) */
+    .pm-section-hd { display:flex; align-items:center; justify-content:space-between; margin:16px 0 8px; }
+    .pm-section-title { font-size:13px; font-weight:700; }
+    .pm-section-toggle { background:none; border:1px solid var(--border); border-radius:20px; font-size:11px; padding:3px 10px; cursor:pointer; color:var(--text-secondary); transition:all 0.2s; }
+    .pm-section-toggle:hover { background:var(--border); }
+    .pm-section-body { overflow:hidden; transition:all 0.2s; }
+    .pm-section-body.collapsed { display:none; }
     .btn-danger { background:#FEE2E2; color:#DC2626; border:none; }
     .btn-danger:active { transform:scale(0.97); background:#FECACA; }
     /* ── Confirm Modal ── */
@@ -1733,6 +1743,8 @@ const SHOP_ORDERS_KEY = 'hi_health_shop_orders';
 /* ── 현재 로그인 사용자 (로그인 후 설정) ── */
 let ACTIVE_EMPID = '';
 let STORAGE_KEY  = 'hi_health_v2'; // 로그인 시 'hi_health_v2_사번'으로 변경
+// 닉네임 우선, 없으면 이름
+function myDisplayName() { return S.user.nickname || S.user.name || ''; }
 /* ── Google Sheets 동기화 URL (배포 후 입력) ── */
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbypofqXe7QCpq7ixasu0Kwgma1E-Yf8QDp-LAIgHMXNR5yjHkjbrqmrx2hGRfgUkNUu/exec'; // ← Apps Script 웹 앱 URL을 여기에 붙여넣기
 
@@ -2115,7 +2127,7 @@ function renderHome() {
   const todayMins = tw.reduce((s,w) => s+w.duration, 0);
   const todayPts  = tw.reduce((s,w) => s+w.points, 0);
 
-  document.getElementById('hero-name').textContent = S.user.name + '님';
+  document.getElementById('hero-name').textContent = myDisplayName() + '님';
   const tagsEl = document.getElementById('hero-tags');
   if (tagsEl) {
     tagsEl.innerHTML = (S.user.tags || []).map(t => `<span class="hero-tag">${t}</span>`).join('');
@@ -2479,7 +2491,7 @@ function logExercise() {
     S.posts.unshift({
       id: Date.now(),
       userId: 0,
-      name: S.user.name,
+      name: myDisplayName(),
       avatar: S.user.avatar,
       lv: curLv.lv,
       body: shareMsg,
@@ -2963,29 +2975,41 @@ function viewPhoto(id) {
 let _selAvatar = '🏃';
 let _selTags   = [];
 function openProfileModal(onboarding = false) {
-  document.getElementById('pm-name').value = S.user.name;
+  document.getElementById('pm-realname').textContent = S.user.name || ACTIVE_EMPID || '-';
+  document.getElementById('pm-nickname').value = S.user.nickname || S.user.name || '';
   _selAvatar = S.user.avatar;
   _selTags   = [...(S.user.tags || [])];
   document.getElementById('pm-avatar-grid').innerHTML = AVATARS.map(a =>
     `<button type="button" class="avatar-opt${a===_selAvatar?' selected':''}" onclick="pickAvatar('${a}')">${a}</button>`
   ).join('');
+  // 섹션 기본 펼침
+  document.getElementById('pm-section-avatar').classList.remove('collapsed');
+  document.getElementById('pm-section-tag').classList.remove('collapsed');
+  document.querySelectorAll('.pm-section-toggle').forEach(b => b.textContent = '닫기');
   renderPmTags();
 
   if (onboarding) {
     document.getElementById('pm-title').textContent = '🎉 HI Health에 오신 걸 환영해요!';
-    document.getElementById('pm-sub').textContent   = '이름과 아바타를 설정하고 챌린지를 시작해보세요';
+    document.getElementById('pm-sub').textContent   = '닉네임과 아바타를 설정하고 챌린지를 시작해보세요';
     document.getElementById('pm-save-btn').textContent = '시작하기!';
     document.getElementById('pm-logout-section').style.display = 'none';
     document.getElementById('pm-close-btn').style.display = 'none';
   } else {
     document.getElementById('pm-title').textContent = '👤 프로필 설정';
-    document.getElementById('pm-sub').textContent   = '이름과 아바타를 선택해주세요';
+    document.getElementById('pm-sub').textContent   = '닉네임과 아바타를 설정해주세요';
     document.getElementById('pm-save-btn').textContent = '저장하기';
     document.getElementById('pm-logout-section').style.display = '';
     document.getElementById('pm-close-btn').style.display = '';
   }
 
   document.getElementById('profile-modal').classList.remove('pm-hidden');
+}
+
+function togglePmSection(type) {
+  const body = document.getElementById('pm-section-' + type);
+  const btn = body.previousElementSibling.querySelector('.pm-section-toggle');
+  const collapsed = body.classList.toggle('collapsed');
+  btn.textContent = collapsed ? '열기' : '닫기';
 }
 function closeProfileModal() {
   document.getElementById('profile-modal').classList.add('pm-hidden');
@@ -3028,11 +3052,11 @@ function pickAvatar(a) {
   );
 }
 function saveProfile() {
-  const name = document.getElementById('pm-name').value.trim();
-  if (!name) { haptic('error'); showToast('이름을 입력해주세요'); return; }
-  S.user.name   = name;
-  S.user.avatar = _selAvatar;
-  S.user.tags   = [..._selTags];
+  const nickname = document.getElementById('pm-nickname').value.trim();
+  if (!nickname) { haptic('error'); showToast('닉네임을 입력해주세요'); return; }
+  S.user.nickname = nickname;
+  S.user.avatar   = _selAvatar;
+  S.user.tags     = [..._selTags];
   save();
   renderHeader();
   renderHome();
@@ -3071,7 +3095,7 @@ function renderLeague() {
   if (tab === 'challenger') {
     const isRegistered = !!S.user.registrationId;
     const me = {
-      id:0, name: S.user.name + ' (나)', avatar: S.user.avatar,
+      id:0, name: myDisplayName() + ' (나)', avatar: S.user.avatar,
       lv: getLevel(S.user.points).lv, pts: S.user.points,
       wPts: myWeekPts(), change:0, isMe: true, isChallenger: isRegistered,
       tags: S.user.tags || [],
@@ -3159,7 +3183,7 @@ function renderLeague() {
   `;
 
   const me = {
-    id:0, name: S.user.name + ' (나)', avatar: S.user.avatar,
+    id:0, name: myDisplayName() + ' (나)', avatar: S.user.avatar,
     lv: getLevel(S.user.points).lv, pts: S.user.points,
     wPts: myWeekPts(), change:0, isMe: true, tags: S.user.tags || [],
   };
@@ -4211,13 +4235,25 @@ init();
       <div class="pm-title" id="pm-title">👤 프로필 설정</div>
       <button type="button" class="pm-close-btn" id="pm-close-btn" onclick="closeProfileModal()">✕</button>
     </div>
-    <div class="pm-sub" id="pm-sub">이름과 아바타를 선택해주세요</div>
-    <div class="form-label">이름</div>
-    <input type="text" class="ch-form-input" id="pm-name" placeholder="이름을 입력하세요" maxlength="10">
-    <div class="form-label pm-avatar-label">아바타 선택</div>
-    <div class="avatar-grid" id="pm-avatar-grid"></div>
-    <div class="pm-tags-section">
-      <div class="pm-tags-label">🏷️ 나의 태그 <span class="pm-sel-count" id="pm-sel-count"></span></div>
+    <div class="pm-sub" id="pm-sub">닉네임과 아바타를 설정해주세요</div>
+    <div class="pm-realname-box">
+      <span class="pm-realname-label">이름</span>
+      <span class="pm-realname-value" id="pm-realname">-</span>
+    </div>
+    <div class="form-label">닉네임 <span style="font-size:11px;color:var(--text-secondary);font-weight:400;">(커뮤니티·리그에 표시)</span></div>
+    <input type="text" class="ch-form-input" id="pm-nickname" placeholder="닉네임을 입력하세요" maxlength="15">
+    <div class="pm-section-hd">
+      <span class="pm-section-title">🎨 아바타 선택</span>
+      <button type="button" class="pm-section-toggle" onclick="togglePmSection('avatar')">닫기</button>
+    </div>
+    <div class="pm-section-body" id="pm-section-avatar">
+      <div class="avatar-grid" id="pm-avatar-grid"></div>
+    </div>
+    <div class="pm-section-hd">
+      <span class="pm-section-title">🏷️ 나의 태그 <span class="pm-sel-count" id="pm-sel-count"></span></span>
+      <button type="button" class="pm-section-toggle" onclick="togglePmSection('tag')">닫기</button>
+    </div>
+    <div class="pm-section-body" id="pm-section-tag">
       <div id="pm-tag-list"></div>
     </div>
     <button type="button" class="btn btn-primary btn-full" id="pm-save-btn" onclick="saveProfile()">저장하기</button>
