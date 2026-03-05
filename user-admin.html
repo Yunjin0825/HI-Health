@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HI Health | 이용자 기록 관리</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4F46E5; --primary-dark: #3730A3; --primary-light: #EEF2FF;
+      --green: #10B981; --green-light: #D1FAE5;
+      --amber: #F59E0B; --amber-light: #FEF3C7;
+      --red: #EF4444; --red-light: #FEE2E2;
+      --sky: #0EA5E9; --sky-light: #E0F2FE;
+      --purple: #8B5CF6; --purple-light: #F3E8FF;
+      --text: #111827; --text-2: #374151; --text-3: #6B7280;
+      --border: #E5E7EB; --bg: #F3F4F6; --card: #fff;
+      --radius: 12px; --radius-sm: 8px;
+      --shadow: 0 2px 10px rgba(0,0,0,0.07);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Noto Sans KR',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+    /* LOGIN */
+    .login-screen { min-height:100vh; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,#1e1b4b,#4338ca); padding:20px; }
+    .login-card { background:#fff; border-radius:20px; padding:44px 36px; width:100%; max-width:380px; box-shadow:0 20px 60px rgba(0,0,0,0.25); text-align:center; }
+    .login-icon { font-size:48px; margin-bottom:14px; }
+    .login-title { font-size:22px; font-weight:700; margin-bottom:5px; }
+    .login-sub { font-size:13px; color:var(--text-3); margin-bottom:28px; }
+    .login-input { width:100%; padding:13px 16px; border:1.5px solid var(--border); border-radius:var(--radius-sm); font-family:inherit; font-size:14px; outline:none; text-align:center; letter-spacing:4px; margin-bottom:14px; transition:border-color 0.2s; }
+    .login-input:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(79,70,229,0.1); }
+    .login-input.error { border-color:var(--red); background:var(--red-light); letter-spacing:normal; }
+    .login-btn { width:100%; padding:13px; background:linear-gradient(135deg,var(--primary),var(--primary-dark)); color:#fff; border:none; border-radius:var(--radius-sm); font-family:inherit; font-size:15px; font-weight:700; cursor:pointer; transition:all 0.2s; }
+    .login-btn:hover { transform:translateY(-1px); box-shadow:0 6px 18px rgba(79,70,229,0.35); }
+    .login-err { font-size:13px; color:var(--red); margin-top:10px; display:none; }
+
+    /* ADMIN LAYOUT */
+    #admin { display:none; min-height:100vh; }
+    .admin-header { background:linear-gradient(135deg,#1e1b4b,#4338ca); color:#fff; padding:0 24px; height:62px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; box-shadow:0 2px 12px rgba(0,0,0,0.2); }
+    .ah-logo { display:flex; align-items:center; gap:10px; font-size:17px; font-weight:700; }
+    .ah-logo img { height:28px; width:auto; border-radius:6px; }
+    .ah-right { display:flex; align-items:center; gap:10px; }
+    .ah-user-name { background:rgba(255,255,255,0.15); padding:5px 13px; border-radius:20px; font-size:12px; font-weight:600; }
+    .ah-logout { background:none; border:1px solid rgba(255,255,255,0.3); color:#fff; padding:7px 14px; border-radius:20px; font-family:inherit; font-size:12px; cursor:pointer; transition:all 0.2s; }
+    .ah-logout:hover { background:rgba(255,255,255,0.15); }
+    .admin-body { padding:24px; max-width:1200px; margin:0 auto; }
+
+    /* STAT CARDS */
+    .stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px; margin-bottom:24px; }
+    .stat-card { background:var(--card); border-radius:var(--radius); padding:18px; box-shadow:var(--shadow); }
+    .stat-label { font-size:12px; color:var(--text-3); font-weight:600; margin-bottom:6px; }
+    .stat-value { font-size:28px; font-weight:700; line-height:1; }
+    .stat-sub { font-size:11px; color:var(--text-3); margin-top:4px; }
+    .stat-card.blue   { border-top:3px solid var(--primary); }
+    .stat-card.green  { border-top:3px solid var(--green); }
+    .stat-card.amber  { border-top:3px solid var(--amber); }
+    .stat-card.purple { border-top:3px solid var(--purple); }
+    .stat-card.sky    { border-top:3px solid var(--sky); }
+
+    /* TABS */
+    .tab-bar { display:flex; gap:4px; background:var(--card); border-radius:var(--radius); padding:6px; box-shadow:var(--shadow); margin-bottom:18px; }
+    .tab-btn { flex:1; padding:9px; text-align:center; border:none; background:none; border-radius:8px; font-family:inherit; font-size:13px; font-weight:600; color:var(--text-3); cursor:pointer; transition:all 0.2s; }
+    .tab-btn.active { background:var(--primary); color:#fff; box-shadow:0 2px 8px rgba(79,70,229,0.3); }
+
+    /* CONTROLS */
+    .controls { background:var(--card); border-radius:var(--radius); padding:14px 16px; box-shadow:var(--shadow); margin-bottom:14px; display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .ctrl-search { flex:1; min-width:180px; padding:9px 14px; border:1.5px solid var(--border); border-radius:var(--radius-sm); font-family:inherit; font-size:13px; outline:none; background:var(--bg); transition:border-color 0.2s; }
+    .ctrl-search:focus { border-color:var(--primary); background:#fff; }
+    .ctrl-select { padding:9px 32px 9px 12px; border:1.5px solid var(--border); border-radius:var(--radius-sm); font-family:inherit; font-size:13px; outline:none; background:var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E") no-repeat right 8px center / 16px; cursor:pointer; appearance:none; }
+    .ctrl-count { font-size:13px; color:var(--text-3); font-weight:600; margin-left:auto; }
+    .ctrl-btn { padding:9px 16px; border-radius:var(--radius-sm); border:none; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; gap:5px; }
+    .ctrl-btn.danger { background:var(--red-light); color:var(--red); }
+    .ctrl-btn.danger:hover { background:var(--red); color:#fff; }
+    .ctrl-btn.primary { background:var(--primary); color:#fff; }
+    .ctrl-btn.primary:hover { background:var(--primary-dark); }
+
+    /* TABLE */
+    .table-wrap { background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden; margin-bottom:24px; }
+    .table-scroll { overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; min-width:700px; }
+    thead { background:#F9FAFB; }
+    th { padding:11px 14px; text-align:left; font-size:12px; font-weight:700; color:var(--text-3); white-space:nowrap; border-bottom:1px solid var(--border); }
+    td { padding:12px 14px; font-size:13px; border-bottom:1px solid var(--border); vertical-align:middle; }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:#FAFAFA; }
+    .td-date { font-size:11px; color:var(--text-3); white-space:nowrap; }
+    .td-name { font-weight:600; }
+    .td-memo { font-size:12px; color:var(--text-3); max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .ex-badge { display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:20px; font-size:12px; font-weight:600; background:var(--primary-light); color:var(--primary); white-space:nowrap; }
+    .pts-badge { font-weight:700; color:var(--amber); }
+    .action-btn { padding:5px 11px; border-radius:6px; border:none; font-family:inherit; font-size:11px; font-weight:600; cursor:pointer; transition:all 0.2s; }
+    .btn-delete { background:var(--red-light); color:var(--red); }
+    .btn-delete:hover { background:var(--red); color:#fff; }
+    .btn-detail { background:var(--primary-light); color:var(--primary); }
+    .btn-detail:hover { background:var(--primary); color:#fff; }
+    .empty-table { padding:52px; text-align:center; color:var(--text-3); }
+    .empty-icon { font-size:48px; margin-bottom:12px; }
+
+    /* USER INFO CARD */
+    .user-info-card { background:var(--card); border-radius:var(--radius); padding:24px; box-shadow:var(--shadow); margin-bottom:16px; }
+    .user-info-title { font-size:15px; font-weight:700; margin-bottom:18px; display:flex; align-items:center; gap:7px; }
+    .user-info-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; }
+    .ui-field { display:flex; flex-direction:column; gap:5px; }
+    .ui-label { font-size:12px; font-weight:700; color:var(--text-3); }
+    .ui-value { font-size:15px; font-weight:600; }
+    .ui-input { padding:9px 12px; border:1.5px solid var(--border); border-radius:var(--radius-sm); font-family:inherit; font-size:14px; outline:none; transition:border-color 0.2s; }
+    .ui-input:focus { border-color:var(--primary); }
+    .pts-adjust { display:flex; gap:8px; align-items:center; margin-top:14px; padding-top:14px; border-top:1px solid var(--border); }
+    .pts-adjust-label { font-size:13px; font-weight:600; flex-shrink:0; }
+    .pts-adjust-input { width:100px; padding:8px 12px; border:1.5px solid var(--border); border-radius:var(--radius-sm); font-family:inherit; font-size:14px; outline:none; text-align:center; }
+    .pts-adjust-input:focus { border-color:var(--primary); }
+    .pts-adjust-btn { padding:8px 16px; border:none; border-radius:var(--radius-sm); font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; transition:all 0.2s; }
+    .pts-add { background:var(--green-light); color:#065F46; }
+    .pts-add:hover { background:var(--green); color:#fff; }
+    .pts-sub { background:var(--red-light); color:var(--red); }
+    .pts-sub:hover { background:var(--red); color:#fff; }
+    .save-btn { padding:10px 24px; background:var(--primary); color:#fff; border:none; border-radius:var(--radius-sm); font-family:inherit; font-size:14px; font-weight:700; cursor:pointer; transition:all 0.2s; margin-top:16px; }
+    .save-btn:hover { background:var(--primary-dark); }
+
+    /* MODAL */
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:300; align-items:center; justify-content:center; padding:20px; }
+    .modal-overlay.open { display:flex; }
+    .modal { background:#fff; border-radius:20px; padding:28px; max-width:500px; width:100%; max-height:90vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,0.3); animation:modalIn 0.25s ease; }
+    @keyframes modalIn { from{opacity:0;transform:scale(0.95)} to{opacity:1;transform:scale(1)} }
+    .modal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+    .modal-title { font-size:17px; font-weight:700; }
+    .modal-close { background:none; border:none; font-size:22px; cursor:pointer; color:var(--text-3); }
+    .detail-row { display:grid; grid-template-columns:110px 1fr; gap:8px; padding:10px 0; border-bottom:1px solid var(--border); align-items:start; }
+    .detail-row:last-child { border-bottom:none; }
+    .detail-label { font-size:12px; font-weight:700; color:var(--text-3); padding-top:2px; }
+    .detail-value { font-size:13px; font-weight:500; word-break:break-all; }
+    .modal-del-btn { width:100%; margin-top:20px; padding:12px; background:var(--red); color:#fff; border:none; border-radius:var(--radius-sm); font-family:inherit; font-size:14px; font-weight:700; cursor:pointer; transition:all 0.2s; }
+    .modal-del-btn:hover { filter:brightness(0.9); }
+
+    /* TOAST */
+    .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(10px); background:#1A1F36; color:#fff; padding:11px 24px; border-radius:30px; font-size:13px; font-weight:500; z-index:400; opacity:0; transition:all 0.3s; pointer-events:none; white-space:nowrap; }
+    .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+    .panel { display:none; }
+    .panel.active { display:block; }
+
+    @media(max-width:640px) { .admin-body{padding:14px;} .stat-grid{grid-template-columns:repeat(2,1fr);} .tab-btn{font-size:12px;padding:8px 4px;} }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="login-screen">
+  <div class="login-card">
+    <div class="login-icon">🏥</div>
+    <div class="login-title">HI Health 관리자</div>
+    <div class="login-sub">이용자 기록 관리 페이지입니다</div>
+    <input type="password" class="login-input" id="pw-input" placeholder="관리자 비밀번호" onkeydown="if(event.key==='Enter')doLogin()">
+    <button type="button" class="login-btn" onclick="doLogin()">로그인</button>
+    <div class="login-err" id="login-err">비밀번호가 올바르지 않습니다</div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="admin">
+  <header class="admin-header">
+    <div class="ah-logo">
+      <img src="images/logo.png" alt="HI Health">
+      이용자 기록 관리
+    </div>
+    <div class="ah-right">
+      <span class="ah-user-name" id="ah-user-name">-</span>
+      <button type="button" class="ah-logout" onclick="doLogout()">로그아웃</button>
+    </div>
+  </header>
+
+  <div class="admin-body">
+
+    <!-- STAT CARDS -->
+    <div class="stat-grid">
+      <div class="stat-card blue">
+        <div class="stat-label">총 운동 횟수</div>
+        <div class="stat-value" id="stat-total-ex">0</div>
+        <div class="stat-sub">회</div>
+      </div>
+      <div class="stat-card amber">
+        <div class="stat-label">보유 포인트</div>
+        <div class="stat-value" id="stat-pts">0</div>
+        <div class="stat-sub">p</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-label">연속 운동일</div>
+        <div class="stat-value" id="stat-streak">0</div>
+        <div class="stat-sub">일</div>
+      </div>
+      <div class="stat-card purple">
+        <div class="stat-label">커뮤니티 게시글</div>
+        <div class="stat-value" id="stat-posts">0</div>
+        <div class="stat-sub">개</div>
+      </div>
+      <div class="stat-card sky">
+        <div class="stat-label">총 운동 시간</div>
+        <div class="stat-value" id="stat-mins">0</div>
+        <div class="stat-sub">분</div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tab-bar">
+      <button type="button" class="tab-btn active" onclick="switchTab('workouts', this)">운동 기록</button>
+      <button type="button" class="tab-btn" onclick="switchTab('posts', this)">커뮤니티 게시글</button>
+      <button type="button" class="tab-btn" onclick="switchTab('user', this)">이용자 정보</button>
+    </div>
+
+    <!-- PANEL: 운동 기록 -->
+    <div class="panel active" id="panel-workouts">
+      <div class="controls">
+        <input type="text" class="ctrl-search" id="wo-search" placeholder="운동 종류, 메모로 검색..." oninput="renderWorkouts()">
+        <select class="ctrl-select" id="wo-filter-type" onchange="renderWorkouts()">
+          <option value="">전체 종류</option>
+        </select>
+        <select class="ctrl-select" id="wo-filter-period" onchange="renderWorkouts()">
+          <option value="">전체 기간</option>
+          <option value="today">오늘</option>
+          <option value="week">이번 주</option>
+          <option value="month">이번 달</option>
+        </select>
+        <span class="ctrl-count" id="wo-count"></span>
+        <button type="button" class="ctrl-btn danger" onclick="deleteAllWorkouts()">전체 삭제</button>
+      </div>
+      <div class="table-wrap">
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>날짜 / 시간</th>
+                <th>운동 종류</th>
+                <th>시간</th>
+                <th>획득 포인트</th>
+                <th>메모</th>
+                <th>관리</th>
+              </tr>
+            </thead>
+            <tbody id="wo-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL: 커뮤니티 게시글 -->
+    <div class="panel" id="panel-posts">
+      <div class="controls">
+        <input type="text" class="ctrl-search" id="post-search" placeholder="게시글 내용으로 검색..." oninput="renderPosts()">
+        <select class="ctrl-select" id="post-filter" onchange="renderPosts()">
+          <option value="all">전체</option>
+          <option value="mine">내 게시글만</option>
+        </select>
+        <span class="ctrl-count" id="post-count"></span>
+        <button type="button" class="ctrl-btn danger" onclick="deleteAllMyPosts()">내 게시글 전체 삭제</button>
+      </div>
+      <div class="table-wrap">
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>날짜</th>
+                <th>작성자</th>
+                <th>운동 태그</th>
+                <th>내용</th>
+                <th>관리</th>
+              </tr>
+            </thead>
+            <tbody id="post-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL: 이용자 정보 -->
+    <div class="panel" id="panel-user">
+      <div class="user-info-card">
+        <div class="user-info-title">이용자 기본 정보</div>
+        <div class="user-info-grid">
+          <div class="ui-field">
+            <div class="ui-label">이름</div>
+            <input type="text" class="ui-input" id="ui-name" placeholder="이름">
+          </div>
+          <div class="ui-field">
+            <div class="ui-label">아바타</div>
+            <input type="text" class="ui-input" id="ui-avatar" placeholder="이모지">
+          </div>
+          <div class="ui-field">
+            <div class="ui-label">포인트</div>
+            <input type="number" class="ui-input" id="ui-points" placeholder="0" min="0">
+          </div>
+          <div class="ui-field">
+            <div class="ui-label">연속 운동일</div>
+            <input type="number" class="ui-input" id="ui-streak" placeholder="0" min="0">
+          </div>
+        </div>
+
+        <div class="pts-adjust">
+          <span class="pts-adjust-label">포인트 조정</span>
+          <input type="number" class="pts-adjust-input" id="pts-adj-val" placeholder="0" min="0">
+          <button type="button" class="pts-adjust-btn pts-add" onclick="adjustPoints(1)">+ 추가</button>
+          <button type="button" class="pts-adjust-btn pts-sub" onclick="adjustPoints(-1)">- 차감</button>
+        </div>
+
+        <button type="button" class="save-btn" onclick="saveUserInfo()">변경사항 저장</button>
+      </div>
+
+      <div class="user-info-card">
+        <div class="user-info-title">태그 정보</div>
+        <div id="ui-tags-display" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+      </div>
+
+      <div class="user-info-card">
+        <div class="user-info-title" style="color:var(--red);">위험 구역</div>
+        <p style="font-size:13px;color:var(--text-3);margin-bottom:14px;">아래 작업은 되돌릴 수 없습니다. 신중하게 사용하세요.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button type="button" class="ctrl-btn danger" onclick="resetAllData()">전체 데이터 초기화</button>
+          <button type="button" class="ctrl-btn danger" onclick="resetWorkoutsOnly()">운동 기록만 초기화</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- WORKOUT DETAIL MODAL -->
+<div class="modal-overlay" id="wo-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">운동 기록 상세</span>
+      <button type="button" class="modal-close" onclick="closeModal('wo-modal')">✕</button>
+    </div>
+    <div id="wo-modal-body"></div>
+    <button type="button" class="modal-del-btn" id="wo-modal-del-btn">이 기록 삭제</button>
+  </div>
+</div>
+
+<!-- POST DETAIL MODAL -->
+<div class="modal-overlay" id="post-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">게시글 상세</span>
+      <button type="button" class="modal-close" onclick="closeModal('post-modal')">✕</button>
+    </div>
+    <div id="post-modal-body"></div>
+    <button type="button" class="modal-del-btn" id="post-modal-del-btn" style="display:none;">이 게시글 삭제</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+const ADMIN_PW = 'hi2025admin';
+const STORAGE_KEY = 'hi_health_v2';
+
+const EX_MAP = {
+  walking:'걷기', running:'달리기', swimming:'수영', cycling:'자전거',
+  yoga:'요가', strength:'근력운동', stretching:'스트레칭', hiking:'등산',
+  tennis:'테니스', 'aerial-yoga':'플라잉요가', climbing:'클라이밍', custom:'기타'
+};
+const EX_ICON = {
+  walking:'🚶', running:'🏃', swimming:'🏊', cycling:'🚴', yoga:'🧘',
+  strength:'💪', stretching:'🤸', hiking:'🥾', tennis:'🎾',
+  'aerial-yoga':'🪂', climbing:'🧗', custom:'✏️'
+};
+
+let D = null; // loaded data
+
+/* ── AUTH ── */
+function doLogin() {
+  const pw = document.getElementById('pw-input').value;
+  const inp = document.getElementById('pw-input');
+  if (pw === ADMIN_PW) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin').style.display = 'block';
+    loadData();
+  } else {
+    inp.classList.add('error');
+    inp.value = '';
+    inp.placeholder = '비밀번호가 올바르지 않습니다';
+    document.getElementById('login-err').style.display = 'block';
+    setTimeout(() => { inp.classList.remove('error'); inp.placeholder = '관리자 비밀번호'; }, 2000);
+  }
+}
+function doLogout() {
+  document.getElementById('login-screen').style.display = '';
+  document.getElementById('admin').style.display = 'none';
+  document.getElementById('pw-input').value = '';
+  D = null;
+}
+
+/* ── DATA ── */
+function loadData() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) {
+    D = { user:{ name:'(없음)', avatar:'🏃', points:0, streak:0, tags:[] }, workouts:[], posts:[], redeemedRewards:[] };
+  } else {
+    D = JSON.parse(raw);
+    D.user = D.user || {};
+    D.workouts = D.workouts || [];
+    D.posts = D.posts || [];
+    D.redeemedRewards = D.redeemedRewards || [];
+  }
+  renderAll();
+}
+
+function saveData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(D));
+}
+
+function renderAll() {
+  renderStats();
+  renderWorkouts();
+  renderPosts();
+  renderUserInfo();
+  buildExFilter();
+  document.getElementById('ah-user-name').textContent = (D.user.avatar || '') + ' ' + (D.user.name || '이름 없음');
+}
+
+/* ── STATS ── */
+function renderStats() {
+  const myPosts = D.posts.filter(p => p.userId === 0);
+  const totalMins = D.workouts.reduce((s,w) => s + (w.duration||0), 0);
+  document.getElementById('stat-total-ex').textContent = D.workouts.length;
+  document.getElementById('stat-pts').textContent = (D.user.points || 0).toLocaleString();
+  document.getElementById('stat-streak').textContent = D.user.streak || 0;
+  document.getElementById('stat-posts').textContent = myPosts.length;
+  document.getElementById('stat-mins').textContent = totalMins.toLocaleString();
+}
+
+/* ── TABS ── */
+function switchTab(name, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ── WORKOUT FILTER BUILD ── */
+function buildExFilter() {
+  const sel = document.getElementById('wo-filter-type');
+  const used = [...new Set(D.workouts.map(w => w.exId || 'custom'))];
+  sel.innerHTML = '<option value="">전체 종류</option>';
+  used.forEach(id => {
+    const opt = document.createElement('option');
+    opt.value = id;
+    opt.textContent = (EX_ICON[id]||'') + ' ' + (EX_MAP[id] || id);
+    sel.appendChild(opt);
+  });
+}
+
+/* ── WORKOUTS ── */
+function getFilteredWorkouts() {
+  const q = document.getElementById('wo-search').value.toLowerCase();
+  const type = document.getElementById('wo-filter-type').value;
+  const period = document.getElementById('wo-filter-period').value;
+  const now = new Date();
+
+  return D.workouts.filter(w => {
+    const exName = w.customName || EX_MAP[w.exId] || w.exId || '';
+    if (q && !exName.toLowerCase().includes(q) && !(w.memo||'').toLowerCase().includes(q)) return false;
+    if (type && w.exId !== type) return false;
+    if (period) {
+      const d = new Date(w.ts);
+      if (period === 'today' && d.toDateString() !== now.toDateString()) return false;
+      if (period === 'week') {
+        const startOfWeek = new Date(now); startOfWeek.setDate(now.getDate() - now.getDay());
+        startOfWeek.setHours(0,0,0,0);
+        if (d < startOfWeek) return false;
+      }
+      if (period === 'month' && (d.getMonth() !== now.getMonth() || d.getFullYear() !== now.getFullYear())) return false;
+    }
+    return true;
+  }).sort((a,b) => b.ts - a.ts);
+}
+
+function renderWorkouts() {
+  const list = getFilteredWorkouts();
+  document.getElementById('wo-count').textContent = `총 ${list.length}건`;
+  const tbody = document.getElementById('wo-tbody');
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-table"><div class="empty-icon">🏋️</div>운동 기록이 없습니다</div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map(w => {
+    const d = new Date(w.ts);
+    const dateStr = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+    const timeStr = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    const icon = EX_ICON[w.exId] || '✏️';
+    const name = w.customName || EX_MAP[w.exId] || w.exId || '기타';
+    return `<tr>
+      <td><div class="td-date">${dateStr}</div><div class="td-date">${timeStr}</div></td>
+      <td><span class="ex-badge">${icon} ${name}</span></td>
+      <td>${w.duration || 0}분</td>
+      <td><span class="pts-badge">+${w.points || 0}p</span></td>
+      <td class="td-memo">${w.memo || '-'}</td>
+      <td>
+        <div style="display:flex;gap:5px;">
+          <button type="button" class="action-btn btn-detail" onclick="showWorkoutDetail(${w.id})">상세</button>
+          <button type="button" class="action-btn btn-delete" onclick="deleteWorkout(${w.id})">삭제</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function showWorkoutDetail(id) {
+  const w = D.workouts.find(x => x.id === id);
+  if (!w) return;
+  const d = new Date(w.ts);
+  const dateStr = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  const name = w.customName || EX_MAP[w.exId] || w.exId || '기타';
+
+  const rows = [
+    ['날짜/시간', dateStr],
+    ['운동 종류', (EX_ICON[w.exId]||'') + ' ' + name],
+    ['운동 시간', w.duration + '분'],
+    ['획득 포인트', '+' + w.points + 'p'],
+    ['메모', w.memo || '-'],
+    ['식단 평가', w.diet ? '⭐'.repeat(w.diet) : '-'],
+    ['수면', w.sleep ? w.sleep + '시간' : '-'],
+    ['영양제', w.supp ? (w.suppList ? w.suppList.join(', ') : '복용') : '-'],
+  ];
+
+  document.getElementById('wo-modal-body').innerHTML = rows.map(([l,v]) =>
+    `<div class="detail-row"><div class="detail-label">${l}</div><div class="detail-value">${v}</div></div>`
+  ).join('');
+  document.getElementById('wo-modal-del-btn').onclick = () => { deleteWorkout(id); closeModal('wo-modal'); };
+  document.getElementById('wo-modal').classList.add('open');
+}
+
+function deleteWorkout(id) {
+  if (!confirm('이 운동 기록을 삭제하시겠습니까?')) return;
+  const w = D.workouts.find(x => x.id === id);
+  if (w) D.user.points = Math.max(0, (D.user.points||0) - (w.points||0));
+  D.workouts = D.workouts.filter(x => x.id !== id);
+  saveData();
+  renderAll();
+  toast('운동 기록이 삭제됐습니다');
+}
+
+function deleteAllWorkouts() {
+  if (!confirm(`운동 기록 ${D.workouts.length}건을 모두 삭제하시겠습니까?\n삭제된 기록의 포인트도 함께 차감됩니다.`)) return;
+  const totalPts = D.workouts.reduce((s,w) => s + (w.points||0), 0);
+  D.user.points = Math.max(0, (D.user.points||0) - totalPts);
+  D.workouts = [];
+  D.user.streak = 0;
+  saveData();
+  renderAll();
+  toast('전체 운동 기록이 삭제됐습니다');
+}
+
+/* ── POSTS ── */
+function getFilteredPosts() {
+  const q = document.getElementById('post-search').value.toLowerCase();
+  const filter = document.getElementById('post-filter').value;
+  return D.posts.filter(p => {
+    if (filter === 'mine' && p.userId !== 0) return false;
+    if (q && !(p.body||'').toLowerCase().includes(q)) return false;
+    return true;
+  }).sort((a,b) => b.id - a.id);
+}
+
+function renderPosts() {
+  const list = getFilteredPosts();
+  document.getElementById('post-count').textContent = `총 ${list.length}건`;
+  const tbody = document.getElementById('post-tbody');
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="5"><div class="empty-table"><div class="empty-icon">💬</div>게시글이 없습니다</div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map(p => {
+    const isMine = p.userId === 0;
+    const preview = (p.body||'').substring(0,60) + ((p.body||'').length > 60 ? '...' : '');
+    return `<tr>
+      <td class="td-date">${p.time || '-'}</td>
+      <td><span style="font-weight:600;">${p.avatar||''} ${p.name||'나'}</span>${isMine ? '<br><span style="font-size:11px;color:var(--primary);">내 게시글</span>' : ''}</td>
+      <td>${p.exTag ? `<span class="ex-badge">${p.exTag}</span>` : '-'}</td>
+      <td class="td-memo">${preview}</td>
+      <td>
+        <div style="display:flex;gap:5px;">
+          <button type="button" class="action-btn btn-detail" onclick="showPostDetail(${p.id})">상세</button>
+          ${isMine ? `<button type="button" class="action-btn btn-delete" onclick="deletePost(${p.id})">삭제</button>` : ''}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function showPostDetail(id) {
+  const p = D.posts.find(x => x.id === id);
+  if (!p) return;
+  const isMine = p.userId === 0;
+  const rows = [
+    ['작성자', (p.avatar||'') + ' ' + (p.name||'나') + (isMine ? ' (나)' : '')],
+    ['시간', p.time || '-'],
+    ['운동 태그', p.exTag || '-'],
+    ['태그', (p.userTags||[]).join(', ') || '-'],
+    ['내용', p.body || '-'],
+  ];
+  document.getElementById('post-modal-body').innerHTML = rows.map(([l,v]) =>
+    `<div class="detail-row"><div class="detail-label">${l}</div><div class="detail-value">${v}</div></div>`
+  ).join('');
+  const delBtn = document.getElementById('post-modal-del-btn');
+  delBtn.style.display = isMine ? '' : 'none';
+  delBtn.onclick = () => { deletePost(id); closeModal('post-modal'); };
+  document.getElementById('post-modal').classList.add('open');
+}
+
+function deletePost(id) {
+  if (!confirm('이 게시글을 삭제하시겠습니까?')) return;
+  D.posts = D.posts.filter(x => x.id !== id);
+  saveData();
+  renderPosts();
+  renderStats();
+  toast('게시글이 삭제됐습니다');
+}
+
+function deleteAllMyPosts() {
+  const myPosts = D.posts.filter(p => p.userId === 0);
+  if (!myPosts.length) { toast('삭제할 내 게시글이 없습니다'); return; }
+  if (!confirm(`내 게시글 ${myPosts.length}건을 모두 삭제하시겠습니까?`)) return;
+  D.posts = D.posts.filter(p => p.userId !== 0);
+  saveData();
+  renderPosts();
+  renderStats();
+  toast('내 게시글이 모두 삭제됐습니다');
+}
+
+/* ── USER INFO ── */
+function renderUserInfo() {
+  document.getElementById('ui-name').value = D.user.name || '';
+  document.getElementById('ui-avatar').value = D.user.avatar || '';
+  document.getElementById('ui-points').value = D.user.points || 0;
+  document.getElementById('ui-streak').value = D.user.streak || 0;
+
+  const tagsEl = document.getElementById('ui-tags-display');
+  const tags = D.user.tags || [];
+  tagsEl.innerHTML = tags.length
+    ? tags.map(t => `<span style="background:var(--primary-light);color:var(--primary);padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600;">${t}</span>`).join('')
+    : '<span style="font-size:13px;color:var(--text-3);">설정된 태그가 없습니다</span>';
+}
+
+function saveUserInfo() {
+  D.user.name   = document.getElementById('ui-name').value.trim();
+  D.user.avatar = document.getElementById('ui-avatar').value.trim() || '🏃';
+  D.user.points = Math.max(0, parseInt(document.getElementById('ui-points').value) || 0);
+  D.user.streak = Math.max(0, parseInt(document.getElementById('ui-streak').value) || 0);
+  saveData();
+  renderAll();
+  toast('이용자 정보가 저장됐습니다');
+}
+
+function adjustPoints(sign) {
+  const v = parseInt(document.getElementById('pts-adj-val').value) || 0;
+  if (!v) { toast('조정할 포인트를 입력하세요'); return; }
+  const newPts = Math.max(0, (D.user.points||0) + sign * v);
+  D.user.points = newPts;
+  document.getElementById('ui-points').value = newPts;
+  saveData();
+  renderStats();
+  toast(`포인트가 ${sign > 0 ? '+' : ''}${sign*v}p 조정됐습니다 (현재: ${newPts}p)`);
+}
+
+/* ── RESET ── */
+function resetAllData() {
+  if (!confirm('모든 데이터(운동 기록, 게시글, 포인트 등)를 초기화합니다.\n이 작업은 되돌릴 수 없습니다. 계속하시겠습니까?')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  D = { user:{ name:'', avatar:'🏃', points:0, streak:0, tags:[] }, workouts:[], posts:[], redeemedRewards:[] };
+  saveData();
+  renderAll();
+  toast('전체 데이터가 초기화됐습니다');
+}
+
+function resetWorkoutsOnly() {
+  if (!confirm('운동 기록만 초기화합니다. 계속하시겠습니까?')) return;
+  D.workouts = [];
+  D.user.streak = 0;
+  saveData();
+  renderAll();
+  toast('운동 기록이 초기화됐습니다');
+}
+
+/* ── MODAL / TOAST ── */
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+window.addEventListener('click', e => {
+  ['wo-modal','post-modal'].forEach(id => {
+    const el = document.getElementById(id);
+    if (e.target === el) el.classList.remove('open');
+  });
+});
+
+let _toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+</script>
+</body>
+</html>
