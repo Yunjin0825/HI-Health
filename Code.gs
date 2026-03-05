@@ -13,7 +13,7 @@
 // 7. index.html 의 SCRIPT_URL 과 user-admin.html 에 붙여넣기
 // ================================================================
 
-const SPREADSHEET_ID = 'YOUR_SPREADSHEET_ID_HERE';
+const SPREADSHEET_ID = 'Y147IOXY2-JFrMLmmMjCZjWPwSmWJHcd9Hf0NtXAsVE8E';
 
 function getOrCreateSheet(ss, name, headers) {
   let sheet = ss.getSheetByName(name);
@@ -64,6 +64,29 @@ function doGet(e) {
     if (action === 'getAll' || action === 'getGlucose') {
       result.glucose = sheetToObjects(getOrCreateSheet(ss, 'Glucose',
         ['id','deviceId','userName','value','timing','points','ts']));
+    }
+    // 사번으로 사용자 데이터 조회 (로그인 시 사용)
+    if (action === 'getUserData') {
+      const empId = e.parameter.empId || '';
+      const users = sheetToObjects(getOrCreateSheet(ss, 'Users',
+        ['deviceId','name','avatar','empId','dept','points','streak','tags','registrationId','updatedAt']));
+      const user = users.find(u => String(u.empId).toUpperCase() === empId.toUpperCase());
+      if (!user) {
+        result.found = false;
+      } else {
+        const did = user.deviceId;
+        result.found = true;
+        result.user = user;
+        result.workouts = sheetToObjects(getOrCreateSheet(ss, 'Workouts',
+          ['id','deviceId','userName','date','exId','exName','duration','points','memo','ts']))
+          .filter(w => w.deviceId === did);
+        result.glucose = sheetToObjects(getOrCreateSheet(ss, 'Glucose',
+          ['id','deviceId','userName','value','timing','points','ts']))
+          .filter(g => g.deviceId === did);
+        result.posts = sheetToObjects(getOrCreateSheet(ss, 'Posts',
+          ['id','deviceId','userName','body','exTag','userTags','ts']))
+          .filter(p => p.deviceId === did);
+      }
     }
     return ContentService
       .createTextOutput(JSON.stringify({ ok: true, data: result }))

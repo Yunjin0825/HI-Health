@@ -64,6 +64,50 @@
       body { background: #E8E8ED; }
     }
 
+    /* ── App Login Screen ── */
+    .app-login-screen {
+      position: fixed; inset: 0; z-index: 2000;
+      background: linear-gradient(135deg, #1e1b4b 0%, #4338ca 100%);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .app-login-screen.hidden { display: none; }
+    .app-login-card {
+      background: #fff; border-radius: 24px; padding: 44px 32px;
+      width: 100%; max-width: 360px; text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .app-login-logo { height: 64px; width: auto; margin-bottom: 18px; }
+    .app-login-title { font-size: 22px; font-weight: 900; color: #111827; margin-bottom: 6px; }
+    .app-login-sub { font-size: 13px; color: #6B7280; margin-bottom: 28px; line-height: 1.5; }
+    .app-login-input {
+      width: 100%; padding: 14px 16px; margin-bottom: 12px;
+      border: 1.5px solid #E5E7EB; border-radius: 10px;
+      font-family: inherit; font-size: 15px; outline: none;
+      text-align: center; letter-spacing: 2px; transition: border-color 0.2s;
+    }
+    .app-login-input:focus { border-color: #4F46E5; box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
+    .app-login-input.error { border-color: #EF4444; background: #FEF2F2; letter-spacing: normal; }
+    .app-login-btn {
+      width: 100%; padding: 14px;
+      background: linear-gradient(135deg, #4F46E5, #3730A3);
+      color: #fff; border: none; border-radius: 10px;
+      font-family: inherit; font-size: 15px; font-weight: 700;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .app-login-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(79,70,229,0.35); }
+    .app-login-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .app-login-loading { font-size: 13px; color: #6B7280; margin-top: 12px; display: none; }
+    .app-login-err { font-size: 13px; color: #EF4444; margin-top: 10px; display: none; }
+    /* 헤더 로그아웃 버튼 */
+    .header-logout {
+      font-size: 11px; color: #9CA3AF; background: none; border: 1px solid #E5E7EB;
+      border-radius: 20px; padding: 4px 10px; cursor: pointer; font-family: inherit;
+      transition: all 0.2s;
+    }
+    .header-logout:hover { color: #EF4444; border-color: #EF4444; }
+    .header-logout.hidden { display: none; }
+
     /* ── Header ── */
     .app-header {
       position: fixed; top: 0; left: 50%; transform: translateX(-50%);
@@ -1064,6 +1108,22 @@
 <div id="toast" class="toast"></div>
 
 <!-- Header -->
+<!-- 앱 로그인 화면 -->
+<div class="app-login-screen" id="app-login-screen">
+  <div class="app-login-card">
+    <img src="images/logo.png" alt="HI Health" class="app-login-logo">
+    <div class="app-login-title">HI Health</div>
+    <div class="app-login-sub">사번을 입력해 시작하세요</div>
+    <input type="text" class="app-login-input" id="login-empid-input"
+      placeholder="사번 입력 (예: EMP001)"
+      onkeydown="if(event.key==='Enter')doAppLogin()"
+      autocomplete="off">
+    <button type="button" class="app-login-btn" id="login-btn" onclick="doAppLogin()">시작하기</button>
+    <div class="app-login-loading" id="login-loading">데이터 불러오는 중...</div>
+    <div class="app-login-err" id="login-err">사번을 입력해주세요</div>
+  </div>
+</div>
+
 <header class="app-header">
   <div class="header-logo">
     <img src="images/logo.png" alt="HI Health" class="logo-img">
@@ -1073,6 +1133,7 @@
       <span id="hpts-val">0</span>p
     </div>
     <div class="header-avatar" id="header-avatar" onclick="openProfileModal()" title="프로필 설정"></div>
+    <button type="button" class="header-logout hidden" id="header-logout-btn" onclick="appLogout()" title="로그아웃">로그아웃</button>
   </div>
 </header>
 
@@ -1654,8 +1715,11 @@ const MIN_DURATION        = 10;  // 최소 운동 시간(분)
 const DAILY_GLUCOSE_LIMIT  = 4;  // 하루 최대 혈당 기록 횟수
 const GLUCOSE_POINTS       = 5;  // 혈당 1회 기록 포인트
 const SHOP_ORDERS_KEY = 'hi_health_shop_orders';
+/* ── 현재 로그인 사용자 (로그인 후 설정) ── */
+let ACTIVE_EMPID = '';
+let STORAGE_KEY  = 'hi_health_v2'; // 로그인 시 'hi_health_v2_사번'으로 변경
 /* ── Google Sheets 동기화 URL (배포 후 입력) ── */
-const SCRIPT_URL = ''; // ← Apps Script 웹 앱 URL을 여기에 붙여넣기
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbypofqXe7QCpq7ixasu0Kwgma1E-Yf8QDp-LAIgHMXNR5yjHkjbrqmrx2hGRfgUkNUu/exec'; // ← Apps Script 웹 앱 URL을 여기에 붙여넣기
 
 const EX_TYPES = [
   { id:'walking',   name:'걷기',    icon:'🚶', ppm:0.5,  bg:'#DCFCE7' },
@@ -1853,7 +1917,7 @@ let S = {
 ════════════════════════════════════════ */
 function save() {
   try {
-    localStorage.setItem('hi_health_v2', JSON.stringify({
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
       user: S.user,
       workouts: S.workouts,
       posts: S.posts,
@@ -1891,14 +1955,15 @@ function apiSync(action, payload) {
 }
 function load() {
   try {
-    // deviceId는 기기 고유 식별자 (초기화해도 유지)
-    let did = localStorage.getItem('hi_device_id');
+    // deviceId: 사번+기기 조합 (사번 로그인 후 설정됨)
+    const didKey = ACTIVE_EMPID ? 'hi_device_id_' + ACTIVE_EMPID : 'hi_device_id';
+    let did = localStorage.getItem(didKey);
     if (!did) {
-      did = 'u' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
-      localStorage.setItem('hi_device_id', did);
+      did = 'u' + (ACTIVE_EMPID || '') + Date.now().toString(36).slice(-4) + Math.random().toString(36).slice(2,5);
+      localStorage.setItem(didKey, did);
     }
     S.deviceId = did;
-    const d = JSON.parse(localStorage.getItem('hi_health_v2') || 'null');
+    const d = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
     if (!d) return;
     S.user = { ...S.user, ...d.user };
     S.workouts = d.workouts || [];
@@ -2962,7 +3027,7 @@ function saveProfile() {
 }
 function logout() {
   if (!confirm('로그아웃 하면 이 기기의 운동 기록, 포인트 등 모든 데이터가 초기화됩니다.\n계속하시겠어요?')) return;
-  localStorage.removeItem('hi_health_v2');
+  localStorage.removeItem(STORAGE_KEY);
   S = {
     user: { name:'', avatar:'🏃', points:0, streak:0, stickersReceived:0, registrationId:null, tags:[] },
     workouts: [],
@@ -3967,16 +4032,64 @@ function submitChReg(e) {
 }
 
 /* ════════════════════════════════════════
-   INIT
+   LOGIN / LOGOUT
 ════════════════════════════════════════ */
-function init() {
-  const isFirstVisit = !localStorage.getItem('hi_health_v2');
-  load();
+async function doAppLogin() {
+  const input = document.getElementById('login-empid-input');
+  const empId = input.value.trim().toUpperCase();
+  const errEl = document.getElementById('login-err');
+  const loadEl = document.getElementById('login-loading');
+  const btn = document.getElementById('login-btn');
+
+  if (!empId) {
+    input.classList.add('error');
+    errEl.textContent = '사번을 입력해주세요';
+    errEl.style.display = 'block';
+    setTimeout(() => { input.classList.remove('error'); errEl.style.display = 'none'; }, 2000);
+    return;
+  }
+
+  ACTIVE_EMPID = empId;
+  STORAGE_KEY  = 'hi_health_v2_' + empId;
+
+  btn.disabled = true;
+
+  // 기존 'hi_health_v2' 데이터 마이그레이션 (최초 1회)
+  const oldData = localStorage.getItem('hi_health_v2');
+  if (oldData && !localStorage.getItem(STORAGE_KEY)) {
+    localStorage.setItem(STORAGE_KEY, oldData);
+  }
+
+  // Sheets에서 데이터 불러오기 (SCRIPT_URL 설정된 경우)
+  if (SCRIPT_URL) {
+    loadEl.style.display = 'block';
+    try {
+      const res = await fetch(SCRIPT_URL + '?action=getUserData&empId=' + encodeURIComponent(empId));
+      const json = await res.json();
+      if (json.ok && json.data && json.data.found) {
+        loadSheetsUserData(json.data);
+        save();
+      } else {
+        load();
+      }
+    } catch(e) {
+      load(); // 오프라인 fallback
+    }
+    loadEl.style.display = 'none';
+  } else {
+    load();
+  }
+
+  S.user.empId = empId;
+  sessionStorage.setItem('hi_session_empid', empId);
+
+  document.getElementById('app-login-screen').classList.add('hidden');
+  document.getElementById('header-logout-btn').classList.remove('hidden');
+  btn.disabled = false;
+
   renderHeader();
   renderHome();
-  // Show profile setup on first visit
-  if (isFirstVisit) setTimeout(() => openProfileModal(true), 400);
-  // Animate level bar after short delay
+  if (!S.user.name) setTimeout(() => openProfileModal(true), 400);
   setTimeout(() => {
     const lv = getLevel(S.user.points);
     const nextLv = LEVELS.find(l => l.lv === lv.lv + 1);
@@ -3985,7 +4098,92 @@ function init() {
       const bar = document.getElementById('lv-bar');
       if (bar) { bar.style.width = '0%'; setTimeout(() => bar.style.width = pct + '%', 100); }
     }
-  }, 200);
+  }, 300);
+}
+
+function loadSheetsUserData(data) {
+  const u = data.user;
+  S.user = {
+    ...S.user,
+    name: u.name || '',
+    avatar: u.avatar || '🏃',
+    empId: u.empId || ACTIVE_EMPID,
+    dept: u.dept || '',
+    points: Number(u.points) || 0,
+    streak: Number(u.streak) || 0,
+    tags: (u.tags || '').split(',').filter(Boolean),
+    registrationId: u.registrationId || null,
+  };
+  S.deviceId = u.deviceId;
+  S.workouts = (data.workouts || []).map(w => ({
+    id: Number(w.id), exId: w.exId, customName: w.exName || null,
+    duration: Number(w.duration) || 0, points: Number(w.points) || 0,
+    memo: w.memo || '', ts: Number(w.ts) || 0,
+  }));
+  S.glucoseRecords = (data.glucose || []).map(g => ({
+    id: Number(g.id), value: Number(g.value) || 0,
+    timing: g.timing, ts: g.ts, points: Number(g.points) || 0,
+  }));
+  const myPosts = (data.posts || []).map(p => ({
+    id: Number(p.id), userId: 0,
+    name: p.userName, avatar: S.user.avatar || '🏃',
+    lv: 1, body: p.body, exTag: p.exTag || null,
+    userTags: (p.userTags || '').split(',').filter(Boolean),
+    time: '이전', stickers: { cheer:0, love:0, congrats:0, cool:0, together:0 },
+    myReactions: [], comments: 0, commentList: [],
+  }));
+  if (myPosts.length) {
+    const existingIds = new Set(S.posts.map(p => p.id));
+    myPosts.forEach(p => { if (!existingIds.has(p.id)) S.posts.push(p); });
+  }
+}
+
+function appLogout() {
+  if (!confirm('로그아웃 하시겠습니까?')) return;
+  save();
+  ACTIVE_EMPID = '';
+  STORAGE_KEY  = 'hi_health_v2';
+  sessionStorage.removeItem('hi_session_empid');
+  // 상태 초기화
+  S.deviceId = null;
+  S.user = { name:'', avatar:'🏃', points:0, streak:0, stickersReceived:0, registrationId:null, tags:[] };
+  S.workouts = [];
+  S.posts = JSON.parse(JSON.stringify(MOCK_POSTS_SEED));
+  S.glucoseRecords = [];
+  S.redeemedRewards = [];
+  S.pendingRewards = [];
+  S.myReactions = {};
+  document.getElementById('header-logout-btn').classList.add('hidden');
+  document.getElementById('app-login-screen').classList.remove('hidden');
+  document.getElementById('login-empid-input').value = '';
+}
+
+/* ════════════════════════════════════════
+   INIT
+════════════════════════════════════════ */
+function init() {
+  // 세션에서 자동 로그인 복원
+  const savedEmpId = sessionStorage.getItem('hi_session_empid');
+  if (savedEmpId) {
+    ACTIVE_EMPID = savedEmpId;
+    STORAGE_KEY  = 'hi_health_v2_' + savedEmpId;
+    load();
+    S.user.empId = savedEmpId;
+    document.getElementById('app-login-screen').classList.add('hidden');
+    document.getElementById('header-logout-btn').classList.remove('hidden');
+    renderHeader();
+    renderHome();
+    setTimeout(() => {
+      const lv = getLevel(S.user.points);
+      const nextLv = LEVELS.find(l => l.lv === lv.lv + 1);
+      if (nextLv) {
+        const pct = ((S.user.points - lv.min) / (nextLv.min - lv.min) * 100).toFixed(1);
+        const bar = document.getElementById('lv-bar');
+        if (bar) { bar.style.width = '0%'; setTimeout(() => bar.style.width = pct + '%', 100); }
+      }
+    }, 200);
+  }
+  // 세션 없으면 로그인 화면이 기본 표시됨
 }
 
 init();
