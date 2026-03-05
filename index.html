@@ -588,6 +588,19 @@
     }
     .form-textarea:focus { border-color: var(--primary); background: #fff; }
 
+    /* ── Page sub-tabs (커뮤니티/리그, 보상/구매) ── */
+    .page-sub-tabs {
+      display: flex; background: var(--border);
+      border-radius: 12px; padding: 4px; margin-bottom: 16px;
+    }
+    .page-sub-tab {
+      flex: 1; padding: 9px; text-align: center;
+      border-radius: 9px; border: none; background: none;
+      font-family: inherit; font-size: 13px; font-weight: 600;
+      color: var(--text-secondary); cursor: pointer; transition: all 0.2s;
+    }
+    .page-sub-tab.active { background: #fff; color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+
     /* ══════════════════════════════
        LEAGUE
     ══════════════════════════════ */
@@ -1114,7 +1127,7 @@
         <div class="qi-icon" style="background:#EBF0FF"><img src="icons/HI_icon_4.png" class="qi-img" alt="운동"></div>
         <div><div class="qi-title">운동 기록</div><div class="qi-sub">오늘 운동 추가</div></div>
       </button>
-      <button class="quick-btn" onclick="navigate('league')">
+      <button class="quick-btn" onclick="navigate('community'); setCommunityTab('league')">
         <div class="qi-icon" style="background:#F3EEFF"><img src="icons/HI_icon_26.png" class="qi-img" alt="순위"></div>
         <div><div class="qi-title">내 순위</div><div class="qi-sub" id="my-rank-quick">순위 확인</div></div>
       </button>
@@ -1348,43 +1361,45 @@
 
   </section>
 
-  <!-- ████  LEAGUE  ████ -->
-  <section id="page-league" class="page">
-
-    <div class="league-tabs">
-      <button class="league-tab active" data-tab="weekly"     onclick="setTab(this,'weekly')">이번 주</button>
-      <button class="league-tab"        data-tab="monthly"    onclick="setTab(this,'monthly')">이번 달</button>
-      <button class="league-tab"        data-tab="alltime"    onclick="setTab(this,'alltime')">전체 기록</button>
-      <button class="league-tab"        data-tab="challenger" onclick="setTab(this,'challenger')"><img src="icons/HI_icon_4.png" class="league-tab-icon" alt="챌린지"> 챌린지</button>
-    </div>
-
-    <div class="my-rank-card" id="my-rank-card"></div>
-
-    <div class="podium" id="podium"></div>
-
-    <div id="lb-list"></div>
-
-  </section>
-
   <!-- ████  COMMUNITY  ████ -->
   <section id="page-community" class="page">
 
-    <div class="illus-banner">
-      <img src="images/forest-friends.jpg" class="illus-community" alt="커뮤니티">
+    <div class="page-sub-tabs">
+      <button class="page-sub-tab active" id="comm-tab-feed" onclick="setCommunityTab('feed')">커뮤니티</button>
+      <button class="page-sub-tab" id="comm-tab-league" onclick="setCommunityTab('league')">리그</button>
     </div>
 
-    <div class="card">
-      <div class="compose-wrap">
-        <span class="compose-avatar" id="compose-av">🏃</span>
-        <textarea class="compose-input" id="post-input" rows="2" placeholder="운동 완료 후기나 응원 메시지를 남겨보세요!"></textarea>
+    <div id="comm-feed-panel">
+      <div class="illus-banner">
+        <img src="images/forest-friends.jpg" class="illus-community" alt="커뮤니티">
       </div>
-      <div class="compose-actions">
-        <button class="btn btn-primary btn-compose" onclick="submitPost()">게시하기</button>
+
+      <div class="card">
+        <div class="compose-wrap">
+          <span class="compose-avatar" id="compose-av">🏃</span>
+          <textarea class="compose-input" id="post-input" rows="2" placeholder="운동 완료 후기나 응원 메시지를 남겨보세요!"></textarea>
+        </div>
+        <div class="compose-actions">
+          <button class="btn btn-primary btn-compose" onclick="submitPost()">게시하기</button>
+        </div>
       </div>
+
+      <div class="feed-filter-row" id="feed-filter-row"></div>
+      <div id="posts-feed"></div>
     </div>
 
-    <div class="feed-filter-row" id="feed-filter-row"></div>
-    <div id="posts-feed"></div>
+    <div id="comm-league-panel" style="display:none">
+      <div class="league-tabs">
+        <button class="league-tab active" data-tab="weekly"     onclick="setTab(this,'weekly')">이번 주</button>
+        <button class="league-tab"        data-tab="monthly"    onclick="setTab(this,'monthly')">이번 달</button>
+        <button class="league-tab"        data-tab="alltime"    onclick="setTab(this,'alltime')">전체 기록</button>
+        <button class="league-tab"        data-tab="challenger" onclick="setTab(this,'challenger')"><img src="icons/HI_icon_4.png" class="league-tab-icon" alt="챌린지"> 챌린지</button>
+      </div>
+
+      <div class="my-rank-card" id="my-rank-card"></div>
+      <div class="podium" id="podium"></div>
+      <div id="lb-list"></div>
+    </div>
 
   </section>
 
@@ -1462,23 +1477,15 @@
     </div>
   </div>
 
-  <!-- ████  SHOP  ████ -->
-  <section id="page-shop" class="page">
-    <div class="shop-banner">
-      <div class="shop-banner-title"><img src="icons/HI_icon_7.png" class="shop-banner-img" alt="영양제"> 영양제 구매</div>
-      <div class="shop-banner-sub">원하는 제품을 담아 주문 신청하세요</div>
-    </div>
-    <div class="shop-list" id="shop-list"></div>
-    <div class="shop-cart-bar hidden" id="shop-cart-bar" onclick="openShopOrder()">
-      <div class="shop-cart-count" id="shop-cart-count">0</div>
-      <span class="shop-cart-label">장바구니 보기</span>
-      <span class="shop-cart-total" id="shop-cart-total">0원</span>
-    </div>
-  </section>
-
   <!-- ████  REWARDS  ████ -->
   <section id="page-rewards" class="page">
 
+    <div class="page-sub-tabs">
+      <button class="page-sub-tab active" id="rew-tab-rewards" onclick="setRewardsTab('rewards')">보상</button>
+      <button class="page-sub-tab" id="rew-tab-shop" onclick="setRewardsTab('shop')">구매</button>
+    </div>
+
+    <div id="rew-rewards-panel">
     <div class="balance-card">
       <p class="bal-label">보유 포인트</p>
       <p class="bal-amt" id="bal-display">0</p>
@@ -1517,6 +1524,20 @@
     <div style="margin-top:6px"></div>
     <p class="section-title"><img src="icons/HI_icon_10.png" class="st-icon" alt="레벨"> 레벨 안내</p>
     <div class="level-guide" id="level-guide"></div>
+    </div><!-- /rew-rewards-panel -->
+
+    <div id="rew-shop-panel" style="display:none">
+      <div class="shop-banner">
+        <div class="shop-banner-title"><img src="icons/HI_icon_7.png" class="shop-banner-img" alt="영양제"> 영양제 구매</div>
+        <div class="shop-banner-sub">원하는 제품을 담아 주문 신청하세요</div>
+      </div>
+      <div class="shop-list" id="shop-list"></div>
+      <div class="shop-cart-bar hidden" id="shop-cart-bar" onclick="openShopOrder()">
+        <div class="shop-cart-count" id="shop-cart-count">0</div>
+        <span class="shop-cart-label">장바구니 보기</span>
+        <span class="shop-cart-total" id="shop-cart-total">0원</span>
+      </div>
+    </div><!-- /rew-shop-panel -->
 
   </section>
 
@@ -1935,11 +1956,9 @@ function navigate(page) {
   // Render the page
   if (page === 'home')      renderHome();
   if (page === 'exercise')  renderExercise();
-  if (page === 'league')    renderLeague();
-  if (page === 'community') renderCommunity();
-  if (page === 'rewards')   renderRewards();
+  if (page === 'community') { setCommunityTab('feed'); renderCommunity(); }
+  if (page === 'rewards')   { setRewardsTab('rewards'); renderRewards(); }
   if (page === 'challenge') renderChallenge();
-  if (page === 'shop')      renderShop();
   window.scrollTo({top:0, behavior:'smooth'});
 }
 
@@ -2961,6 +2980,22 @@ function setTab(el, tab) {
   el.classList.add('active');
   S.leagueTab = tab;
   renderLeague();
+}
+
+function setCommunityTab(tab) {
+  document.getElementById('comm-feed-panel').style.display   = tab === 'feed'   ? '' : 'none';
+  document.getElementById('comm-league-panel').style.display = tab === 'league' ? '' : 'none';
+  document.getElementById('comm-tab-feed').classList.toggle('active', tab === 'feed');
+  document.getElementById('comm-tab-league').classList.toggle('active', tab === 'league');
+  if (tab === 'league') renderLeague();
+}
+
+function setRewardsTab(tab) {
+  document.getElementById('rew-rewards-panel').style.display = tab === 'rewards' ? '' : 'none';
+  document.getElementById('rew-shop-panel').style.display    = tab === 'shop'    ? '' : 'none';
+  document.getElementById('rew-tab-rewards').classList.toggle('active', tab === 'rewards');
+  document.getElementById('rew-tab-shop').classList.toggle('active', tab === 'shop');
+  if (tab === 'shop') renderShop();
 }
 
 /* ════════════════════════════════════════
