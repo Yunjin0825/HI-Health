@@ -306,6 +306,8 @@
     }
     .pts-preview-val { font-size: 26px; font-weight: 700; color: var(--primary); }
     .pts-preview-lbl { font-size: 12px; color: var(--text-secondary); }
+    .daily-limit-info { margin-top: 6px; font-size: 11px; color: var(--text-secondary); }
+    .daily-limit-info.warn { color: var(--accent); font-weight: 600; }
 
     .workout-item { display: flex; align-items: center; gap: 13px; padding: 13px 0; border-bottom: 1px solid var(--border); }
     .workout-item:last-child { border-bottom: none; }
@@ -1194,6 +1196,7 @@
       <div class="pts-preview">
         <div class="pts-preview-val" id="pts-prev">+15</div>
         <div class="pts-preview-lbl">획득 예정 포인트</div>
+        <div id="daily-limit-info" class="daily-limit-info"></div>
       </div>
       <div style="margin-bottom:13px">
         <label class="form-label">메모 (선택)</label>
@@ -1640,6 +1643,12 @@ const LEVELS = [
   { lv:5, name:'챔피언',  icon:'🌳', min:2000, max:3999, color:'#3B82F6' },
   { lv:6, name:'레전드',  icon:'⭐', min:4000, max:Infinity, color:'#F59E0B' },
 ];
+
+/* ── 운동 기록 제한 ── */
+const DAILY_WORKOUT_LIMIT = 3;   // 하루 최대 운동 기록 횟수
+const DAILY_POINTS_LIMIT  = 150; // 하루 최대 획득 포인트
+const MIN_DURATION        = 10;  // 최소 운동 시간(분)
+const SHOP_ORDERS_KEY = 'hi_health_shop_orders';
 
 const EX_TYPES = [
   { id:'walking',   name:'걷기',    icon:'🚶', ppm:0.5,  bg:'#DCFCE7' },
@@ -2267,6 +2276,21 @@ function toggleShareOpt(type) {
 function updatePtsPreview() {
   const pts = calcPts(S.selectedEx, S.duration);
   document.getElementById('pts-prev').textContent = '+' + pts;
+  const todayWo  = todayWorkouts();
+  const todayPts = todayWo.reduce((s, w) => s + (w.points || 0), 0);
+  const remCount = DAILY_WORKOUT_LIMIT - todayWo.length;
+  const remPts   = Math.max(0, DAILY_POINTS_LIMIT - todayPts);
+  const infoEl   = document.getElementById('daily-limit-info');
+  if (remCount <= 0) {
+    infoEl.textContent = `오늘 기록 한도(${DAILY_WORKOUT_LIMIT}회) 도달`;
+    infoEl.className = 'daily-limit-info warn';
+  } else if (remPts <= 0) {
+    infoEl.textContent = `오늘 포인트 한도(${DAILY_POINTS_LIMIT}p) 도달`;
+    infoEl.className = 'daily-limit-info warn';
+  } else {
+    infoEl.textContent = `오늘 남은 기록: ${remCount}회 · 남은 포인트 한도: ${remPts}p`;
+    infoEl.className = 'daily-limit-info';
+  }
 }
 function logExercise() {
   const customName = S.selectedEx === 'custom'
@@ -2278,9 +2302,30 @@ function logExercise() {
     document.getElementById('custom-ex-name').focus();
     return;
   }
+  // 최소 운동 시간 체크
+  if (S.duration < MIN_DURATION) {
+    haptic('error');
+    showToast(`⚠️ 최소 ${MIN_DURATION}분 이상 운동해야 기록할 수 있어요`);
+    return;
+  }
+  // 하루 기록 횟수 체크
+  const todayWo = todayWorkouts();
+  if (todayWo.length >= DAILY_WORKOUT_LIMIT) {
+    haptic('error');
+    showToast(`⚠️ 하루 최대 ${DAILY_WORKOUT_LIMIT}회까지만 기록할 수 있어요`);
+    return;
+  }
   const basePts = calcPts(S.selectedEx, S.duration);
   const photoBonus = _photoData ? 5 : 0;
   const pts = basePts + photoBonus;
+  // 하루 포인트 한도 체크
+  const todayEarnedPts = todayWo.reduce((s, w) => s + (w.points || 0), 0);
+  if (todayEarnedPts + pts > DAILY_POINTS_LIMIT) {
+    haptic('error');
+    const remaining = Math.max(0, DAILY_POINTS_LIMIT - todayEarnedPts);
+    showToast(`⚠️ 오늘 남은 포인트 한도: ${remaining}p. 운동 시간을 줄여주세요`);
+    return;
+  }
   const memo = document.getElementById('ex-memo').value.trim();
   S.workouts.push({
     id: Date.now(),
@@ -3342,6 +3387,23 @@ function submitShopOrder() {
   const addr  = _soPickup === '배송' ? document.getElementById('so-addr').value.trim() : 'ok';
   if (!name || !phone) { haptic('error'); showToast('⚠️ 이름과 연락처를 입력해주세요'); return; }
   if (_soPickup === '배송' && !addr) { haptic('error'); showToast('⚠️ 배송 주소를 입력해주세요'); return; }
+  // 주문 저장
+  const items = Object.entries(_cart).map(([id, qty]) => {
+    const p = SHOP_PRODUCTS.find(x => x.id === id);
+    return { id, name: p ? p.name : id, price: p ? p.price : 0, qty };
+  });
+  const orders = JSON.parse(localStorage.getItem(SHOP_ORDERS_KEY) || '[]');
+  orders.push({
+    id: 'ORD-' + String(Date.now()).slice(-6),
+    name, phone,
+    pickup: _soPickup,
+    addr: _soPickup === '배송' ? (document.getElementById('so-addr').value.trim() + ' ' + document.getElementById('so-addr2').value.trim()).trim() : '',
+    items,
+    total: cartTotal(),
+    status: 'pending',
+    orderedAt: new Date().toISOString(),
+  });
+  localStorage.setItem(SHOP_ORDERS_KEY, JSON.stringify(orders));
   haptic('success');
   showToast('✅ 주문 신청 완료! 담당자 확인 후 연락드립니다');
   _cart = {};

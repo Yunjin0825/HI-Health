@@ -139,6 +139,23 @@
     .panel { display:none; }
     .panel.active { display:block; }
 
+    /* STATUS BADGES */
+    .status-badge { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:20px; font-size:11px; font-weight:700; white-space:nowrap; }
+    .status-pending   { background:var(--amber-light); color:#92400E; }
+    .status-confirmed { background:var(--green-light);  color:#065F46; }
+    .status-cancelled { background:var(--red-light);    color:#991B1B; }
+    .status-shipped   { background:var(--sky-light);    color:#0369A1; }
+    .status-done      { background:#F3F4F6;              color:#374151; }
+    .action-group { display:flex; gap:5px; flex-wrap:wrap; }
+    .btn-confirm { background:var(--green-light); color:#065F46; }
+    .btn-confirm:hover { background:var(--green); color:#fff; }
+    .btn-cancel  { background:var(--red-light);   color:var(--red); }
+    .btn-cancel:hover  { background:var(--red);   color:#fff; }
+    .btn-ship    { background:var(--sky-light);   color:#0369A1; }
+    .btn-ship:hover    { background:var(--sky);   color:#fff; }
+    .btn-done    { background:#F3F4F6;             color:#374151; }
+    .btn-done:hover    { background:#9CA3AF;       color:#fff; }
+
     @media(max-width:640px) { .admin-body{padding:14px;} .stat-grid{grid-template-columns:repeat(2,1fr);} .tab-btn{font-size:12px;padding:8px 4px;} }
   </style>
 </head>
@@ -203,7 +220,9 @@
     <!-- TABS -->
     <div class="tab-bar">
       <button type="button" class="tab-btn active" onclick="switchTab('workouts', this)">운동 기록</button>
-      <button type="button" class="tab-btn" onclick="switchTab('posts', this)">커뮤니티 게시글</button>
+      <button type="button" class="tab-btn" onclick="switchTab('posts', this)">커뮤니티</button>
+      <button type="button" class="tab-btn" onclick="switchTab('challenge', this)">챌린지 신청</button>
+      <button type="button" class="tab-btn" onclick="switchTab('orders', this)">구매 주문</button>
       <button type="button" class="tab-btn" onclick="switchTab('user', this)">이용자 정보</button>
     </div>
 
@@ -266,6 +285,75 @@
               </tr>
             </thead>
             <tbody id="post-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL: 챌린지 신청 -->
+    <div class="panel" id="panel-challenge">
+      <div class="controls">
+        <input type="text" class="ctrl-search" id="ch-search" placeholder="이름, 사번, 부서로 검색..." oninput="renderChallenge()">
+        <select class="ctrl-select" id="ch-filter-status" onchange="renderChallenge()">
+          <option value="">전체 상태</option>
+          <option value="pending">대기중</option>
+          <option value="confirmed">승인</option>
+          <option value="cancelled">거절</option>
+        </select>
+        <span class="ctrl-count" id="ch-count"></span>
+      </div>
+      <div class="table-wrap">
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>신청번호</th>
+                <th>이름 / 사번</th>
+                <th>부서</th>
+                <th>연락처</th>
+                <th>신발 사이즈</th>
+                <th>가족 참여</th>
+                <th>신청일</th>
+                <th>상태</th>
+                <th>관리</th>
+              </tr>
+            </thead>
+            <tbody id="ch-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL: 구매 주문 -->
+    <div class="panel" id="panel-orders">
+      <div class="controls">
+        <input type="text" class="ctrl-search" id="ord-search" placeholder="이름, 연락처, 상품명으로 검색..." oninput="renderOrders()">
+        <select class="ctrl-select" id="ord-filter-status" onchange="renderOrders()">
+          <option value="">전체 상태</option>
+          <option value="pending">처리 대기</option>
+          <option value="confirmed">주문 확인</option>
+          <option value="shipped">배송중</option>
+          <option value="done">완료</option>
+          <option value="cancelled">취소</option>
+        </select>
+        <span class="ctrl-count" id="ord-count"></span>
+      </div>
+      <div class="table-wrap">
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>주문번호</th>
+                <th>이름 / 연락처</th>
+                <th>수령 방법</th>
+                <th>상품</th>
+                <th>합계</th>
+                <th>주문일</th>
+                <th>상태</th>
+                <th>관리</th>
+              </tr>
+            </thead>
+            <tbody id="ord-tbody"></tbody>
           </table>
         </div>
       </div>
@@ -689,6 +777,133 @@ window.addEventListener('click', e => {
     if (e.target === el) el.classList.remove('open');
   });
 });
+
+/* ── CHALLENGE REGISTRATIONS ── */
+const CH_REG_KEY = 'hi_health_registrations_v2';
+const STATUS_LABEL = {
+  pending:'대기중', confirmed:'승인', cancelled:'거절',
+  shipped:'배송중', done:'완료',
+};
+
+function getChRegs() {
+  return JSON.parse(localStorage.getItem(CH_REG_KEY) || '[]');
+}
+function saveChRegs(regs) {
+  localStorage.setItem(CH_REG_KEY, JSON.stringify(regs));
+}
+
+function renderChallenge() {
+  const q      = document.getElementById('ch-search').value.toLowerCase();
+  const status = document.getElementById('ch-filter-status').value;
+  let regs = getChRegs().filter(r => {
+    if (status && r.status !== status) return false;
+    if (q && !r.name.toLowerCase().includes(q) && !r.empId.toLowerCase().includes(q) && !(r.dept||'').toLowerCase().includes(q)) return false;
+    return true;
+  }).sort((a,b) => new Date(b.registeredAt) - new Date(a.registeredAt));
+
+  document.getElementById('ch-count').textContent = `총 ${regs.length}건`;
+  const tbody = document.getElementById('ch-tbody');
+  if (!regs.length) {
+    tbody.innerHTML = '<tr><td colspan="9"><div class="empty-table"><div class="empty-icon">📋</div>신청 내역이 없습니다</div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = regs.map(r => {
+    const d = new Date(r.registeredAt);
+    const dateStr = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+    const famText = r.familyParticipation ? `동반 ${r.familyCount}명` : '-';
+    const badgeCls = `status-badge status-${r.status||'pending'}`;
+    const btnGroup = r.status === 'pending'
+      ? `<button type="button" class="action-btn btn-confirm" onclick="chSetStatus('${r.id}','confirmed')">승인</button>
+         <button type="button" class="action-btn btn-cancel"  onclick="chSetStatus('${r.id}','cancelled')">거절</button>`
+      : r.status === 'confirmed'
+      ? `<button type="button" class="action-btn btn-cancel"  onclick="chSetStatus('${r.id}','cancelled')">거절로 변경</button>`
+      : `<button type="button" class="action-btn btn-confirm" onclick="chSetStatus('${r.id}','confirmed')">승인으로 변경</button>`;
+    return `<tr>
+      <td class="td-date">${r.id}</td>
+      <td><div class="td-name">${r.name}</div><div class="td-id">${r.empId}</div></td>
+      <td>${r.dept||'-'}</td>
+      <td>${r.phone||'-'}</td>
+      <td>${r.shoeSize||'-'}</td>
+      <td>${famText}</td>
+      <td class="td-date">${dateStr}</td>
+      <td><span class="${badgeCls}">${STATUS_LABEL[r.status]||r.status}</span></td>
+      <td><div class="action-group">${btnGroup}</div></td>
+    </tr>`;
+  }).join('');
+}
+
+function chSetStatus(id, status) {
+  const regs = getChRegs();
+  const r = regs.find(x => x.id === id);
+  if (!r) return;
+  r.status = status;
+  saveChRegs(regs);
+  renderChallenge();
+  toast(`${r.name}님 신청이 '${STATUS_LABEL[status]}'으로 변경됐습니다`);
+}
+
+/* ── SHOP ORDERS ── */
+const SHOP_ORDERS_KEY = 'hi_health_shop_orders';
+
+function getOrders() {
+  return JSON.parse(localStorage.getItem(SHOP_ORDERS_KEY) || '[]');
+}
+function saveOrders(orders) {
+  localStorage.setItem(SHOP_ORDERS_KEY, JSON.stringify(orders));
+}
+
+function renderOrders() {
+  const q      = document.getElementById('ord-search').value.toLowerCase();
+  const status = document.getElementById('ord-filter-status').value;
+  let orders = getOrders().filter(o => {
+    if (status && o.status !== status) return false;
+    const itemNames = (o.items||[]).map(i=>i.name).join(' ').toLowerCase();
+    if (q && !o.name.toLowerCase().includes(q) && !o.phone.includes(q) && !itemNames.includes(q)) return false;
+    return true;
+  }).sort((a,b) => new Date(b.orderedAt) - new Date(a.orderedAt));
+
+  document.getElementById('ord-count').textContent = `총 ${orders.length}건`;
+  const tbody = document.getElementById('ord-tbody');
+  if (!orders.length) {
+    tbody.innerHTML = '<tr><td colspan="8"><div class="empty-table"><div class="empty-icon">🛒</div>주문 내역이 없습니다</div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = orders.map(o => {
+    const d = new Date(o.orderedAt);
+    const dateStr = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+    const itemList = (o.items||[]).map(i=>`${i.name} x${i.qty}`).join(', ');
+    const badgeCls = `status-badge status-${o.status||'pending'}`;
+    const btnGroup = {
+      pending:   `<button type="button" class="action-btn btn-confirm" onclick="ordSetStatus('${o.id}','confirmed')">주문확인</button>
+                  <button type="button" class="action-btn btn-cancel"  onclick="ordSetStatus('${o.id}','cancelled')">취소</button>`,
+      confirmed: `<button type="button" class="action-btn btn-ship"    onclick="ordSetStatus('${o.id}','shipped')">배송중</button>
+                  <button type="button" class="action-btn btn-cancel"  onclick="ordSetStatus('${o.id}','cancelled')">취소</button>`,
+      shipped:   `<button type="button" class="action-btn btn-done"    onclick="ordSetStatus('${o.id}','done')">완료</button>`,
+      done:      `<span style="font-size:12px;color:var(--text-3);">완료</span>`,
+      cancelled: `<button type="button" class="action-btn btn-confirm" onclick="ordSetStatus('${o.id}','pending')">복구</button>`,
+    }[o.status||'pending'] || '';
+    return `<tr>
+      <td class="td-date">${o.id}</td>
+      <td><div class="td-name">${o.name}</div><div class="td-id">${o.phone}</div></td>
+      <td>${o.pickup||'-'}${o.addr ? `<br><span style="font-size:11px;color:var(--text-3);">${o.addr}</span>` : ''}</td>
+      <td class="td-memo">${itemList}</td>
+      <td style="font-weight:700;">${(o.total||0).toLocaleString()}원</td>
+      <td class="td-date">${dateStr}</td>
+      <td><span class="${badgeCls}">${STATUS_LABEL[o.status]||o.status||'대기중'}</span></td>
+      <td><div class="action-group">${btnGroup}</div></td>
+    </tr>`;
+  }).join('');
+}
+
+function ordSetStatus(id, status) {
+  const orders = getOrders();
+  const o = orders.find(x => x.id === id);
+  if (!o) return;
+  o.status = status;
+  saveOrders(orders);
+  renderOrders();
+  toast(`주문 ${o.id} 상태가 '${STATUS_LABEL[status]||status}'으로 변경됐습니다`);
+}
 
 let _toastTimer;
 function toast(msg) {
