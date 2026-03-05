@@ -169,6 +169,30 @@
     .section-title { font-size:16px; font-weight:700; margin-bottom:14px; display:flex; align-items:center; gap:7px; }
     .page-meta { font-size:12px; color:var(--text-3); }
     @media(max-width:640px){ .admin-body{ padding:14px; } .stat-grid{ grid-template-columns:repeat(2,1fr); } }
+
+    /* ── SHEETS CONFIG ── */
+    .sheets-config { background:#fff; border-radius:var(--radius); padding:14px 18px; box-shadow:var(--shadow); margin-bottom:18px; border-left:4px solid #34A853; }
+    .sheets-top { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+    .sheets-icon { font-size:20px; }
+    .sheets-title { font-size:14px; font-weight:700; }
+    .sheets-sub { font-size:12px; color:var(--text-3); margin-top:1px; }
+    .sheets-row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+    .sheets-url-input { flex:1; min-width:220px; padding:9px 14px; border:1.5px solid var(--border); border-radius:var(--radius-sm); font-family:inherit; font-size:13px; outline:none; }
+    .sheets-url-input:focus { border-color:#34A853; }
+    .btn-sheets-load { padding:9px 18px; background:#34A853; color:#fff; border:none; border-radius:var(--radius-sm); font-family:inherit; font-size:13px; font-weight:700; cursor:pointer; transition:all 0.2s; }
+    .btn-sheets-load:hover { background:#2D8A44; }
+    .sheets-status { font-size:12px; font-weight:600; padding:5px 12px; border-radius:20px; }
+    .sheets-ok { background:#D1FAE5; color:#065F46; }
+    .sheets-err { background:var(--red-light); color:var(--red); }
+    .hidden { display:none; }
+    .loading-overlay { display:none; position:fixed; inset:0; background:rgba(255,255,255,0.85); z-index:500; align-items:center; justify-content:center; flex-direction:column; gap:14px; }
+    .loading-overlay.show { display:flex; }
+    .loading-spinner { width:44px; height:44px; border:4px solid var(--border); border-top-color:var(--primary); border-radius:50%; animation:spin 0.8s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .loading-text { font-size:14px; font-weight:600; color:var(--text-3); }
+    .mode-badge { padding:5px 13px; border-radius:20px; font-size:12px; font-weight:600; }
+    .mode-sheets { background:#D1FAE5; color:#065F46; }
+    .mode-local  { background:var(--amber-light); color:#92400E; }
   </style>
 </head>
 <body>
@@ -202,6 +226,22 @@
   </header>
 
   <div class="admin-body">
+
+    <!-- SHEETS CONFIG -->
+    <div class="sheets-config">
+      <div class="sheets-top">
+        <span class="sheets-icon">📊</span>
+        <div>
+          <div class="sheets-title">Google Sheets 연동 (전체 이용자 신청 관리)</div>
+          <div class="sheets-sub">Apps Script 웹 앱 URL을 입력하면 모든 기기의 챌린지 신청을 관리할 수 있습니다</div>
+        </div>
+      </div>
+      <div class="sheets-row">
+        <input type="text" class="sheets-url-input" id="sheets-url-input" placeholder="https://script.google.com/macros/s/.../exec" oninput="onSheetsUrlChange()">
+        <button type="button" class="btn-sheets-load" onclick="loadFromSheets()">불러오기</button>
+        <span class="sheets-status hidden" id="sheets-status"></span>
+      </div>
+    </div>
 
     <!-- Stat cards -->
     <div class="stat-grid" id="stat-grid"></div>
@@ -266,10 +306,16 @@
       </div>
     </div>
 
-    <p class="page-meta" style="text-align:center;margin-bottom:24px">
+    <p class="page-meta" id="page-meta-txt" style="text-align:center;margin-bottom:24px">
       데이터는 이 기기의 브라우저에 저장됩니다 · CSV로 내보내어 안전하게 백업하세요
     </p>
   </div>
+</div>
+
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay" id="loading-overlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Google Sheets에서 불러오는 중...</div>
 </div>
 
 <!-- Detail Modal -->
@@ -294,6 +340,11 @@ const PASSWORD = 'health2026';
 let sortKey = 'registeredAt';
 let sortDir = -1; // -1 = desc
 
+/* ── Google Sheets 연동 ── */
+let SHEETS_URL = localStorage.getItem('hi_admin_sheets_url') || '';
+let sheetsMode = false;
+let GD_regs = []; // Sheets에서 불러온 신청 목록
+
 /* ═══ AUTH ═══ */
 function doLogin() {
   const pw = document.getElementById('pw-input').value;
@@ -301,6 +352,7 @@ function doLogin() {
     sessionStorage.setItem(AUTH_KEY, '1');
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('admin').style.display = 'block';
+    if (SHEETS_URL) document.getElementById('sheets-url-input').value = SHEETS_URL;
     loadAdmin();
   } else {
     const inp = document.getElementById('pw-input');
@@ -323,8 +375,62 @@ function checkAuth() {
 }
 
 /* ═══ DATA ═══ */
-function getRegs() { return JSON.parse(localStorage.getItem(REG_KEY) || '[]'); }
-function saveRegs(regs) { localStorage.setItem(REG_KEY, JSON.stringify(regs)); }
+function getRegs() {
+  if (sheetsMode) return GD_regs;
+  return JSON.parse(localStorage.getItem(REG_KEY) || '[]');
+}
+function saveRegs(list) {
+  if (!sheetsMode) localStorage.setItem(REG_KEY, JSON.stringify(list));
+}
+
+/* ═══ GOOGLE SHEETS ═══ */
+function onSheetsUrlChange() {
+  SHEETS_URL = document.getElementById('sheets-url-input').value.trim();
+  localStorage.setItem('hi_admin_sheets_url', SHEETS_URL);
+}
+
+async function loadFromSheets() {
+  SHEETS_URL = document.getElementById('sheets-url-input').value.trim();
+  if (!SHEETS_URL) { showToast('Apps Script URL을 입력해주세요'); return; }
+  localStorage.setItem('hi_admin_sheets_url', SHEETS_URL);
+  document.getElementById('loading-overlay').classList.add('show');
+  const statusEl = document.getElementById('sheets-status');
+  try {
+    const res = await fetch(SHEETS_URL + '?action=getRegistrations');
+    const json = await res.json();
+    if (!json.ok) throw new Error(json.error || '응답 오류');
+    GD_regs = (json.data.registrations || []).map(r => ({
+      ...r,
+      familyParticipation: r.familyParticipation === true || r.familyParticipation === 'true',
+      familyCount: Number(r.familyCount) || 0,
+    }));
+    sheetsMode = true;
+    document.getElementById('page-meta-txt').textContent = 'Google Sheets 연동 중 · 모든 기기의 신청 데이터 표시';
+    renderStats(); renderCharts(); renderDeptFilter(); renderTable();
+    statusEl.textContent = `연결됨 (${GD_regs.length}건)`;
+    statusEl.className = 'sheets-status sheets-ok';
+    statusEl.classList.remove('hidden');
+    showToast(`Google Sheets 데이터 불러오기 완료! ${GD_regs.length}건`);
+  } catch(e) {
+    statusEl.textContent = '연결 실패: ' + e.message;
+    statusEl.className = 'sheets-status sheets-err';
+    statusEl.classList.remove('hidden');
+    showToast('오류: ' + e.message);
+  } finally {
+    document.getElementById('loading-overlay').classList.remove('show');
+  }
+}
+
+async function sheetsPost(action, data) {
+  if (!SHEETS_URL) return;
+  try {
+    await fetch(SHEETS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, ...data }),
+    });
+  } catch(e) {}
+}
 
 /* ═══ LOAD ═══ */
 function loadAdmin() {
@@ -501,11 +607,12 @@ function sortBy(key) {
 
 /* ═══ STATUS UPDATE ═══ */
 function updateStatus(id, status) {
-  const regs = getRegs();
-  const r = regs.find(x => x.id === id);
+  const list = getRegs();
+  const r = list.find(x => x.id === id);
   if (!r) return;
   r.status = status;
-  saveRegs(regs);
+  saveRegs(list);
+  if (sheetsMode) sheetsPost('updateRegistrationStatus', { id, status });
   renderStats(); renderCharts(); renderTable();
   const lbl = { confirmed:'✅ 선정', cancelled:'❌ 미선정', pending:'⏳ 재검토' }[status];
   showToast(r.name + ' → ' + lbl);
@@ -517,15 +624,18 @@ function confirmAll() {
   const dept   = document.getElementById('filter-dept').value;
   const status = document.getElementById('filter-status').value;
   if (!confirm('현재 필터 조건의 모든 신청자를 "선정" 처리하시겠습니까?')) return;
-  const regs = getRegs();
+  const list = getRegs();
   let cnt = 0;
-  regs.forEach(r => {
+  list.forEach(r => {
     const match = (!q || r.name.includes(q) || r.empId.toLowerCase().includes(q) || r.dept.includes(q))
                && (!dept   || r.dept   === dept)
                && (!status || r.status === status);
-    if (match) { r.status = 'confirmed'; cnt++; }
+    if (match) {
+      r.status = 'confirmed'; cnt++;
+      if (sheetsMode) sheetsPost('updateRegistrationStatus', { id: r.id, status: 'confirmed' });
+    }
   });
-  saveRegs(regs);
+  saveRegs(list);
   renderStats(); renderCharts(); renderTable();
   showToast('✅ ' + cnt + '명 선정 처리 완료');
 }
@@ -578,13 +688,19 @@ function closeModalDirect() { document.getElementById('modal-overlay').classList
 /* ═══ DELETE ═══ */
 function deleteReg(id) {
   if (!confirm('이 신청자를 삭제하시겠습니까? 되돌릴 수 없습니다.')) return;
-  let regs = getRegs().filter(r => r.id !== id);
-  saveRegs(regs);
+  if (sheetsMode) {
+    GD_regs = GD_regs.filter(r => r.id !== id);
+    // Sheets에서 삭제 처리 (상태를 cancelled로 변경)
+    sheetsPost('updateRegistrationStatus', { id, status: 'cancelled' });
+  } else {
+    saveRegs(getRegs().filter(r => r.id !== id));
+  }
   closeModalDirect();
   renderStats(); renderCharts(); renderDeptFilter(); renderTable();
   showToast('🗑️ 삭제 완료');
 }
 function clearAllData() {
+  if (sheetsMode) { showToast('Google Sheets 모드에서는 전체 삭제를 지원하지 않습니다'); return; }
   if (!confirm('⚠️ 모든 신청자 데이터를 삭제합니다. 정말 삭제하시겠습니까?\n삭제 전 반드시 CSV로 백업하세요!')) return;
   if (!confirm('마지막 확인: 정말로 전체 삭제하시겠습니까?')) return;
   localStorage.removeItem(REG_KEY);
