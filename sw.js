@@ -1,18 +1,16 @@
-const CACHE = 'hi-health-v1';
-const ASSETS = [
-  './index.html',
+const CACHE = 'hi-health-v3';
+const STATIC_ASSETS = [
   './manifest.webmanifest',
   './icons/icon.svg',
   './icons/icon-192.png',
   './icons/icon-512.png',
-  'https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap',
 ];
 
-// 설치: 앱 셸 캐시
+// 설치: 정적 자산만 캐시 (HTML 제외)
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE).then(cache =>
-      Promise.allSettled(ASSETS.map(url => cache.add(url)))
+      Promise.allSettled(STATIC_ASSETS.map(url => cache.add(url)))
     ).then(() => self.skipWaiting())
   );
 });
@@ -26,25 +24,33 @@ self.addEventListener('activate', e => {
   );
 });
 
-// 요청 가로채기: 캐시 우선, 실패 시 네트워크
+// 요청 가로채기: HTML은 네트워크 우선, 나머지는 캐시 우선
 self.addEventListener('fetch', e => {
-  // POST 요청은 캐시하지 않음
   if (e.request.method !== 'GET') return;
 
+  // HTML 파일 / 아바타 이미지: 항상 네트워크에서 최신 버전 가져오기
+  if (e.request.destination === 'document' || e.request.url.endsWith('.html') || e.request.url.includes('/images/avatars/')) {
+    e.respondWith(
+      fetch(e.request).then(res => {
+        if (res && res.status === 200) {
+          const clone = res.clone();
+          caches.open(CACHE).then(cache => cache.put(e.request, clone));
+        }
+        return res;
+      }).catch(() => caches.match(e.request))
+    );
+    return;
+  }
+
+  // 나머지: 캐시 우선, 실패 시 네트워크
   e.respondWith(
     caches.match(e.request).then(cached => {
       if (cached) return cached;
       return fetch(e.request).then(res => {
-        // 유효한 응답만 캐시
         if (!res || res.status !== 200 || res.type === 'opaque') return res;
         const clone = res.clone();
         caches.open(CACHE).then(cache => cache.put(e.request, clone));
         return res;
-      }).catch(() => {
-        // 오프라인 fallback: HTML 요청이면 캐시된 index.html 반환
-        if (e.request.destination === 'document') {
-          return caches.match('./index.html');
-        }
       });
     })
   );

@@ -283,18 +283,20 @@
 
   <div class="admin-body">
 
-    <!-- SHEETS CONFIG -->
+    <!-- SUPABASE STATUS -->
     <div class="sheets-config">
       <div class="sheets-top">
-        <span class="sheets-icon">📊</span>
+        <span class="sheets-icon">⚡</span>
         <div>
-          <div class="sheets-title">Google Sheets 연동 (전체 이용자 관리)</div>
-          <div class="sheets-sub">Apps Script 웹 앱 URL을 입력하면 모든 이용자 데이터를 관리할 수 있습니다</div>
+          <div class="sheets-title">Supabase 실시간 연동</div>
+          <div class="sheets-sub">Supabase에서 모든 이용자 데이터를 불러옵니다</div>
         </div>
       </div>
       <div class="sheets-row">
-        <input type="text" class="sheets-url-input" id="sheets-url-input" placeholder="https://script.google.com/macros/s/.../exec" oninput="onSheetsUrlChange()">
-        <button type="button" class="btn-sheets-load" onclick="loadFromSheets()">불러오기</button>
+        <button type="button" class="btn-sheets-load" onclick="loadFromFirebase()">새로고침</button>
+        <button type="button" class="btn-sheets-load" style="background:#F59E0B" onclick="migrateLocalToSupabase()">📦 localStorage 마이그레이션</button>
+        <input type="text" id="sheets-migrate-url" class="sheets-url-input" placeholder="Apps Script URL 붙여넣기" style="max-width:300px">
+        <button type="button" class="btn-sheets-load" style="background:#34A853" onclick="migrateFromSheets()">📊 Google Sheets 마이그레이션</button>
         <span class="sheets-status hidden" id="sheets-status"></span>
       </div>
     </div>
@@ -346,8 +348,7 @@
       <button type="button" class="tab-btn" onclick="switchTab('posts', this)">커뮤니티</button>
       <button type="button" class="tab-btn" onclick="switchTab('challenge', this)">챌린지 신청</button>
       <button type="button" class="tab-btn" onclick="switchTab('orders', this)">구매 주문</button>
-      <button type="button" class="tab-btn" onclick="switchTab('user', this)">이용자 정보</button>
-      <button type="button" class="tab-btn hidden" id="tab-users-btn" onclick="switchTab('users', this)">이용자 목록 <span id="tab-users-count" style="font-size:10px;opacity:0.8;"></span></button>
+      <button type="button" class="tab-btn" id="tab-users-btn" onclick="switchTab('users', this)">이용자 관리 <span id="tab-users-count" style="font-size:10px;opacity:0.8;"></span></button>
       <button type="button" class="tab-btn" onclick="switchTab('content', this)">콘텐츠 관리</button>
     </div>
 
@@ -485,87 +486,91 @@
       </div>
     </div>
 
-    <!-- PANEL: 이용자 정보 -->
-    <div class="panel" id="panel-user">
-      <div class="user-info-card">
-        <div class="user-info-title">이용자 기본 정보</div>
-        <div class="user-info-grid">
-          <div class="ui-field">
-            <div class="ui-label">이름</div>
-            <input type="text" class="ui-input" id="ui-name" placeholder="이름">
-          </div>
-          <div class="ui-field">
-            <div class="ui-label">아바타</div>
-            <input type="text" class="ui-input" id="ui-avatar" placeholder="이모지">
-          </div>
-          <div class="ui-field">
-            <div class="ui-label">포인트</div>
-            <input type="number" class="ui-input" id="ui-points" placeholder="0" min="0">
-          </div>
-          <div class="ui-field">
-            <div class="ui-label">연속 운동일</div>
-            <input type="number" class="ui-input" id="ui-streak" placeholder="0" min="0">
-          </div>
-        </div>
-
-        <div class="pts-adjust">
-          <span class="pts-adjust-label">포인트 조정</span>
-          <input type="number" class="pts-adjust-input" id="pts-adj-val" placeholder="0" min="0">
-          <button type="button" class="pts-adjust-btn pts-add" onclick="adjustPoints(1)">+ 추가</button>
-          <button type="button" class="pts-adjust-btn pts-sub" onclick="adjustPoints(-1)">- 차감</button>
-        </div>
-
-        <button type="button" class="save-btn" onclick="saveUserInfo()">변경사항 저장</button>
-      </div>
-
-      <div class="user-info-card">
-        <div class="user-info-title">태그 정보</div>
-        <div id="ui-tags-display" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
-      </div>
-
-      <div class="user-info-card">
-        <div class="user-info-title" style="color:var(--red);">위험 구역</div>
-        <p style="font-size:13px;color:var(--text-3);margin-bottom:14px;">아래 작업은 되돌릴 수 없습니다. 신중하게 사용하세요.</p>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          <button type="button" class="ctrl-btn danger" onclick="resetAllData()">전체 데이터 초기화</button>
-          <button type="button" class="ctrl-btn danger" onclick="resetWorkoutsOnly()">운동 기록만 초기화</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- PANEL: 이용자 목록 (sheets mode) -->
+    <!-- PANEL: 이용자 관리 (목록 + 정보 통합) -->
     <div class="panel" id="panel-users">
-      <div class="controls">
-        <input type="text" class="ctrl-search" id="users-search" placeholder="이름, 등록번호, 부서로 검색..." oninput="onUsersSearch()">
-        <select class="ctrl-select" id="users-sort" onchange="renderUsers()">
-          <option value="name">이름순</option>
-          <option value="points">포인트순</option>
-          <option value="workouts">운동 횟수순</option>
-          <option value="streak">연속운동순</option>
-        </select>
-        <span class="ctrl-count" id="users-count"></span>
-      </div>
-      <div class="table-wrap">
-        <div class="table-scroll">
-          <table>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>이름</th>
-                <th>등록번호</th>
-                <th>부서</th>
-                <th>포인트</th>
-                <th>운동</th>
-                <th>연속</th>
-                <th>게시글</th>
-                <th>관리</th>
-              </tr>
-            </thead>
-            <tbody id="users-tbody"></tbody>
-          </table>
+
+      <!-- 이용자 상세 정보 (선택된 이용자 또는 로컬 모드) -->
+      <div id="users-detail-section" style="display:none;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+          <span id="users-detail-title" style="font-size:15px;font-weight:700;flex:1;">이용자 정보</span>
+          <button type="button" class="ctrl-btn" id="users-detail-back" onclick="hideUserDetail()" style="display:none;">← 목록으로</button>
+        </div>
+        <div class="user-info-card">
+          <div class="user-info-title">기본 정보</div>
+          <div class="user-info-grid">
+            <div class="ui-field">
+              <div class="ui-label">이름</div>
+              <input type="text" class="ui-input" id="ui-name" placeholder="이름">
+            </div>
+            <div class="ui-field">
+              <div class="ui-label">아바타</div>
+              <input type="text" class="ui-input" id="ui-avatar" placeholder="이모지">
+            </div>
+            <div class="ui-field">
+              <div class="ui-label">포인트</div>
+              <input type="number" class="ui-input" id="ui-points" placeholder="0" min="0">
+            </div>
+            <div class="ui-field">
+              <div class="ui-label">연속 운동일</div>
+              <input type="number" class="ui-input" id="ui-streak" placeholder="0" min="0">
+            </div>
+          </div>
+          <div class="pts-adjust">
+            <span class="pts-adjust-label">포인트 조정</span>
+            <input type="number" class="pts-adjust-input" id="pts-adj-val" placeholder="0" min="0">
+            <button type="button" class="pts-adjust-btn pts-add" onclick="adjustPoints(1)">+ 추가</button>
+            <button type="button" class="pts-adjust-btn pts-sub" onclick="adjustPoints(-1)">- 차감</button>
+          </div>
+          <button type="button" class="save-btn" onclick="saveUserInfo()">변경사항 저장</button>
+        </div>
+        <div class="user-info-card">
+          <div class="user-info-title">태그 정보</div>
+          <div id="ui-tags-display" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+        </div>
+        <div class="user-info-card">
+          <div class="user-info-title" style="color:var(--red);">위험 구역</div>
+          <p style="font-size:13px;color:var(--text-3);margin-bottom:14px;">아래 작업은 되돌릴 수 없습니다. 신중하게 사용하세요.</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button type="button" class="ctrl-btn danger" onclick="resetAllData()">전체 데이터 초기화</button>
+            <button type="button" class="ctrl-btn danger" onclick="resetWorkoutsOnly()">운동 기록만 초기화</button>
+          </div>
         </div>
       </div>
-      <div class="pagination" id="users-pagination"></div>
+
+      <!-- 이용자 목록 (firebase 모드) -->
+      <div id="users-list-section" style="display:none;">
+        <div class="controls">
+          <input type="text" class="ctrl-search" id="users-search" placeholder="이름, 등록번호, 부서로 검색..." oninput="onUsersSearch()">
+          <select class="ctrl-select" id="users-sort" onchange="renderUsers()">
+            <option value="name">이름순</option>
+            <option value="points">포인트순</option>
+            <option value="workouts">운동 횟수순</option>
+            <option value="streak">연속운동순</option>
+          </select>
+          <span class="ctrl-count" id="users-count"></span>
+        </div>
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>이름</th>
+                  <th>등록번호</th>
+                  <th>부서</th>
+                  <th>포인트</th>
+                  <th>운동</th>
+                  <th>연속</th>
+                  <th>게시글</th>
+                  <th>관리</th>
+                </tr>
+              </thead>
+              <tbody id="users-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="pagination" id="users-pagination"></div>
+      </div>
     </div>
 
     <!-- PANEL: 콘텐츠 관리 -->
@@ -689,10 +694,10 @@
 let ADMIN_PW = localStorage.getItem('hi_admin_pw') || '1111';
 const STORAGE_KEY = 'hi_health_v2';
 
-/* ── Google Sheets 연동 상태 ── */
-let SHEETS_URL = localStorage.getItem('hi_admin_sheets_url') || '';
-let sheetsMode = false;
-let GD = null;           // 구글 시트에서 불러온 전체 이용자 데이터
+/* ── Firebase 연동 상태 ── */
+let _adminDb = null;
+let firebaseMode = false;
+let GD = null;           // Firestore에서 불러온 전체 이용자 데이터
 let selectedDeviceId = ''; // 이용자 필터 ('' = 전체)
 let userPage = 0;
 const USER_PAGE_SIZE = 50;
@@ -719,12 +724,8 @@ function doLogin() {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('admin').style.display = 'block';
     // 저장된 Sheets URL 복원 및 자동 불러오기
-    if (SHEETS_URL) {
-      document.getElementById('sheets-url-input').value = SHEETS_URL;
-      loadFromSheets();
-    } else {
-      loadData();
-    }
+    initFirebaseAdmin();
+    loadData();
   } else {
     inp.classList.add('error');
     inp.value = '';
@@ -757,7 +758,7 @@ function doLogout() {
   document.getElementById('pw-input').value = '';
   D = null;
   GD = null;
-  sheetsMode = false;
+  firebaseMode = false;
   selectedDeviceId = '';
 }
 
@@ -786,11 +787,15 @@ function renderAll() {
   renderPosts();
   renderChallenge();
   renderOrders();
-  if (sheetsMode) { renderUsers(); renderAdminPosts(); }
-  if (!sheetsMode) {
+  if (firebaseMode) { renderUsers(); renderAdminPosts(); }
+  if (!firebaseMode) {
     renderUserInfo();
     buildExFilter();
     document.getElementById('ah-user-name').textContent = (D.user.avatar || '') + ' ' + (D.user.name || '이름 없음');
+    // non-firebase: users panel shows detail directly
+    document.getElementById('users-list-section').style.display = 'none';
+    document.getElementById('users-detail-section').style.display =
+      document.getElementById('panel-users').classList.contains('active') ? '' : 'none';
   } else {
     const userCount = (GD.users || []).length;
     document.getElementById('ah-user-name').textContent = `전체 이용자 ${userCount}명`;
@@ -799,7 +804,7 @@ function renderAll() {
 
 /* ── STATS ── */
 function renderStats() {
-  if (sheetsMode && GD) {
+  if (firebaseMode && GD) {
     const users = GD.users || [];
     const workouts = filterByUser(GD.workouts || []);
     const posts = filterByUser(GD.posts || []);
@@ -828,34 +833,79 @@ function renderStats() {
   }
 }
 
-/* ── GOOGLE SHEETS ── */
-function onSheetsUrlChange() {
-  SHEETS_URL = document.getElementById('sheets-url-input').value.trim();
-  localStorage.setItem('hi_admin_sheets_url', SHEETS_URL);
+/* ── SUPABASE ADMIN ── */
+const SUPABASE_URL      = 'https://nbnmvvobehjitophkqmu.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ibm12dm9iZWhqaXRvcGhrcW11Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3Nzk4NzQsImV4cCI6MjA4ODM1NTg3NH0.iZS4JvhHUqv4ZMPxm9STit6xqVp2JA5H55M8Wmd1yjY';
+
+function initFirebaseAdmin() {
+  const statusEl = document.getElementById('sheets-status');
+  try {
+    if (!SUPABASE_URL || SUPABASE_URL === 'YOUR_SUPABASE_URL') {
+      statusEl.textContent = 'Supabase 미설정 (코드에 URL/KEY 입력 필요)';
+      statusEl.className = 'sheets-status sheets-err';
+      statusEl.classList.remove('hidden');
+      return;
+    }
+    const { createClient } = supabase;
+    _adminDb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    firebaseMode = true;
+    loadFromFirebase();
+
+    // 실시간 리스너: 데이터 변경 시 자동 갱신
+    const tables = ['users', 'workouts', 'posts', 'orders', 'registrations', 'glucose'];
+    tables.forEach(table => {
+      _adminDb.channel('admin_' + table)
+        .on('postgres_changes', { event: '*', schema: 'public', table }, async () => {
+          const statusEl = document.getElementById('sheets-status');
+          statusEl.textContent = '데이터 동기화 중...';
+          await loadFromFirebase();
+        })
+        .subscribe();
+    });
+  } catch(e) {
+    statusEl.textContent = '연결 실패: ' + e.message;
+    statusEl.className = 'sheets-status sheets-err';
+    statusEl.classList.remove('hidden');
+  }
 }
 
-async function loadFromSheets() {
-  SHEETS_URL = document.getElementById('sheets-url-input').value.trim();
-  if (!SHEETS_URL) { toast('Apps Script URL을 입력해주세요'); return; }
-  localStorage.setItem('hi_admin_sheets_url', SHEETS_URL);
+async function loadFromFirebase() {
+  if (!_adminDb) { toast('Supabase가 초기화되지 않았습니다'); return; }
   showLoading(true);
   const statusEl = document.getElementById('sheets-status');
   try {
-    const res = await fetch(SHEETS_URL + '?action=getAll', { credentials: 'omit' });
-    const json = await res.json();
-    if (!json.ok) throw new Error(json.error || '응답 오류');
-    GD = json.data;
-    sheetsMode = true;
+    const [u, w, p, r, o, g, ap] = await Promise.all([
+      _adminDb.from('users').select('*'),
+      _adminDb.from('workouts').select('*'),
+      _adminDb.from('posts').select('*'),
+      _adminDb.from('registrations').select('*'),
+      _adminDb.from('orders').select('*'),
+      _adminDb.from('glucose').select('*'),
+      _adminDb.from('admin_posts').select('*').order('createdAt', { ascending: false }),
+    ]);
+    GD = {
+      users:         u.data || [],
+      workouts:      w.data || [],
+      posts:         p.data || [],
+      registrations: r.data || [],
+      orders: (o.data || []).map(ord => ({
+        ...ord,
+        items: typeof ord.items === 'string' ? (() => { try { return JSON.parse(ord.items); } catch(e) { return []; } })() : (ord.items||[]),
+        total: Number(ord.total)||0,
+      })),
+      glucose:    g.data || [],
+      adminPosts: ap.data || [],
+    };
     selectedDeviceId = '';
-    // UI: sheets mode 활성화
     document.getElementById('stat-card-users').classList.remove('hidden');
-    document.getElementById('tab-users-btn').classList.remove('hidden');
+    document.getElementById('users-list-section').style.display = '';
+    document.getElementById('users-detail-section').style.display = 'none';
     buildUserFilter();
     renderAll();
-    statusEl.textContent = `연결됨 (${(GD.users||[]).length}명)`;
+    statusEl.textContent = `연결됨 (${GD.users.length}명)`;
     statusEl.className = 'sheets-status sheets-ok';
     statusEl.classList.remove('hidden');
-    toast(`Google Sheets 데이터 불러오기 완료! 이용자 ${(GD.users||[]).length}명`);
+    toast(`Supabase 데이터 불러오기 완료! 이용자 ${GD.users.length}명`);
   } catch(e) {
     statusEl.textContent = '연결 실패: ' + e.message;
     statusEl.className = 'sheets-status sheets-err';
@@ -866,19 +916,130 @@ async function loadFromSheets() {
   }
 }
 
-async function sheetsPost(action, payload) {
-  if (!SHEETS_URL) return;
-  try {
-    await fetch(SHEETS_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action, payload }),
-    });
-  } catch(e) {}
-}
-
 function showLoading(on) {
   document.getElementById('loading-overlay').classList.toggle('show', on);
+}
+
+async function migrateLocalToSupabase() {
+  if (!_adminDb) { toast('먼저 Supabase에 연결해주세요'); return; }
+  if (!confirm('이 기기의 localStorage 데이터를 Supabase로 업로드합니다.\n계속하시겠습니까?')) return;
+  showLoading(true);
+  const counts = { users: 0, workouts: 0, posts: 0, glucose: 0, orders: 0, regs: 0 };
+  try {
+    // 1. hi_health_v2* 키 전체 탐색 (사번별 데이터 포함)
+    const storageKeys = Object.keys(localStorage).filter(k => k.startsWith('hi_health_v2'));
+    for (const key of storageKeys) {
+      const data = JSON.parse(localStorage.getItem(key) || 'null');
+      if (!data) continue;
+      const empIdSuffix = key.replace('hi_health_v2_', '').replace('hi_health_v2', '');
+      const didKey = empIdSuffix ? 'hi_device_id_' + empIdSuffix : 'hi_device_id';
+      const deviceId = localStorage.getItem(didKey);
+      if (!deviceId) continue;
+
+      // 사용자
+      if (data.user && data.user.name) {
+        await _adminDb.from('users').upsert(
+          { deviceId, ...data.user, empId: empIdSuffix || data.user.empId || '' },
+          { onConflict: 'deviceId' }
+        );
+        counts.users++;
+      }
+      // 운동
+      if (data.workouts?.length) {
+        await _adminDb.from('workouts').upsert(data.workouts, { onConflict: 'id' });
+        counts.workouts += data.workouts.length;
+      }
+      // 게시글 (id 있는 것만)
+      const validPosts = (data.posts || []).filter(p => p.id && p.deviceId);
+      if (validPosts.length) {
+        await _adminDb.from('posts').upsert(validPosts, { onConflict: 'id' });
+        counts.posts += validPosts.length;
+      }
+      // 혈당
+      if (data.glucoseRecords?.length) {
+        await _adminDb.from('glucose').upsert(data.glucoseRecords, { onConflict: 'id' });
+        counts.glucose += data.glucoseRecords.length;
+      }
+    }
+
+    // 2. 주문 (depositImg 제외 - base64 이미지는 용량 초과 가능)
+    const orders = JSON.parse(localStorage.getItem('hi_health_shop_orders') || '[]');
+    if (orders.length) {
+      const rows = orders.map(({ depositImg, ...o }) => ({
+        ...o,
+        items: typeof o.items === 'string' ? o.items : JSON.stringify(o.items || []),
+      }));
+      await _adminDb.from('orders').upsert(rows, { onConflict: 'id' });
+      counts.orders = rows.length;
+    }
+
+    // 3. 챌린지 신청
+    const regs = JSON.parse(localStorage.getItem('hi_health_registrations_v2') || '[]');
+    if (regs.length) {
+      await _adminDb.from('registrations').upsert(regs, { onConflict: 'id' });
+      counts.regs = regs.length;
+    }
+
+    toast(`✅ 완료! 사용자 ${counts.users}명, 운동 ${counts.workouts}개, 게시글 ${counts.posts}개, 주문 ${counts.orders}개, 신청 ${counts.regs}개`);
+    await loadFromFirebase();
+  } catch(e) {
+    toast('오류: ' + e.message);
+    console.error(e);
+  } finally {
+    showLoading(false);
+  }
+}
+
+async function migrateFromSheets() {
+  if (!_adminDb) { toast('먼저 Supabase에 연결해주세요'); return; }
+  const scriptUrl = document.getElementById('sheets-migrate-url').value.trim();
+  if (!scriptUrl) { toast('Apps Script URL을 입력해주세요'); return; }
+  showLoading(true);
+  try {
+    const res = await fetch(scriptUrl + '?action=getAll', { credentials: 'omit' });
+    const json = await res.json();
+    if (!json.ok) throw new Error(json.error || '응답 오류');
+    const d = json.data;
+    const counts = { users: 0, workouts: 0, posts: 0, orders: 0, regs: 0, glucose: 0, adminPosts: 0 };
+
+    if (d.users?.length) {
+      await _adminDb.from('users').upsert(d.users, { onConflict: 'deviceId' });
+      counts.users = d.users.length;
+    }
+    if (d.workouts?.length) {
+      await _adminDb.from('workouts').upsert(d.workouts, { onConflict: 'id' });
+      counts.workouts = d.workouts.length;
+    }
+    if (d.posts?.length) {
+      const valid = d.posts.filter(p => p.id && p.deviceId);
+      if (valid.length) { await _adminDb.from('posts').upsert(valid, { onConflict: 'id' }); counts.posts = valid.length; }
+    }
+    if (d.orders?.length) {
+      const rows = d.orders.map(o => ({ ...o, items: typeof o.items === 'string' ? o.items : JSON.stringify(o.items || []) }));
+      await _adminDb.from('orders').upsert(rows, { onConflict: 'id' });
+      counts.orders = rows.length;
+    }
+    if (d.registrations?.length) {
+      await _adminDb.from('registrations').upsert(d.registrations, { onConflict: 'id' });
+      counts.regs = d.registrations.length;
+    }
+    if (d.glucose?.length) {
+      await _adminDb.from('glucose').upsert(d.glucose, { onConflict: 'id' });
+      counts.glucose = d.glucose.length;
+    }
+    if (d.adminPosts?.length) {
+      await _adminDb.from('admin_posts').upsert(d.adminPosts, { onConflict: 'id' });
+      counts.adminPosts = d.adminPosts.length;
+    }
+
+    toast(`✅ Sheets 마이그레이션 완료! 사용자 ${counts.users}명, 운동 ${counts.workouts}개, 주문 ${counts.orders}개, 신청 ${counts.regs}개`);
+    await loadFromFirebase();
+  } catch(e) {
+    toast('오류: ' + e.message);
+    console.error(e);
+  } finally {
+    showLoading(false);
+  }
 }
 
 function filterByUser(arr) {
@@ -894,6 +1055,10 @@ function buildUserFilter() {
 function clearUserFilter() {
   selectedDeviceId = '';
   document.getElementById('selected-user-bar').classList.add('hidden');
+  if (firebaseMode) {
+    document.getElementById('users-detail-section').style.display = 'none';
+    document.getElementById('users-detail-back').style.display = 'none';
+  }
   renderAll();
 }
 
@@ -928,7 +1093,7 @@ function getFilteredSortedUsers() {
 }
 
 function renderUsers() {
-  if (!sheetsMode || !GD) return;
+  if (!firebaseMode || !GD) return;
   const users = getFilteredSortedUsers();
   const total = users.length;
   const totalPages = Math.ceil(total / USER_PAGE_SIZE);
@@ -962,7 +1127,7 @@ function renderUsers() {
         <td>${wo}</td>
         <td>${Number(u.streak)||0}일</td>
         <td>${po}</td>
-        <td><button class="action-btn btn-detail" onclick="event.stopPropagation();selectUser('${u.deviceId}','${(u.name||'').replace(/'/g,"\\'")}');switchTab('user',document.querySelectorAll('.tab-btn')[4])">상세</button></td>
+        <td><button class="action-btn btn-detail" onclick="event.stopPropagation();selectUser('${u.deviceId}','${(u.name||'').replace(/'/g,"\\'")}')">상세</button></td>
       </tr>`;
     }).join('');
   }
@@ -998,15 +1163,40 @@ function goUserPage(page) {
 
 function selectUser(deviceId, name) {
   if (selectedDeviceId === deviceId) {
-    clearUserFilter();
-  } else {
-    selectedDeviceId = deviceId;
-    const bar = document.getElementById('selected-user-bar');
-    bar.classList.remove('hidden');
-    document.getElementById('selected-user-name').textContent = name || deviceId;
-    renderAll();
-    renderUsers();
+    hideUserDetail();
+    return;
   }
+  selectedDeviceId = deviceId;
+  const bar = document.getElementById('selected-user-bar');
+  bar.classList.remove('hidden');
+  document.getElementById('selected-user-name').textContent = name || deviceId;
+  renderAll();
+  renderUsers();
+  // Show user detail inline
+  const u = (GD.users || []).find(x => x.deviceId === deviceId);
+  if (u) populateUserDetail(u);
+}
+
+function populateUserDetail(u) {
+  document.getElementById('ui-name').value = u.name || '';
+  document.getElementById('ui-avatar').value = u.avatar || '';
+  document.getElementById('ui-points').value = Number(u.points) || 0;
+  document.getElementById('ui-streak').value = Number(u.streak) || 0;
+  const tags = typeof u.tags === 'string' ? u.tags.split(',').filter(Boolean) : (u.tags || []);
+  const tagsEl = document.getElementById('ui-tags-display');
+  tagsEl.innerHTML = tags.length
+    ? tags.map(t => `<span style="background:var(--primary-light);color:var(--primary);padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600;">${t}</span>`).join('')
+    : '<span style="font-size:13px;color:var(--text-3);">설정된 태그가 없습니다</span>';
+  document.getElementById('users-detail-title').textContent = (u.avatar || '🏃') + ' ' + (u.name || '이용자') + ' 정보';
+  document.getElementById('users-detail-section').style.display = '';
+  document.getElementById('users-detail-back').style.display = '';
+  document.getElementById('users-detail-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function hideUserDetail() {
+  document.getElementById('users-detail-section').style.display = 'none';
+  document.getElementById('users-detail-back').style.display = 'none';
+  clearUserFilter();
 }
 
 /* ── TABS ── */
@@ -1015,14 +1205,25 @@ function switchTab(name, btn) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('panel-' + name).classList.add('active');
   btn.classList.add('active');
-  if (name === 'users') renderUsers();
+  if (name === 'users') {
+    if (firebaseMode) {
+      document.getElementById('users-list-section').style.display = '';
+      renderUsers();
+    } else {
+      document.getElementById('users-list-section').style.display = 'none';
+      document.getElementById('users-detail-section').style.display = '';
+      document.getElementById('users-detail-back').style.display = 'none';
+      document.getElementById('users-detail-title').textContent = '이용자 정보';
+      renderUserInfo();
+    }
+  }
   if (name === 'content') renderAdminPosts();
 }
 
 /* ── WORKOUT FILTER BUILD ── */
 function buildExFilter() {
   const sel = document.getElementById('wo-filter-type');
-  const src = sheetsMode ? filterByUser(GD.workouts||[]) : (D ? D.workouts : []);
+  const src = firebaseMode ? filterByUser(GD.workouts||[]) : (D ? D.workouts : []);
   const used = [...new Set(src.map(w => w.exId || 'custom'))];
   sel.innerHTML = '<option value="">전체 종류</option>';
   used.forEach(id => {
@@ -1041,7 +1242,7 @@ function getFilteredWorkouts() {
   const now = new Date();
 
   // 데이터 소스: Sheets 모드면 GD, 아니면 D
-  const source = sheetsMode
+  const source = firebaseMode
     ? filterByUser(GD.workouts || []).map(w => ({
         id: w.id, exId: w.exId, customName: w.exName, duration: Number(w.duration)||0,
         points: Number(w.points)||0, memo: w.memo, ts: Number(w.ts)||0,
@@ -1070,7 +1271,7 @@ function getFilteredWorkouts() {
 function renderWorkouts() {
   buildExFilter();
   const list = getFilteredWorkouts();
-  const showUser = sheetsMode && !selectedDeviceId;
+  const showUser = firebaseMode && !selectedDeviceId;
   document.getElementById('wo-th-user').classList.toggle('hidden', !showUser);
   document.getElementById('wo-count').textContent = `총 ${list.length}건`;
   const tbody = document.getElementById('wo-tbody');
@@ -1086,7 +1287,7 @@ function renderWorkouts() {
     const icon = EX_ICON[w.exId] || '✏️';
     const name = w.customName || EX_MAP[w.exId] || w.exId || '기타';
     const userCell = showUser ? `<td><span class="td-user">${w.userName||'-'}</span></td>` : '';
-    const canDelete = !sheetsMode; // Sheets 모드에서는 삭제 비활성화
+    const canDelete = !firebaseMode; // Sheets 모드에서는 삭제 비활성화
     return `<tr>
       ${userCell}
       <td><div class="td-date">${dateStr}</div><div class="td-date">${timeStr}</div></td>
@@ -1096,7 +1297,7 @@ function renderWorkouts() {
       <td class="td-memo">${w.memo || '-'}</td>
       <td>
         <div style="display:flex;gap:5px;">
-          ${!sheetsMode ? `<button type="button" class="action-btn btn-detail" onclick="showWorkoutDetail(${w.id})">상세</button>` : ''}
+          ${!firebaseMode ? `<button type="button" class="action-btn btn-detail" onclick="showWorkoutDetail(${w.id})">상세</button>` : ''}
           ${canDelete ? `<button type="button" class="action-btn btn-delete" onclick="deleteWorkout(${w.id})">삭제</button>` : ''}
         </div>
       </td>
@@ -1155,7 +1356,7 @@ function getFilteredPosts() {
   const q = document.getElementById('post-search').value.toLowerCase();
   const filter = document.getElementById('post-filter').value;
 
-  if (sheetsMode && GD) {
+  if (firebaseMode && GD) {
     return filterByUser(GD.posts || []).filter(p => {
       if (q && !(p.body||'').toLowerCase().includes(q) && !(p.userName||'').toLowerCase().includes(q)) return false;
       return true;
@@ -1177,7 +1378,7 @@ function renderPosts() {
     return;
   }
   tbody.innerHTML = list.map(p => {
-    if (sheetsMode) {
+    if (firebaseMode) {
       const preview = (p.body||'').substring(0,60) + ((p.body||'').length > 60 ? '...' : '');
       const d = new Date(Number(p.ts)||0);
       const dateStr = p.ts ? `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}` : '-';
@@ -1265,12 +1466,7 @@ function showPostDetailSheets(id) {
 function deletePostSheets(id) {
   if (!confirm('이 게시글을 삭제하시겠습니까?')) return;
   GD.posts = (GD.posts || []).filter(x => String(x.id) !== String(id));
-  fetch(SHEETS_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify({ action: 'deletePost', id }),
-    mode: 'no-cors',
-  });
+  if (_adminDb) _adminDb.from('posts').delete().eq('id', String(id));
   renderPosts();
   renderStats();
   toast('게시글이 삭제됐습니다');
@@ -1289,11 +1485,11 @@ function deleteAllMyPosts() {
 
 /* ── USER INFO ── */
 function renderUserInfo() {
+  if (!D) return;
   document.getElementById('ui-name').value = D.user.name || '';
   document.getElementById('ui-avatar').value = D.user.avatar || '';
   document.getElementById('ui-points').value = D.user.points || 0;
   document.getElementById('ui-streak').value = D.user.streak || 0;
-
   const tagsEl = document.getElementById('ui-tags-display');
   const tags = D.user.tags || [];
   tagsEl.innerHTML = tags.length
@@ -1301,19 +1497,52 @@ function renderUserInfo() {
     : '<span style="font-size:13px;color:var(--text-3);">설정된 태그가 없습니다</span>';
 }
 
-function saveUserInfo() {
-  D.user.name   = document.getElementById('ui-name').value.trim();
-  D.user.avatar = document.getElementById('ui-avatar').value.trim() || '🏃';
-  D.user.points = Math.max(0, parseInt(document.getElementById('ui-points').value) || 0);
-  D.user.streak = Math.max(0, parseInt(document.getElementById('ui-streak').value) || 0);
+async function saveUserInfo() {
+  const name   = document.getElementById('ui-name').value.trim();
+  const avatar = document.getElementById('ui-avatar').value.trim() || '🏃';
+  const points = Math.max(0, parseInt(document.getElementById('ui-points').value) || 0);
+  const streak = Math.max(0, parseInt(document.getElementById('ui-streak').value) || 0);
+  if (firebaseMode && GD && selectedDeviceId) {
+    const idx = (GD.users || []).findIndex(u => u.deviceId === selectedDeviceId);
+    if (idx >= 0) {
+      GD.users[idx] = { ...GD.users[idx], name, avatar, points, streak };
+      if (_adminDb) {
+        const { error } = await _adminDb.from('users').update({ name, avatar, points, streak }).eq('deviceId', selectedDeviceId);
+        if (error) { toast('저장 실패: ' + error.message); return; }
+      }
+      renderStats();
+      renderUsers();
+      toast('이용자 정보가 저장됐습니다');
+    }
+    return;
+  }
+  D.user.name   = name;
+  D.user.avatar = avatar;
+  D.user.points = points;
+  D.user.streak = streak;
   saveData();
   renderAll();
   toast('이용자 정보가 저장됐습니다');
 }
 
-function adjustPoints(sign) {
+async function adjustPoints(sign) {
   const v = parseInt(document.getElementById('pts-adj-val').value) || 0;
   if (!v) { toast('조정할 포인트를 입력하세요'); return; }
+  if (firebaseMode && GD && selectedDeviceId) {
+    const u = (GD.users || []).find(x => x.deviceId === selectedDeviceId);
+    if (!u) { toast('이용자를 먼저 선택해주세요'); return; }
+    const newPts = Math.max(0, (Number(u.points)||0) + sign * v);
+    u.points = newPts;
+    document.getElementById('ui-points').value = newPts;
+    if (_adminDb) {
+      const { error } = await _adminDb.from('users').update({ points: newPts }).eq('deviceId', selectedDeviceId);
+      if (error) { toast('저장 실패: ' + error.message); return; }
+    }
+    renderStats();
+    renderUsers();
+    toast(`포인트가 ${sign > 0 ? '+' : ''}${sign*v}p 조정됐습니다 (현재: ${newPts}p)`);
+    return;
+  }
   const newPts = Math.max(0, (D.user.points||0) + sign * v);
   D.user.points = newPts;
   document.getElementById('ui-points').value = newPts;
@@ -1324,6 +1553,7 @@ function adjustPoints(sign) {
 
 /* ── RESET ── */
 function resetAllData() {
+  if (firebaseMode) { toast('Supabase 모드에서는 지원하지 않습니다'); return; }
   if (!confirm('모든 데이터(운동 기록, 게시글, 포인트 등)를 초기화합니다.\n이 작업은 되돌릴 수 없습니다. 계속하시겠습니까?')) return;
   localStorage.removeItem(STORAGE_KEY);
   D = { user:{ name:'', avatar:'🏃', points:0, streak:0, tags:[] }, workouts:[], posts:[], redeemedRewards:[] };
@@ -1333,6 +1563,7 @@ function resetAllData() {
 }
 
 function resetWorkoutsOnly() {
+  if (firebaseMode) { toast('Supabase 모드에서는 지원하지 않습니다'); return; }
   if (!confirm('운동 기록만 초기화합니다. 계속하시겠습니까?')) return;
   D.workouts = [];
   D.user.streak = 0;
@@ -1358,11 +1589,11 @@ const STATUS_LABEL = {
 };
 
 function getChRegs() {
-  if (sheetsMode && GD) return GD.registrations || [];
+  if (firebaseMode && GD) return GD.registrations || [];
   return JSON.parse(localStorage.getItem(CH_REG_KEY) || '[]');
 }
 function saveChRegs(regs) {
-  if (!sheetsMode) localStorage.setItem(CH_REG_KEY, JSON.stringify(regs));
+  if (!firebaseMode) localStorage.setItem(CH_REG_KEY, JSON.stringify(regs));
 }
 
 function renderChallenge() {
@@ -1406,11 +1637,11 @@ function renderChallenge() {
 }
 
 function chSetStatus(id, status) {
-  if (sheetsMode && GD) {
+  if (firebaseMode && GD) {
     const r = (GD.registrations||[]).find(x => x.id === id);
     if (!r) return;
     r.status = status;
-    sheetsPost('updateRegistrationStatus', { id, status });
+    if (_adminDb) _adminDb.from('registrations').update({ status }).eq('id', String(id));
     renderChallenge();
     toast(`${r.name}님 신청이 '${STATUS_LABEL[status]}'으로 변경됐습니다`);
     return;
@@ -1428,7 +1659,7 @@ function chSetStatus(id, status) {
 const SHOP_ORDERS_KEY = 'hi_health_shop_orders';
 
 function getOrders() {
-  if (sheetsMode && GD) {
+  if (firebaseMode && GD) {
     return (GD.orders || []).map(o => ({
       ...o,
       items: typeof o.items === 'string' ? (() => { try { return JSON.parse(o.items); } catch(e) { return []; } })() : (o.items||[]),
@@ -1438,7 +1669,7 @@ function getOrders() {
   return JSON.parse(localStorage.getItem(SHOP_ORDERS_KEY) || '[]');
 }
 function saveOrders(orders) {
-  if (!sheetsMode) localStorage.setItem(SHOP_ORDERS_KEY, JSON.stringify(orders));
+  if (!firebaseMode) localStorage.setItem(SHOP_ORDERS_KEY, JSON.stringify(orders));
 }
 
 function renderOrders() {
@@ -1485,11 +1716,12 @@ function renderOrders() {
 }
 
 function ordSetStatus(id, status) {
-  if (sheetsMode && GD) {
+  if (firebaseMode && GD) {
     const o = (GD.orders||[]).find(x => x.id === id);
     if (!o) return;
     o.status = status;
-    sheetsPost('updateOrderStatus', { id, status });
+    if (_adminDb) _adminDb.from('orders').update({ status }).eq('id', String(id))
+      .then(({ error }) => { if (error) { console.error('[admin] 주문 상태 업데이트 실패:', error); toast('Supabase 저장 실패: ' + error.message); } });
     renderOrders();
     toast(`주문 ${o.id} 상태가 '${STATUS_LABEL[status]||status}'으로 변경됐습니다`);
     return;
@@ -1538,14 +1770,7 @@ async function saveEditAdminPost() {
   if (idx < 0) return;
   const updated = { ...GD.adminPosts[idx], title, body, mediaUrl, mediaType, category };
   GD.adminPosts[idx] = updated;
-
-  fetch(SHEETS_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify({ action: 'updateAdminPost', payload: updated }),
-    mode: 'no-cors',
-  });
-
+  if (_adminDb) _adminDb.from('admin_posts').upsert(updated, { onConflict: 'id' });
   closeEditAdminPost();
   renderAdminPosts();
   toast('수정됐습니다');
@@ -1559,7 +1784,7 @@ async function submitAdminPost() {
   const mediaType = document.getElementById('ct-media-type').value;
   if (!title) { toast('제목을 입력해주세요'); return; }
   if (!body) { toast('내용을 입력해주세요'); return; }
-  if (!SHEETS_URL) { toast('Google Sheets 연결이 필요합니다'); return; }
+  if (!_adminDb) { toast('Firebase 연결이 필요합니다'); return; }
   const post = {
     id: 'ap_' + Date.now(),
     title, body, mediaUrl, mediaType, category,
@@ -1568,12 +1793,7 @@ async function submitAdminPost() {
   };
   showLoading(true);
   try {
-    fetch(SHEETS_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ action: 'addAdminPost', payload: post }),
-      mode: 'no-cors'
-    });
+    await _adminDb.from('admin_posts').insert(post);
     GD.adminPosts = GD.adminPosts || [];
     GD.adminPosts.unshift(post);
     document.getElementById('ct-title').value = '';
@@ -1590,15 +1810,10 @@ async function submitAdminPost() {
 
 async function deleteAdminPost(id) {
   if (!confirm('이 콘텐츠를 삭제하시겠습니까?')) return;
-  if (!SHEETS_URL) { toast('Google Sheets 연결이 필요합니다'); return; }
+  if (!_adminDb) { toast('Firebase 연결이 필요합니다'); return; }
   showLoading(true);
   try {
-    fetch(SHEETS_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ action: 'deleteAdminPost', id }),
-      mode: 'no-cors'
-    });
+    await _adminDb.from('admin_posts').delete().eq('id', String(id));
     GD.adminPosts = (GD.adminPosts || []).filter(p => String(p.id) !== String(id));
     renderAdminPosts();
     toast('삭제됐습니다');
@@ -1658,5 +1873,8 @@ function toast(msg) {
   _toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
 }
 </script>
+
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </body>
 </html>

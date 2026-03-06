@@ -122,27 +122,33 @@
       position: fixed; top: 0; left: 50%; transform: translateX(-50%);
       width: 100%; max-width: 480px;
       height: var(--header-height);
-      background: #fff; border-bottom: 1px solid var(--border);
+      background: #fff;
+      box-shadow: 0 1px 12px rgba(0,0,0,0.08);
       display: flex; align-items: center; justify-content: space-between;
-      padding: 0 18px; z-index: 100;
+      padding: 0 20px; z-index: 100;
     }
     .header-logo { display: flex; align-items: center; }
-    .logo-img { height: 48px; width: auto; display: block; }
-    .header-right { display: flex; align-items: center; gap: 10px; }
+    .logo-img { height: 40px; width: auto; display: block; }
+    .header-right { display: flex; align-items: center; gap: 12px; }
     .header-points {
-      display: flex; align-items: center; gap: 4px;
-      background: var(--primary-light); padding: 5px 12px;
+      display: flex; align-items: center; gap: 3px;
+      background: none;
+      border: 1.5px solid var(--primary);
+      padding: 5px 13px;
       border-radius: 20px; font-size: 13px; font-weight: 700; color: var(--primary);
-      cursor: pointer;
+      cursor: pointer; transition: all 0.18s;
     }
+    .header-points:hover { background: var(--primary); color: #fff; }
     .header-avatar {
-      width: 34px; height: 34px; border-radius: 50%;
+      width: 38px; height: 38px; border-radius: 50%;
       background: var(--bg);
       display: flex; align-items: center; justify-content: center;
-      font-size: 18px; cursor: pointer;
-      border: 1.5px solid var(--border);
-      position: relative;
+      cursor: pointer; overflow: hidden;
+      border: 2px solid var(--primary);
+      position: relative; transition: transform 0.15s;
     }
+    .header-avatar:hover { transform: scale(1.07); }
+    .av-img { width:100%; height:100%; object-fit:cover; border-radius:50%; display:block; }
 
     /* ── Main ── */
     .app-content {
@@ -599,6 +605,9 @@
     .pm-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:6px; }
     .pm-close-btn { background:none; border:none; font-size:20px; cursor:pointer; color:var(--text-secondary); padding:0 0 0 8px; line-height:1; flex-shrink:0; }
     .pm-close-btn:hover { color:var(--text); }
+    .pm-header-right { display:flex; align-items:center; gap:8px; }
+    .pm-logout-btn { display:block; width:100%; margin-top:10px; background:none; border:none; color:var(--text-secondary); font-family:inherit; font-size:13px; cursor:pointer; padding:8px 0; text-align:center; }
+    .pm-logout-btn:hover { color:var(--red); }
     .pm-title { font-size:18px; font-weight:700; text-align:center; flex:1; }
     .pm-sub { font-size:13px; color:var(--text-secondary); text-align:center; margin-bottom:20px; }
     /* ── Profile Tags ── */
@@ -618,7 +627,7 @@
     .hero-tags { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:14px; }
     .hero-tag { font-size:11px; padding:3px 10px; border-radius:20px; background:rgba(255,255,255,0.2); color:#fff; font-weight:600; }
     .avatar-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin-bottom:20px; }
-    .avatar-opt { width:100%; aspect-ratio:1; border-radius:50%; background:var(--bg); border:2px solid var(--border); font-size:22px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.2s; }
+    .avatar-opt { width:100%; aspect-ratio:1; border-radius:50%; background:var(--bg); border:2px solid var(--border); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.2s; overflow:hidden; padding:0; }
     .avatar-opt.selected { border-color:var(--primary); background:#EBF0FF; transform:scale(1.1); }
     .pm-hidden { display:none !important; }
     .pm-divider { height:1px; background:var(--border); margin:20px 0; }
@@ -704,7 +713,7 @@
       border-radius: var(--radius); margin-bottom: 14px;
     }
     .podium-item { display: flex; flex-direction: column; align-items: center; gap: 7px; }
-    .podium-avatar { font-size: 30px; line-height: 1; }
+    .podium-avatar { width:44px; height:44px; border-radius:50%; overflow:hidden; background:var(--bg); margin:0 auto; }
     .podium-name { font-size: 11px; font-weight: 600; text-align: center; max-width: 70px; }
     .podium-pts { font-size: 10px; color: var(--text-secondary); }
     .podium-stand {
@@ -725,7 +734,7 @@
     .lb-item.me { background: var(--primary-light); border: 1.5px solid var(--primary); }
     .lb-rank { font-size: 15px; font-weight: 700; width: 26px; text-align: center; color: var(--text-secondary); }
     .lb-rank.top3 { color: var(--warning); }
-    .lb-avatar { font-size: 26px; }
+    .lb-avatar { width:36px; height:36px; border-radius:50%; overflow:hidden; flex-shrink:0; background:var(--bg); }
     .lb-info { flex: 1; }
     .lb-name { font-size: 14px; font-weight: 600; }
     .lb-level { font-size: 11px; color: var(--text-secondary); display: flex; align-items: center; gap: 3px; }
@@ -738,7 +747,7 @@
        COMMUNITY
     ══════════════════════════════ */
     .compose-wrap { display: flex; gap: 11px; align-items: flex-start; margin-bottom: 10px; }
-    .compose-avatar { font-size: 28px; flex-shrink: 0; }
+    .compose-avatar { width:36px; height:36px; border-radius:50%; overflow:hidden; flex-shrink:0; background:var(--bg); }
     .compose-input {
       flex: 1; padding: 11px 15px; border: 1.5px solid var(--border);
       border-radius: 18px; font-family: inherit; font-size: 13px;
@@ -755,7 +764,7 @@
     }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     .post-head { display: flex; align-items: center; gap: 10px; margin-bottom: 11px; }
-    .post-av { font-size: 30px; }
+    .post-av { width:38px; height:38px; border-radius:50%; overflow:hidden; flex-shrink:0; background:var(--bg); }
     .post-uname { font-size: 14px; font-weight: 600; }
     .post-meta { font-size: 11px; color: var(--text-secondary); display: flex; align-items: center; gap: 5px; }
     .post-del { margin-left:auto; background:none; border:none; cursor:pointer; font-size:15px; opacity:0.35; transition:opacity 0.2s; padding:4px; line-height:1; flex-shrink:0; }
@@ -816,14 +825,14 @@
     .cm-close { background:none; border:none; font-size:22px; cursor:pointer; color:var(--text-secondary); line-height:1; padding:2px 6px; }
     .cm-list { flex:1; overflow-y:auto; padding:14px 18px; }
     .cm-item { display:flex; gap:10px; margin-bottom:14px; }
-    .cm-av { font-size:24px; flex-shrink:0; line-height:1.2; }
+    .cm-av { width:32px; height:32px; border-radius:50%; overflow:hidden; flex-shrink:0; background:var(--bg); }
     .cm-bubble { background:var(--bg); border-radius:0 12px 12px 12px; padding:9px 12px; flex:1; }
     .cm-name { font-size:11px; font-weight:700; margin-bottom:3px; color:var(--text); }
     .cm-body { font-size:13px; line-height:1.55; }
     .cm-time { font-size:10px; color:var(--text-secondary); margin-top:4px; }
     .cm-empty { text-align:center; padding:36px 0; color:var(--text-secondary); font-size:13px; }
     .cm-compose { display:flex; align-items:center; gap:8px; padding:12px 16px; border-top:1px solid var(--border); flex-shrink:0; }
-    .cm-compose-av { font-size:24px; flex-shrink:0; }
+    .cm-compose-av { width:32px; height:32px; border-radius:50%; overflow:hidden; flex-shrink:0; background:var(--bg); }
     .cm-input { flex:1; padding:9px 14px; border:1.5px solid var(--border); border-radius:20px; font-size:13px; font-family:inherit; background:var(--bg); }
     .cm-input:focus { outline:none; border-color:var(--primary); }
     .cm-send { padding:9px 16px; border-radius:20px; border:none; background:var(--primary); color:#fff; font-size:13px; font-weight:700; cursor:pointer; flex-shrink:0; }
@@ -1027,6 +1036,26 @@
     .rf-label-req { color: var(--accent); }
     .so-deposit-hidden { display: none; }
 
+    /* ── Order Detail Modal ── */
+    .order-detail-modal { position: fixed; inset: 0; z-index: 1100; display: flex; align-items: flex-end; justify-content: center; background: rgba(0,0,0,0.45); }
+    .order-detail-modal.od-hidden { display: none; }
+    .order-detail-sheet { background: var(--bg); width: 100%; max-width: 480px; border-radius: var(--radius) var(--radius) 0 0; padding: 20px 20px 36px; max-height: 85vh; overflow-y: auto; }
+    .od-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .od-title { font-size: 16px; font-weight: 800; }
+    .od-close { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--text-secondary); padding: 0; line-height: 1; }
+    .od-section { margin-bottom: 14px; }
+    .od-section-title { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+    .od-row { display: flex; justify-content: space-between; align-items: flex-start; font-size: 13px; padding: 5px 0; border-bottom: 1px solid var(--border); }
+    .od-row:last-child { border-bottom: none; }
+    .od-label { color: var(--text-secondary); flex-shrink: 0; margin-right: 12px; }
+    .od-value { font-weight: 600; text-align: right; word-break: break-all; }
+    .od-item-row { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; }
+    .od-item-name { flex: 1; }
+    .od-item-price { color: var(--text-secondary); font-size: 12px; }
+    .od-total-row { display: flex; justify-content: space-between; font-size: 14px; font-weight: 800; padding: 8px 0 0; border-top: 2px solid var(--border); margin-top: 4px; }
+    .od-img { width: 100%; border-radius: var(--radius-sm); max-height: 200px; object-fit: cover; display: block; margin-top: 6px; }
+    .order-detail-btn { margin-left: 6px; padding: 3px 10px; font-size: 11px; font-weight: 700; border-radius: 20px; border: 1.5px solid var(--primary); background: transparent; color: var(--primary); cursor: pointer; }
+
     /* ── Reward Guide ── */
     .reward-guide-card {
       background: var(--bg-secondary); border: 1.5px solid var(--border);
@@ -1229,7 +1258,7 @@
 </div>
 
 <header class="app-header">
-  <div class="header-logo">
+  <div class="header-logo" onclick="location.reload()" style="cursor:pointer;">
     <img src="images/logo.png" alt="HI Health" class="logo-img">
   </div>
   <div class="header-right">
@@ -1237,7 +1266,6 @@
       <span id="hpts-val">0</span>p
     </div>
     <div class="header-avatar" id="header-avatar" onclick="openProfileModal()" title="프로필 설정"></div>
-    <button type="button" class="header-logout hidden" id="header-logout-btn" onclick="appLogout()" title="로그아웃">로그아웃</button>
   </div>
 </header>
 
@@ -1326,9 +1354,6 @@
       <div class="ach-strip" id="ach-strip-home"></div>
     </div>
 
-    <div class="illus-banner">
-      <img src="images/poster3.jpg" class="illus-home2" alt="건강한 일상">
-    </div>
 
   </section>
 
@@ -1547,7 +1572,7 @@
 
       <div class="card">
         <div class="compose-wrap">
-          <span class="compose-avatar" id="compose-av">🏃</span>
+          <div class="compose-avatar" id="compose-av"></div>
           <textarea class="compose-input" id="post-input" rows="2" placeholder="운동 완료 후기나 응원 메시지를 남겨보세요!"></textarea>
         </div>
         <div class="compose-actions">
@@ -1702,6 +1727,17 @@
     </div>
   </div>
 
+  <!-- 주문 상세보기 모달 -->
+  <div class="order-detail-modal od-hidden" id="order-detail-modal" onclick="if(event.target===this)closeOrderDetail()">
+    <div class="order-detail-sheet">
+      <div class="od-header">
+        <span class="od-title">📦 주문 상세</span>
+        <button type="button" class="od-close" onclick="closeOrderDetail()">✕</button>
+      </div>
+      <div id="od-content"></div>
+    </div>
+  </div>
+
   <!-- ████  REWARDS  ████ -->
   <section id="page-rewards" class="page">
 
@@ -1833,28 +1869,40 @@ function haptic(type) {
 /* ════════════════════════════════════════
    CONSTANTS
 ════════════════════════════════════════ */
-const AVATARS = ['🏃','🚴','🏊','🤸','💪','🧘','🏋️','⚽','🎯','🌟'];
+const AVATARS = [
+  'images/avatars/av1.png',
+  'images/avatars/av2.png',
+  'images/avatars/av3.png',
+  'images/avatars/av4.png',
+  'images/avatars/av5.png',
+  'images/avatars/av6.png',
+  'images/avatars/av7.png',
+  'images/avatars/av8.png',
+  'images/avatars/av9.png',
+  'images/avatars/av10.png',
+];
+function avHTML(src) {
+  const fallback = AVATARS[0];
+  const s = (src && src.includes('images/')) ? src : fallback;
+  return `<img src="${s}" class="av-img" onerror="if(this.dataset.err)return;this.dataset.err=1;this.src='${fallback}'">`;
+}
 
 const PROFILE_TAGS = [
   {
-    cat: '🩺 치료 단계',
-    tags: ['🌱 준비 중', '💉 배란 유도중', '🥚 채취 완료', '🔬 배아 배양중', '🌡️ 이식 완료', '🤞 착상 기다리는 중', '✅ 임신 확인!', '❄️ 동결배아 보관중', '🔄 다음 시도 준비중', '⏸️ 잠시 휴식중'],
+    cat: '치료 단계 · 방법',
+    tags: ['준비 중', '배란 유도중', '채취 완료', '배아 배양중', '이식 완료', '착상 기다리는 중', '임신 확인', '동결배아 보관중', '다음 시도 준비중', '잠시 휴식중', '신선 배아 이식', '동결 배아 이식', '호르몬 치료', 'PGT 검사', '면역 치료', '혈액 검사중', '유전자 검사', '자궁 검사중'],
   },
   {
-    cat: '🔢 시술 차수',
-    tags: ['1️⃣ 1차 시험관', '2️⃣ 2차 시험관', '3️⃣ 3차 시험관', '4️⃣ 4차 이상', '🔁 인공수정 병행', '🌿 자연임신 시도중'],
+    cat: '시술 차수',
+    tags: ['1차 시험관', '2차 시험관', '3차 시험관', '4차 이상', '인공수정 병행', '자연임신 시도중'],
   },
   {
-    cat: '💊 치료 방법',
-    tags: ['🧪 신선 배아 이식', '🧊 동결 배아 이식', '💉 호르몬 치료', '🌿 한방 병행', '🔬 PGT 검사', '🏥 대학병원', '🏨 전문 클리닉', '💊 면역 치료', '🩸 혈액 검사중', '🧬 유전자 검사', '📋 자궁 검사중'],
+    cat: '건강 습관',
+    tags: ['식단 관리', '스트레스 관리', '매일 걷기', '수면 개선', '금주 실천', '금연 중', '엽산 복용', '오메가3 챙기기', '영양 관리', '체중 관리'],
   },
   {
-    cat: '💪 건강 습관',
-    tags: ['🥗 식단 관리', '🧘 스트레스 관리', '🏃 매일 걷기', '😴 수면 개선', '🚫 금주 실천', '🚭 금연 중', '💊 엽산 복용', '🐟 오메가3 챙기기', '🌿 영양 관리', '⚖️ 체중 관리', '🧖 림프 마사지'],
-  },
-  {
-    cat: '💬 나의 다짐',
-    tags: ['💪 포기 안 해요', '🌈 희망 잃지 않아요', '🤝 함께 이겨내요', '💕 남편과 함께', '🙏 간절히 기원중', '🌸 긍정 마인드', '👶 아기 기다려요', '🦋 내 몸 믿어요', '🌟 나를 응원해요', '💌 좋은 소식 기대해요'],
+    cat: '나의 다짐',
+    tags: ['포기 안 해요', '희망 잃지 않아요', '함께 이겨내요', '남편과 함께', '간절히 기원중', '긍정 마인드', '아기 기다려요', '내 몸 믿어요', '나를 응원해요', '좋은 소식 기대해요'],
   },
 ];
 
@@ -1874,14 +1922,16 @@ const MIN_DURATION        = 10;  // 최소 운동 시간(분)
 /* ── 혈당 기록 제한 ── */
 const DAILY_GLUCOSE_LIMIT  = 4;  // 하루 최대 혈당 기록 횟수
 const GLUCOSE_POINTS       = 5;  // 혈당 1회 기록 포인트
-const SHOP_ORDERS_KEY = 'hi_health_shop_orders';
+let SHOP_ORDERS_KEY = 'hi_health_shop_orders';
 /* ── 현재 로그인 사용자 (로그인 후 설정) ── */
 let ACTIVE_EMPID = '';
 let STORAGE_KEY  = 'hi_health_v2'; // 로그인 시 'hi_health_v2_사번'으로 변경
 // 닉네임 우선, 없으면 이름
 function myDisplayName() { return S.user.nickname || S.user.name || ''; }
-/* ── Google Sheets 동기화 URL (배포 후 입력) ── */
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbypofqXe7QCpq7ixasu0Kwgma1E-Yf8QDp-LAIgHMXNR5yjHkjbrqmrx2hGRfgUkNUu/exec'; // ← Apps Script 웹 앱 URL을 여기에 붙여넣기
+/* ── Supabase 설정 (Supabase 콘솔 > Project Settings > API 에서 복사) ── */
+const SUPABASE_URL      = 'https://nbnmvvobehjitophkqmu.supabase.co';       // Project URL
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ibm12dm9iZWhqaXRvcGhrcW11Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3Nzk4NzQsImV4cCI6MjA4ODM1NTg3NH0.iZS4JvhHUqv4ZMPxm9STit6xqVp2JA5H55M8Wmd1yjY';  // anon public key
+let _db = null; // Supabase 클라이언트
 
 const EX_TYPES = [
   { id:'walking',   name:'걷기',    icon:'🚶', ppm:0.5,  bg:'#DCFCE7' },
@@ -2143,6 +2193,7 @@ let S = {
   myReactions: {},   // postId -> [stickerId,...]
   glucoseRecords: [], // { id, value, timing, ts }
   adminPosts: [],    // admin-written column content
+  communityPosts: [], // other users' posts from Supabase
 };
 
 /* ════════════════════════════════════════
@@ -2174,17 +2225,21 @@ function save() {
   });
 }
 
-/* ── Google Sheets 비동기 동기화 (fire & forget) ── */
+/* ── Supabase 비동기 동기화 ── */
 function apiSync(action, payload) {
-  if (!SCRIPT_URL) return;
-  try {
-    fetch(SCRIPT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ action, payload }),
-      mode: 'no-cors',
-    });
-  } catch(e) {}
+  if (!_db) { console.warn('[apiSync] _db 없음 - Supabase 미초기화'); return; }
+  const tableMap = {
+    syncUser:        { table: 'users',         conflict: 'deviceId' },
+    addWorkout:      { table: 'workouts',       conflict: 'id' },
+    addGlucose:      { table: 'glucose',        conflict: 'id' },
+    addPost:         { table: 'posts',          conflict: 'id' },
+    addOrder:        { table: 'orders',         conflict: 'id' },
+    addRegistration: { table: 'registrations',  conflict: 'id' },
+  };
+  const m = tableMap[action];
+  if (!m) return;
+  _db.from(m.table).upsert(payload, { onConflict: m.conflict })
+    .then(({ error }) => { if (error) console.error('[apiSync]', action, error); });
 }
 function load() {
   try {
@@ -2315,7 +2370,7 @@ function navigate(page) {
 ════════════════════════════════════════ */
 function renderHeader() {
   document.getElementById('hpts-val').textContent = S.user.points;
-  document.getElementById('header-avatar').textContent = S.user.avatar;
+  document.getElementById('header-avatar').innerHTML = avHTML(S.user.avatar);
   // 챌린지 탭: 'before' 또는 'ended' 단계엔 숨김
   const phase = getChPhase();
   const challengeNavBtn = document.querySelector('.nav-btn[data-page="challenge"]');
@@ -2694,8 +2749,9 @@ function logExercise() {
       || '오늘 ' + exName + ' ' + S.duration + '분 완료했어요! 💪';
     const curLv = getLevel(S.user.points);
     const hasSleep = document.getElementById('hc-sleep-sec').classList.contains('show');
+    const sharedPostId = Date.now();
     S.posts.unshift({
-      id: Date.now(),
+      id: sharedPostId,
       userId: 0,
       name: myDisplayName(),
       avatar: S.user.avatar,
@@ -2716,6 +2772,15 @@ function logExercise() {
       myReactions: [],
       comments: 0,
       commentList: [],
+    });
+    apiSync('addPost', {
+      id: String(sharedPostId),
+      deviceId: S.deviceId,
+      userName: myDisplayName(),
+      body: shareMsg,
+      exTag: exIcon + ' ' + exName + ' ' + S.duration + '분',
+      userTags: (S.user.tags || []).join(','),
+      ts: String(sharedPostId),
     });
     document.getElementById('share-msg').value = '';
   }
@@ -3178,33 +3243,32 @@ function viewPhoto(id) {
   document.body.appendChild(box);
 }
 
-let _selAvatar = '🏃';
+let _selAvatar = AVATARS[0];
 let _selTags   = [];
 function openProfileModal(onboarding = false) {
-  document.getElementById('pm-realname').textContent = S.user.name || ACTIVE_EMPID || '-';
+  document.getElementById('pm-realname').textContent = S.user.name || '-';
+  document.getElementById('pm-empid').textContent = ACTIVE_EMPID || '-';
   document.getElementById('pm-nickname').value = S.user.nickname || S.user.name || '';
   _selAvatar = S.user.avatar;
-  _selTags   = [...(S.user.tags || [])];
+  const validTags = new Set(PROFILE_TAGS.flatMap(c => c.tags));
+  _selTags = (S.user.tags || []).filter(t => validTags.has(t));
   document.getElementById('pm-avatar-grid').innerHTML = AVATARS.map(a =>
-    `<button type="button" class="avatar-opt${a===_selAvatar?' selected':''}" onclick="pickAvatar('${a}')">${a}</button>`
+    `<button type="button" class="avatar-opt${a===_selAvatar?' selected':''}" data-av="${a}" onclick="pickAvatar('${a}')">${avHTML(a)}</button>`
   ).join('');
   // 섹션 기본 펼침
   document.getElementById('pm-section-avatar').classList.remove('collapsed');
   document.getElementById('pm-section-tag').classList.remove('collapsed');
-  document.querySelectorAll('.pm-section-toggle').forEach(b => b.textContent = '닫기');
   renderPmTags();
 
   if (onboarding) {
     document.getElementById('pm-title').textContent = '🎉 HI Health에 오신 걸 환영해요!';
     document.getElementById('pm-sub').textContent   = '닉네임과 아바타를 설정하고 챌린지를 시작해보세요';
     document.getElementById('pm-save-btn').textContent = '시작하기!';
-    document.getElementById('pm-logout-section').style.display = 'none';
     document.getElementById('pm-close-btn').style.display = 'none';
   } else {
     document.getElementById('pm-title').textContent = '👤 프로필 설정';
     document.getElementById('pm-sub').textContent   = '닉네임과 아바타를 설정해주세요';
     document.getElementById('pm-save-btn').textContent = '저장하기';
-    document.getElementById('pm-logout-section').style.display = '';
     document.getElementById('pm-close-btn').style.display = '';
   }
 
@@ -3254,7 +3318,7 @@ function togglePmTag(ci, ti) {
 function pickAvatar(a) {
   _selAvatar = a;
   document.querySelectorAll('.avatar-opt').forEach(el =>
-    el.classList.toggle('selected', el.textContent.trim() === a)
+    el.classList.toggle('selected', el.dataset.av === a)
   );
 }
 function saveProfile() {
@@ -3273,22 +3337,28 @@ function saveProfile() {
 function logout() {
   if (!confirm('로그아웃 하면 이 기기의 운동 기록, 포인트 등 모든 데이터가 초기화됩니다.\n계속하시겠어요?')) return;
   localStorage.removeItem(STORAGE_KEY);
-  S = {
-    user: { name:'', avatar:'🏃', points:0, streak:0, stickersReceived:0, registrationId:null, tags:[] },
-    workouts: [],
-    posts: JSON.parse(JSON.stringify(MOCK_POSTS_SEED)),
-    redeemedRewards: [],
-    pendingRewards: [],
-    selectedEx: 'walking',
-    duration: 30,
-    leagueTab: 'weekly',
-    myReactions: {},
-  };
+  ACTIVE_EMPID = '';
+  STORAGE_KEY  = 'hi_health_v2';
+  SHOP_ORDERS_KEY = 'hi_health_shop_orders';
+  sessionStorage.removeItem('hi_session_empid');
+  localStorage.removeItem('hi_keep_login_id');
+  localStorage.removeItem('hi_keep_login_name');
+  S.deviceId = null;
+  S.user = { name:'', avatar:'🏃', points:0, streak:0, stickersReceived:0, registrationId:null, tags:[] };
+  S.workouts = [];
+  S.posts = JSON.parse(JSON.stringify(MOCK_POSTS_SEED));
+  S.glucoseRecords = [];
+  S.redeemedRewards = [];
+  S.pendingRewards = [];
+  S.myReactions = {};
   document.getElementById('profile-modal').classList.add('pm-hidden');
-  navigate('home');
+
+  document.getElementById('app-login-screen').classList.remove('hidden');
+  document.getElementById('login-empid-input').value = '';
+  document.getElementById('login-name-input').value = '';
+  document.getElementById('login-keep-checkbox').checked = false;
   renderHeader();
-  showToast('로그아웃 되었습니다');
-  setTimeout(() => openProfileModal(true), 500);
+  renderHome();
 }
 
 /* ════════════════════════════════════════
@@ -3340,7 +3410,7 @@ function renderLeague() {
     const standNum   = ['2','1','3'];
     document.getElementById('podium').innerHTML = podOrder.map((u, i) => `
       <div class="podium-item">
-        <div class="podium-avatar">${u ? u.avatar : ''}</div>
+        <div class="podium-avatar">${u ? avHTML(u.avatar) : ''}</div>
         <div class="podium-name">${u ? u.name : ''}</div>
         <div class="podium-pts">${u ? u.pts + 'p' : ''}</div>
         <div class="podium-stand ${standClass[i]}">${standNum[i]}</div>
@@ -3352,7 +3422,7 @@ function renderLeague() {
       return `
         <div class="lb-item ${u.isMe ? 'me' : ''}">
           <div class="lb-rank ${u.rank <= 3 ? 'top3' : ''}">${u.rank}</div>
-          <div class="lb-avatar">${u.avatar}</div>
+          <div class="lb-avatar">${avHTML(u.avatar)}</div>
           <div class="lb-info">
             <div class="lb-name">${u.name}</div>
             <div class="lb-level">${lv.icon} ${lv.name}</div>
@@ -3405,7 +3475,7 @@ function renderLeague() {
   const standNum   = ['2','1','3'];
   document.getElementById('podium').innerHTML = podOrder.map((u,i) => `
     <div class="podium-item">
-      <div class="podium-avatar">${u ? u.avatar : ''}</div>
+      <div class="podium-avatar">${u ? avHTML(u.avatar) : ''}</div>
       <div class="podium-name">${u ? u.name : ''}</div>
       <div class="podium-pts">${u ? (tab==='weekly'?u.wPts:u.pts)+'p' : ''}</div>
       <div class="podium-stand ${standClass[i]}">${standNum[i]}</div>
@@ -3421,7 +3491,7 @@ function renderLeague() {
     return `
       <div class="lb-item ${u.isMe ? 'me' : ''}">
         <div class="lb-rank ${u.rank<=3?'top3':''}">${u.rank}</div>
-        <div class="lb-avatar">${u.avatar}</div>
+        <div class="lb-avatar">${avHTML(u.avatar)}</div>
         <div class="lb-info">
           <div class="lb-name">${u.name}</div>
           <div class="lb-level">${lv.icon} ${lv.name}</div>
@@ -3487,7 +3557,7 @@ function buildPostHealthHtml(h) {
 }
 
 function renderCommunity() {
-  document.getElementById('compose-av').textContent = S.user.avatar;
+  document.getElementById('compose-av').innerHTML = avHTML(S.user.avatar);
 
   // ── 필터 칩 빌드 ──
   const filterRow = document.getElementById('feed-filter-row');
@@ -3526,7 +3596,15 @@ function renderCommunity() {
   // ── 유저 포스트 필터 ──
   let userItems = [];
   if (_feedFilter !== 'content') {
-    const sorted = [...S.posts].sort((a, b) => b.id - a.id);
+    const allPosts = [...S.posts, ...S.communityPosts];
+    const seen = new Set();
+    const deduped = allPosts.filter(p => {
+      const key = String(p.id);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+    const sorted = deduped.sort((a, b) => b.id - a.id);
     userItems = sorted.filter(p => {
       if (_feedFilter === 'all') return true;
       if (_feedFilter === '챌린지') return p.isChallenger || (p.userId === 0 && !!S.user.registrationId);
@@ -3589,7 +3667,7 @@ function renderCommunity() {
     return `
       <div class="post-card" id="post-${p.id}">
         <div class="post-head">
-          <span class="post-av">${p.avatar}</span>
+          <div class="post-av">${avHTML(p.avatar)}</div>
           <div>
             <div class="post-uname">${p.name}</div>
             <div class="post-meta">
@@ -3622,15 +3700,36 @@ function setFeedFilter(key) {
 let _adminPostsFetched = false;
 
 async function fetchAdminPosts() {
-  if (!SCRIPT_URL || _adminPostsFetched) return;
+  if (_adminPostsFetched || !_db) return;
   try {
-    const res = await fetch(SCRIPT_URL + '?action=getAdminPosts', { credentials: 'omit' });
-    const json = await res.json();
-    if (json.ok && json.data && json.data.adminPosts) {
-      S.adminPosts = json.data.adminPosts;
-      _adminPostsFetched = true;
-      renderCommunity();
+    const [ap, cp] = await Promise.all([
+      _db.from('admin_posts').select('*').order('createdAt', { ascending: false }),
+      _db.from('posts').select('*').order('ts', { ascending: false }).limit(100),
+    ]);
+    if (ap.data) { S.adminPosts = ap.data; }
+    if (cp.data) {
+      // 내 게시글과 중복 제거 후 병합
+      const myIds = new Set(S.posts.map(p => String(p.id)));
+      S.communityPosts = cp.data
+        .filter(p => !myIds.has(String(p.id)))
+        .map(p => ({
+          id: Number(p.id) || p.id,
+          userId: 1,
+          name: p.userName || '익명',
+          avatar: '🏃',
+          lv: 1,
+          body: p.body || '',
+          exTag: p.exTag || null,
+          userTags: typeof p.userTags === 'string' ? p.userTags.split(',').filter(Boolean) : [],
+          time: p.ts ? new Date(Number(p.ts)).toLocaleDateString('ko-KR') : '',
+          stickers: { cheer:0, love:0, congrats:0, cool:0, together:0 },
+          myReactions: [],
+          comments: 0,
+          commentList: [],
+        }));
     }
+    _adminPostsFetched = true;
+    renderCommunity();
   } catch(e) {}
 }
 
@@ -3642,7 +3741,7 @@ function escHtmlComm(s) {
 function openComments(postId) {
   haptic('light');
   _commentPostId = postId;
-  document.getElementById('cm-av').textContent = S.user.avatar;
+  document.getElementById('cm-av').innerHTML = avHTML(S.user.avatar);
   document.getElementById('cm-input').value = '';
   renderCommentList();
   document.getElementById('comment-overlay').classList.remove('pm-hidden');
@@ -3777,13 +3876,13 @@ function submitPost() {
   input.value = '';
   save();
   apiSync('addPost', {
-    id: newPost.id,
+    id: String(newPost.id),
     deviceId: S.deviceId,
     userName: S.user.name,
     body: newPost.body,
     exTag: newPost.exTag || '',
-    userTags: newPost.userTags || [],
-    ts: newPost.id,
+    userTags: Array.isArray(newPost.userTags) ? newPost.userTags.join(',') : (newPost.userTags || ''),
+    ts: String(newPost.id),
   });
   haptic('medium');
   showToast('📣 게시물이 등록되었어요!');
@@ -3844,16 +3943,12 @@ function renderShop() {
 
 }
 
-function renderShopOrderHistory() {
+function _renderOrderCards(orders) {
   const el = document.getElementById('shop-order-history');
   if (!el) return;
-  const orders = JSON.parse(localStorage.getItem(SHOP_ORDERS_KEY) || '[]')
-    .slice().reverse(); // 최신순
   if (!orders.length) { el.innerHTML = ''; return; }
-
   const statusLabel = { pending:'처리 대기', confirmed:'주문 확인', shipped:'배송 중', done:'수령 완료', cancelled:'취소' };
-  const statusClass = { pending:'os-pending', confirmed:'os-confirmed', shipped:'os-shipped', done:'os-done', cancelled:'os-cancelled' };
-
+  const statusClass  = { pending:'os-pending', confirmed:'os-confirmed', shipped:'os-shipped', done:'os-done', cancelled:'os-cancelled' };
   el.innerHTML = `<div class="order-history-title">📦 구매 신청내역</div>` +
     orders.map(o => {
       const items = Array.isArray(o.items) ? o.items : [];
@@ -3865,14 +3960,89 @@ function renderShopOrderHistory() {
         <div class="order-card-top">
           <span class="order-card-id">${o.id}</span>
           <span class="order-status-badge ${statusClass[st]||'os-pending'}">${statusLabel[st]||st}</span>
+          <button type="button" class="order-detail-btn" onclick="openOrderDetail('${o.id}')">상세보기</button>
           ${canCancel ? `<button type="button" class="order-cancel-btn" onclick="cancelOrder('${o.id}')">주문 취소</button>` : ''}
         </div>
         <div class="order-card-items">${itemStr}</div>
         <div class="order-card-total">${(o.total||0).toLocaleString()}원 · ${o.pickup||''} · ${date}</div>
-        ${o.depositor ? `<div class="order-card-deposit">입금자 ${o.depositor}${o.cashReceipt ? ' · 현금영수증 ' + o.cashReceipt : ''}</div>` : ''}
-        ${o.depositImg ? `<div class="order-card-img-wrap"><img src="${o.depositImg}" alt="입금확인증" class="order-card-img"></div>` : ''}
       </div>`;
     }).join('');
+}
+
+function renderShopOrderHistory() {
+  const el = document.getElementById('shop-order-history');
+  if (!el) return;
+
+  // localStorage 즉시 렌더
+  const local = JSON.parse(localStorage.getItem(SHOP_ORDERS_KEY) || '[]');
+  _renderOrderCards(local.slice().reverse());
+
+  // Supabase에서 최신 이력 동기화 (이전 기록 복원 + 상태 갱신)
+  if (_db && S.deviceId) {
+    _db.from('orders').select('*').eq('deviceId', S.deviceId)
+      .order('orderedAt', { ascending: false })
+      .then(({ data, error }) => {
+        console.log('[orders fetch] deviceId:', S.deviceId, 'count:', data?.length, 'error:', error);
+        if (!data) return;
+        const merged = JSON.parse(localStorage.getItem(SHOP_ORDERS_KEY) || '[]');
+        data.forEach(row => {
+          if (typeof row.items === 'string') { try { row.items = JSON.parse(row.items); } catch(e) { row.items = []; } }
+          const idx = merged.findIndex(o => String(o.id) === String(row.id));
+          if (idx >= 0) { merged[idx].status = row.status; }
+          else { merged.push(row); }
+        });
+        localStorage.setItem(SHOP_ORDERS_KEY, JSON.stringify(merged));
+        _renderOrderCards(merged.slice().reverse());
+      });
+  }
+}
+
+function openOrderDetail(orderId) {
+  const orders = JSON.parse(localStorage.getItem(SHOP_ORDERS_KEY) || '[]');
+  const o = orders.find(x => x.id === orderId);
+  if (!o) return;
+  const statusLabel = { pending:'처리 대기', confirmed:'주문 확인', shipped:'배송 중', done:'수령 완료', cancelled:'취소' };
+  const statusClass  = { pending:'os-pending', confirmed:'os-confirmed', shipped:'os-shipped', done:'os-done', cancelled:'os-cancelled' };
+  const st = o.status || 'pending';
+  const date = o.orderedAt ? new Date(o.orderedAt).toLocaleString('ko-KR') : '-';
+  const items = Array.isArray(o.items) ? o.items : [];
+
+  const itemRows = items.map(i => `
+    <div class="od-item-row">
+      <span class="od-item-name">${i.name} × ${i.qty}</span>
+      <span class="od-item-price">${((i.price||0)*i.qty).toLocaleString()}원</span>
+    </div>`).join('');
+
+  document.getElementById('od-content').innerHTML = `
+    <div class="od-section">
+      <div class="od-section-title">주문 정보</div>
+      <div class="od-row"><span class="od-label">주문번호</span><span class="od-value">${o.id}</span></div>
+      <div class="od-row"><span class="od-label">주문일시</span><span class="od-value">${date}</span></div>
+      <div class="od-row"><span class="od-label">상태</span><span class="od-value"><span class="order-status-badge ${statusClass[st]||'os-pending'}">${statusLabel[st]||st}</span></span></div>
+    </div>
+    <div class="od-section">
+      <div class="od-section-title">주문자 정보</div>
+      <div class="od-row"><span class="od-label">이름</span><span class="od-value">${o.name||'-'}</span></div>
+      <div class="od-row"><span class="od-label">연락처</span><span class="od-value">${o.phone||'-'}</span></div>
+      <div class="od-row"><span class="od-label">수령방법</span><span class="od-value">${o.pickup||'-'}</span></div>
+      ${o.pickup==='배송'&&o.addr ? `<div class="od-row"><span class="od-label">배송주소</span><span class="od-value">${o.addr}</span></div>` : ''}
+    </div>
+    <div class="od-section">
+      <div class="od-section-title">주문 상품</div>
+      ${itemRows}
+      <div class="od-total-row"><span>합계</span><span>${(o.total||0).toLocaleString()}원</span></div>
+    </div>
+    <div class="od-section">
+      <div class="od-section-title">입금 정보</div>
+      <div class="od-row"><span class="od-label">입금자명</span><span class="od-value">${o.depositor||'-'}</span></div>
+      ${o.cashReceipt ? `<div class="od-row"><span class="od-label">현금영수증</span><span class="od-value">${o.cashReceipt}</span></div>` : ''}
+      ${o.depositImg ? `<img src="${o.depositImg}" alt="입금확인증" class="od-img">` : ''}
+    </div>`;
+  document.getElementById('order-detail-modal').classList.remove('od-hidden');
+}
+
+function closeOrderDetail() {
+  document.getElementById('order-detail-modal').classList.add('od-hidden');
 }
 
 function cancelOrder(orderId) {
@@ -3882,16 +4052,7 @@ function cancelOrder(orderId) {
   if (!o) return;
   o.status = 'cancelled';
   localStorage.setItem(SHOP_ORDERS_KEY, JSON.stringify(orders));
-  apiSync('updateOrderStatus', null);
-  // Sheets에도 반영
-  if (typeof SCRIPT_URL !== 'undefined' && SCRIPT_URL) {
-    fetch(SCRIPT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ action: 'updateOrderStatus', id: orderId, status: 'cancelled' }),
-      mode: 'no-cors',
-    }).catch(() => {});
-  }
+  if (_db) _db.from('orders').update({ status: 'cancelled' }).eq('id', orderId);
   renderShopOrderHistory();
   showToast('주문이 취소됐습니다');
 }
@@ -4199,15 +4360,7 @@ function cancelRegistration(regId) {
   if (!r) return;
   r.status = 'cancelled';
   localStorage.setItem(CH_REG_KEY, JSON.stringify(regs));
-  // Sheets에도 반영
-  if (typeof SCRIPT_URL !== 'undefined' && SCRIPT_URL) {
-    fetch(SCRIPT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ action: 'updateRegistrationStatus', id: regId, status: 'cancelled' }),
-      mode: 'no-cors',
-    }).catch(() => {});
-  }
+  if (_db) _db.from('registrations').update({ status: 'cancelled' }).eq('id', regId);
   renderChallenge();
   showToast('신청이 취소됐습니다');
 }
@@ -4509,10 +4662,34 @@ async function doAppLogin() {
   }
 
   btn.disabled = true;
+  loadEl.style.display = 'block';
 
-  // 확인 없이 바로 로그인
+  // Supabase에서 이름 일치 검증 (기존 사용자인 경우)
+  if (_db) {
+    const { data: existing } = await _db.from('users')
+      .select('name')
+      .or(`empId.eq.${regId},empId.eq.${regId.toLowerCase()}`)
+      .limit(1)
+      .single();
+    if (existing && existing.name) {
+      const storedName = existing.name.trim().replace(/\s/g, '');
+      const enteredName = inputName.replace(/\s/g, '');
+      if (storedName !== enteredName) {
+        loadEl.style.display = 'none';
+        btn.disabled = false;
+        nameInput.classList.add('error');
+        errEl.textContent = '이름이 일치하지 않습니다';
+        errEl.style.display = 'block';
+        setTimeout(() => { nameInput.classList.remove('error'); errEl.style.display = 'none'; }, 3000);
+        return;
+      }
+    }
+  }
+  loadEl.style.display = 'none';
+
   ACTIVE_EMPID = regId;
   STORAGE_KEY  = 'hi_health_v2_' + regId;
+  SHOP_ORDERS_KEY = 'hi_health_shop_orders_' + regId;
   load();
   if (!S.user.name) S.user.name = inputName;
 
@@ -4528,8 +4705,54 @@ async function doAppLogin() {
   }
 
   document.getElementById('app-login-screen').classList.add('hidden');
-  document.getElementById('header-logout-btn').classList.remove('hidden');
+
   btn.disabled = false;
+
+  // Supabase에서 empId로 사용자 조회 → 어느 기기에서든 데이터 복원
+  if (_db && ACTIVE_EMPID && !S.workouts.length && !S.user.points) {
+    _db.from('users').select('*').or(`empId.eq.${ACTIVE_EMPID},empId.eq.${ACTIVE_EMPID.toLowerCase()}`).limit(1).then(async ({ data: rows }) => {
+      const u = rows?.[0] || null;
+      if (!u) return; // Supabase에 없으면 신규 사용자
+      // 기존 deviceId로 데이터 조회
+      const did = u.deviceId;
+      // 현재 기기의 deviceId를 Supabase의 deviceId로 덮어씀 (데이터 연속성 유지)
+      S.deviceId = did;
+      const didKey = 'hi_device_id_' + ACTIVE_EMPID;
+      localStorage.setItem(didKey, did);
+
+      const [w, g] = await Promise.all([
+        _db.from('workouts').select('*').eq('deviceId', did),
+        _db.from('glucose').select('*').eq('deviceId', did),
+      ]);
+      S.user = { ...S.user,
+        name: u.name || S.user.name,
+        avatar: u.avatar || S.user.avatar,
+        empId: u.empId || ACTIVE_EMPID,
+        dept: u.dept || '',
+        points: Number(u.points) || 0,
+        streak: Number(u.streak) || 0,
+        tags: typeof u.tags === 'string' ? u.tags.split(',').filter(Boolean) : (u.tags || []),
+        registrationId: u.registrationId || null,
+      };
+      if (w.data?.length) {
+        S.workouts = w.data.map(x => ({
+          id: Number(x.id) || x.id, exId: x.exId, customName: x.exName || null,
+          duration: Number(x.duration) || 0, points: Number(x.points) || 0,
+          memo: x.memo || '', ts: Number(x.ts) || 0,
+        }));
+      }
+      if (g.data?.length) {
+        S.glucoseRecords = g.data.map(x => ({
+          id: Number(x.id) || x.id, value: Number(x.value), timing: x.timing,
+          points: Number(x.points) || 0, ts: x.ts,
+        }));
+      }
+      save();
+      renderHeader();
+      renderHome();
+      showToast('데이터를 불러왔습니다 ✅');
+    });
+  }
 
   renderHeader();
   renderHome();
@@ -4608,6 +4831,7 @@ function appLogout() {
   save();
   ACTIVE_EMPID = '';
   STORAGE_KEY  = 'hi_health_v2';
+  SHOP_ORDERS_KEY = 'hi_health_shop_orders';
   sessionStorage.removeItem('hi_session_empid');
   // 상태 초기화
   S.deviceId = null;
@@ -4620,11 +4844,14 @@ function appLogout() {
   S.myReactions = {};
   localStorage.removeItem('hi_keep_login_id');
   localStorage.removeItem('hi_keep_login_name');
-  document.getElementById('header-logout-btn').classList.add('hidden');
+
   document.getElementById('app-login-screen').classList.remove('hidden');
   document.getElementById('login-empid-input').value = '';
   document.getElementById('login-name-input').value = '';
   document.getElementById('login-keep-checkbox').checked = false;
+  // 화면 초기화 (이전 데이터 DOM에서 제거)
+  renderHeader();
+  renderHome();
 }
 
 /* ════════════════════════════════════════
@@ -4640,7 +4867,7 @@ function init() {
     load();
     S.user.empId = savedEmpId;
     document.getElementById('app-login-screen').classList.add('hidden');
-    document.getElementById('header-logout-btn').classList.remove('hidden');
+  
     renderHeader();
     renderHome();
     setTimeout(() => {
@@ -4668,29 +4895,27 @@ init();
     </div>
     <div class="pm-sub" id="pm-sub">닉네임과 아바타를 설정해주세요</div>
     <div class="pm-realname-box">
-      <span class="pm-realname-label">이름</span>
+      <span class="pm-realname-label">등록번호</span>
+      <span class="pm-realname-value" id="pm-empid">-</span>
+      <span class="pm-realname-label" style="margin-left:14px;">이름</span>
       <span class="pm-realname-value" id="pm-realname">-</span>
     </div>
     <div class="form-label">닉네임 <span style="font-size:11px;color:var(--text-secondary);font-weight:400;">(커뮤니티·리그에 표시)</span></div>
     <input type="text" class="ch-form-input" id="pm-nickname" placeholder="닉네임을 입력하세요" maxlength="15">
     <div class="pm-section-hd">
       <span class="pm-section-title">🎨 아바타 선택</span>
-      <button type="button" class="pm-section-toggle" onclick="togglePmSection('avatar')">닫기</button>
     </div>
     <div class="pm-section-body" id="pm-section-avatar">
       <div class="avatar-grid" id="pm-avatar-grid"></div>
     </div>
     <div class="pm-section-hd">
       <span class="pm-section-title">🏷️ 나의 태그 <span class="pm-sel-count" id="pm-sel-count"></span></span>
-      <button type="button" class="pm-section-toggle" onclick="togglePmSection('tag')">닫기</button>
     </div>
     <div class="pm-section-body" id="pm-section-tag">
       <div id="pm-tag-list"></div>
     </div>
     <button type="button" class="btn btn-primary btn-full" id="pm-save-btn" onclick="saveProfile()">저장하기</button>
-    <div class="pm-divider" id="pm-logout-section">
-      <button type="button" class="btn btn-danger btn-full" onclick="logout()">🚪 로그아웃 (데이터 초기화)</button>
-    </div>
+    <button type="button" class="pm-logout-btn" id="pm-logout-btn" onclick="appLogout()">로그아웃</button>
   </div>
 </div>
 
@@ -4728,10 +4953,66 @@ init();
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js')
-        .catch(err => console.warn('SW 등록 실패:', err));
+      navigator.serviceWorker.register('./sw.js').then(reg => {
+        // 새 서비스 워커가 설치되면 즉시 활성화 후 페이지 새로고침
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'activated') {
+              window.location.reload();
+            }
+          });
+        });
+      }).catch(err => console.warn('SW 등록 실패:', err));
     });
   }
+</script>
+
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function() {
+  try {
+    if (!SUPABASE_URL || SUPABASE_URL === 'YOUR_SUPABASE_URL') return;
+    const { createClient } = supabase;
+    _db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // admin_posts 실시간 리스너 (커뮤니티 탭 자동 갱신)
+    _db.channel('admin_posts_ch')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'admin_posts' }, async () => {
+        const { data } = await _db.from('admin_posts').select('*').order('createdAt', { ascending: false });
+        if (data) {
+          S.adminPosts = data;
+          _adminPostsFetched = true;
+          const page = document.querySelector('.page.active');
+          if (page && page.id === 'page-community') renderCommunity();
+        }
+      })
+      .subscribe();
+    // posts 실시간 리스너 (새 게시글 자동 반영)
+    _db.channel('posts_ch')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'posts' }, async () => {
+        _adminPostsFetched = false;
+        const page = document.querySelector('.page.active');
+        if (page && page.id === 'page-community') fetchAdminPosts();
+      })
+      .subscribe();
+    // orders 실시간 리스너 (관리자 승인 상태 자동 반영)
+    _db.channel('orders_ch')
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders' }, async (payload) => {
+        if (!S.deviceId) return;
+        const changed = payload.new;
+        if (changed.deviceId !== S.deviceId) return;
+        const orders = JSON.parse(localStorage.getItem(SHOP_ORDERS_KEY) || '[]');
+        const idx = orders.findIndex(o => String(o.id) === String(changed.id));
+        if (idx >= 0) {
+          orders[idx].status = changed.status;
+          localStorage.setItem(SHOP_ORDERS_KEY, JSON.stringify(orders));
+          renderShopOrderHistory();
+        }
+      })
+      .subscribe();
+  } catch(e) { console.warn('Supabase 초기화 실패:', e); }
+})();
 </script>
 </body>
 </html>
