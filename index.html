@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-visual">
   <title>HI Health - 건강 챌린지</title>
 
   <!-- PWA -->
@@ -50,6 +50,8 @@
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-behavior: smooth; }
+    /* iOS 입력 시 자동 확대 방지 */
+    input, textarea, select { font-size: max(16px, 1em); }
     body {
       font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
       background: var(--bg);
