@@ -1477,11 +1477,11 @@ function openEditAdminPost(id) {
   // mediaType select
   const mtSel = document.getElementById('edit-ct-media-type');
   [...mtSel.options].forEach(o => { o.selected = o.value === (p.mediaType || ''); });
-  document.getElementById('edit-post-modal').classList.add('show');
+  document.getElementById('edit-post-modal').classList.add('open');
 }
 
 function closeEditAdminPost() {
-  document.getElementById('edit-post-modal').classList.remove('show');
+  document.getElementById('edit-post-modal').classList.remove('open');
 }
 
 async function saveEditAdminPost() {
