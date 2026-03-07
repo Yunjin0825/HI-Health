@@ -636,15 +636,15 @@
       display: flex; flex-direction: row; align-items: center;
       gap: 6px; padding: 8px 16px; border-radius: 999px;
       border: 1.5px solid var(--border); background: #fff;
-      cursor: pointer; transition: all 0.18s; font-family: inherit;
+      cursor: pointer; transition: all 0.18s; font-family: inherit; font-size: 15px;
       flex-shrink: 0; white-space: nowrap;
     }
     .ex-type-btn.selected {
       border-color: var(--primary); background: #EEF2FF;
       box-shadow: 0 2px 10px rgba(79,70,229,0.18);
     }
-    .ex-type-icon { font-size: 17px; line-height: 1; }
-    .ex-type-name { font-size: inherit; font-weight: inherit; color: var(--text); }
+    .ex-type-icon { font-size: 15px; line-height: 1; }
+    .ex-type-name { font-size: 15px; font-weight: inherit; color: var(--text); }
     .ex-type-pts { display: none; }
     .ex-type-btn.selected .ex-type-name { color: var(--primary); }
     .custom-ex-link {
@@ -3507,7 +3507,7 @@ function renderExercise() {
   document.getElementById('ex-type-grid').innerHTML =
     EX_TYPES.filter(e => e.id !== 'custom').map(e => `
       <button class="ex-type-btn ${S.selectedEx === e.id ? 'selected' : ''}"
-              onclick="selectEx('${e.id}')">${e.name}</button>
+              onclick="selectEx('${e.id}')"><span class="ex-type-icon">${e.icon}</span><span class="ex-type-name">${e.name}</span></button>
     `).join('')
     + `<button class="custom-ex-link ${isCustom ? 'selected' : ''}" onclick="selectEx('custom')">✏️ 직접 입력</button>`;
 
