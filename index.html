@@ -1837,22 +1837,9 @@
   <!-- ████  EXERCISE  ████ -->
   <section id="page-exercise" class="page">
 
-    <div class="ex-today-strip">
-      <div class="ex-today-stat">
-        <div class="ex-today-num" id="ex-stat-count">0</div>
-        <div class="ex-today-lbl">오늘 운동</div>
-      </div>
-      <div class="ex-today-stat">
-        <div class="ex-today-num" id="ex-stat-mins">0분</div>
-        <div class="ex-today-lbl">운동 시간</div>
-      </div>
-      <div class="ex-today-stat">
-        <div class="ex-today-num" id="ex-stat-pts">+0p</div>
-        <div class="ex-today-lbl">획득 포인트</div>
-      </div>
-    </div>
-
     <div class="card">
+      <button class="btn btn-primary btn-full btn-record" onclick="logExercise()">운동 기록하기</button>
+      <hr style="border:none;border-top:1px solid var(--border);margin:16px 0 14px">
       <p class="card-title" style="margin-bottom:13px">운동 종류 선택</p>
       <div class="ex-type-grid" id="ex-type-grid"></div>
       <!-- custom-ex-btn is now rendered inside ex-type-grid scroll row -->
@@ -1987,7 +1974,6 @@
         </div>
       </div>
 
-      <button class="btn btn-primary btn-full btn-record" onclick="logExercise()">운동 기록하기</button>
     </div>
 
     <div class="card">
