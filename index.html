@@ -4015,6 +4015,7 @@ function setDiet(rating) {
   document.querySelectorAll('#diet-good,#diet-norm,#diet-snack,#diet-over,#diet-bad,#diet-custom-btn').forEach(e => e.classList.remove('on'));
   document.getElementById('diet-custom-wrap')?.classList.remove('show');
   if (map[rating]) document.getElementById(map[rating]).classList.add('on');
+  if (_shareOn) updateSharePreview();
 }
 function changeSleep(delta) {
   haptic('light');
@@ -4030,6 +4031,7 @@ function setSleepCard(rating) {
   document.querySelectorAll('#sleep-great,#sleep-good,#sleep-short,#sleep-bad,#sleep-over,#sleep-custom-btn').forEach(e => e.classList.remove('on'));
   document.getElementById('sleep-custom-wrap')?.classList.remove('show');
   document.getElementById('sleep-' + rating)?.classList.add('on');
+  if (_shareOn) updateSharePreview();
 }
 function toggleSleepCustom() {
   const wrap = document.getElementById('sleep-custom-wrap');
@@ -4060,6 +4062,7 @@ function setSupp(val) {
     document.getElementById('supp-custom-list').innerHTML = '';
     document.getElementById('supp-custom-input').value = '';
   }
+  if (_shareOn) updateSharePreview();
 }
 function resetHealthChecks() {
   document.querySelectorAll('[id^="diet-"]').forEach(e => e.classList.remove('on'));
@@ -4088,6 +4091,7 @@ function toggleMeal(name) {
   if (idx === -1) _mealTypes.push(name); else _mealTypes.splice(idx, 1);
   const btn = document.querySelector('.hc-meal-chip[data-name="' + name + '"]');
   if (btn) btn.classList.toggle('on', _mealTypes.includes(name));
+  if (_shareOn) updateSharePreview();
 }
 function toggleSuppItem(name) {
   haptic('light');
@@ -4095,6 +4099,7 @@ function toggleSuppItem(name) {
   if (idx === -1) _suppList.push(name); else _suppList.splice(idx, 1);
   const btn = document.querySelector('.hc-supp-preset[data-name="' + name + '"]');
   if (btn) btn.classList.toggle('on', _suppList.includes(name));
+  if (_shareOn) updateSharePreview();
 }
 function addCustomSupp() {
   const input = document.getElementById('supp-custom-input');
