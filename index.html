@@ -1943,7 +1943,10 @@
     </div>
 
     <div class="card today-log-card">
-      <p class="card-title" style="margin-bottom:0; padding:14px 18px 0">오늘 하루는 어땠나요?</p>
+      <div style="padding:14px 18px 0; display:flex; align-items:baseline; justify-content:space-between; gap:8px">
+        <p class="card-title" style="margin:0">오늘 하루는 어땠나요?</p>
+        <span style="font-size:11px; color:var(--text-muted); white-space:nowrap; flex-shrink:0">기록은 자정에 초기화돼요</span>
+      </div>
       <div class="ex-hero-tabs" style="margin-top:10px; border-bottom:1px solid var(--border)">
         <button class="ex-hero-tab active" id="today-tab-diet"  onclick="setTodayTab('diet')">식사</button>
         <button class="ex-hero-tab"        id="today-tab-sleep" onclick="setTodayTab('sleep')">수면</button>
@@ -1991,7 +1994,7 @@
             </button>
           </div>
           <div class="custom-ex-wrap" id="diet-custom-wrap">
-            <input type="text" class="ch-form-input" id="diet-custom-input" placeholder="오늘 식사를 한 줄로 적어보세요" maxlength="40" oninput="setDiet('custom')">
+            <input type="text" class="ch-form-input" id="diet-custom-input" placeholder="오늘 식사를 한 줄로 적어보세요" maxlength="40" oninput="setDiet('custom'); if(_shareOn) updateSharePreview(); saveTodayLog()">
           </div>
         </div>
       </div>
@@ -2034,7 +2037,7 @@
             </button>
           </div>
           <div class="custom-ex-wrap" id="sleep-custom-wrap">
-            <input type="number" class="ch-form-input" id="sleep-custom-input" placeholder="수면 시간을 입력하세요 (예: 6.5)" min="0" max="24" step="0.5" oninput="_sleepHours = parseFloat(this.value) || null">
+            <input type="number" class="ch-form-input" id="sleep-custom-input" placeholder="수면 시간을 입력하세요 (예: 6.5)" min="0" max="24" step="0.5" oninput="_sleepHours = parseFloat(this.value) || null; if(_shareOn) updateSharePreview(); saveTodayLog()">
           </div>
         </div>
       </div>
@@ -2130,6 +2133,7 @@
           <div class="share-expand-inner">
             <textarea class="share-msg-input" id="share-msg" rows="5" placeholder="공유할 메시지를 입력하세요..." oninput="_shareMsgAuto=false"></textarea>
             <div class="share-hint">💡 내가 기록한 항목들이 자동으로 태그됩니다</div>
+            <button type="button" class="btn btn-primary" id="share-submit-btn" onclick="submitShareNow()" style="width:100%;margin-top:10px;border-radius:12px">지금 공유하기</button>
           </div>
         </div>
       </div>
@@ -3042,6 +3046,7 @@ let S = {
   glucoseRecords: [], // { id, value, timing, ts }
   adminPosts: [],    // admin-written column content
   communityPosts: [], // other users' posts from Supabase
+  todayLog: null,    // { date, dietRating, mealTypes, sleepHours, sleepCard, suppTaken, suppList }
 };
 
 /* ════════════════════════════════════════
@@ -3057,6 +3062,7 @@ function save() {
       pendingRewards: S.pendingRewards,
       myReactions: S.myReactions,
       glucoseRecords: S.glucoseRecords,
+      todayLog: S.todayLog,
     }));
   } catch(e) {}
   // 태그를 별도 키에 저장 (로그아웃 후에도 유지)
@@ -3112,7 +3118,69 @@ function load() {
     S.pendingRewards  = d.pendingRewards  || [];
     S.myReactions = d.myReactions || {};
     S.glucoseRecords = d.glucoseRecords || [];
+    S.todayLog = d.todayLog || null;
   } catch(e) {}
+}
+
+function saveTodayLog() {
+  const today = new Date().toDateString();
+  S.todayLog = { date: today, dietRating: _dietRating, mealTypes: [..._mealTypes], sleepHours: _sleepHours, sleepCard: _sleepCard, suppTaken: _suppTaken, suppList: [..._suppList] };
+  save();
+}
+
+function loadTodayLog() {
+  const today = new Date().toDateString();
+  if (!S.todayLog || S.todayLog.date !== today) {
+    S.todayLog = null;
+    return;
+  }
+  const d = S.todayLog;
+  _dietRating = d.dietRating || null;
+  _mealTypes  = d.mealTypes  || [];
+  _sleepHours = d.sleepHours ?? null;
+  _sleepCard  = d.sleepCard  || null;
+  _suppTaken  = d.suppTaken  || null;
+  _suppList   = d.suppList   || [];
+  // UI 복원
+  const dietMap = { good:'diet-good', norm:'diet-norm', snack:'diet-snack', over:'diet-over', bad:'diet-bad' };
+  if (_dietRating && dietMap[_dietRating]) document.getElementById(dietMap[_dietRating])?.classList.add('on');
+  _mealTypes.forEach(n => document.querySelector('.hc-meal-chip[data-name="'+n+'"]')?.classList.add('on'));
+  if (_sleepCard) {
+    document.getElementById('sleep-val').textContent = _sleepHours !== null ? (_sleepHours % 1 === 0 ? _sleepHours : _sleepHours.toFixed(1)) : '7';
+    document.getElementById('sleep-' + _sleepCard)?.classList.add('on');
+  } else if (_sleepHours !== null) {
+    document.getElementById('sleep-val').textContent = _sleepHours % 1 === 0 ? _sleepHours : _sleepHours.toFixed(1);
+  }
+  const suppCardMap = { all:'supp-all', partial:'supp-partial', forgot:'supp-forgot', no:'supp-no', empty:'supp-empty' };
+  if (_suppTaken && suppCardMap[_suppTaken]) document.getElementById(suppCardMap[_suppTaken])?.classList.add('on');
+  _suppList.forEach(n => document.querySelector('.hc-supp-preset[data-name="'+n+'"]')?.classList.add('on'));
+  // 사진 복원
+  try {
+    const p = JSON.parse(localStorage.getItem('hi_today_photo_' + (ACTIVE_EMPID||'x')) || 'null');
+    if (p && p.date === today && p.data) {
+      _photoData = p.data;
+      const pi = document.getElementById('photo-preview-img');
+      if (pi) { pi.src = p.data; pi.style.display = 'block'; }
+      const ph = document.getElementById('photo-placeholder');
+      if (ph) ph.style.display = 'none';
+      const dw = document.getElementById('photo-del-wrap');
+      if (dw) dw.style.display = 'block';
+      document.getElementById('photo-upload-area')?.classList.add('has-photo');
+    }
+  } catch(e) {}
+}
+
+function scheduleMidnightReset() {
+  const now = new Date();
+  const next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 5);
+  setTimeout(() => {
+    S.todayLog = null;
+    _dietRating = null; _mealTypes = []; _sleepHours = null; _sleepCard = null; _suppTaken = null; _suppList = [];
+    resetHealthChecks();
+    clearPhoto(null);
+    save();
+    scheduleMidnightReset();
+  }, next - now);
 }
 
 /* ════════════════════════════════════════
@@ -3654,13 +3722,98 @@ function changeDur(delta) {
   if (_shareOn) updateSharePreview();
 }
 let _shareOn = false;
+let _shareRewrite = false;
+
+function getTodayMyPost() {
+  const today = new Date().toDateString();
+  return S.posts.find(p => p.userId === 0 && new Date(p.id).toDateString() === today);
+}
 
 function toggleShare() {
   haptic('light');
   _shareOn = !_shareOn;
   document.getElementById('share-toggle-btn').classList.toggle('on', _shareOn);
   document.getElementById('share-expand').classList.toggle('show', _shareOn);
-  if (_shareOn) updateSharePreview();
+  if (_shareOn) {
+    const existing = getTodayMyPost();
+    if (existing) {
+      _shareRewrite = true;
+      document.getElementById('share-toggle-sub').textContent = '오늘 이미 공유했어요 · 다시 작성하면 덮어씌워져요';
+      document.getElementById('share-submit-btn').textContent = '수정하기';
+      _shareMsgAuto = true;
+      updateSharePreview();
+    } else {
+      _shareRewrite = false;
+      document.getElementById('share-toggle-sub').textContent = '오늘 나의 하루를 친구들과 나눠보세요';
+      document.getElementById('share-submit-btn').textContent = '지금 공유하기';
+      updateSharePreview();
+    }
+  }
+}
+
+function submitShareNow() {
+  haptic('medium');
+  const msgEl = document.getElementById('share-msg');
+  const shareMsg = msgEl.value.trim();
+  if (!shareMsg) { showToast('공유할 메시지를 입력해주세요'); return; }
+  const curLv = getLevel(S.user.points);
+  if (_shareRewrite) {
+    const existing = getTodayMyPost();
+    if (existing) {
+      existing.body = shareMsg;
+      existing.time = '방금 전';
+      existing.sharePhoto = _photoData || null;
+      apiSync('addPost', {
+        id: String(existing.id),
+        deviceId: S.deviceId,
+        userName: myDisplayName(),
+        body: shareMsg,
+        exTag: existing.exTag || '',
+        userTags: (S.user.tags || []).join(','),
+        ts: String(existing.id),
+      });
+      showToast('공유글이 수정되었어요!');
+    }
+  } else {
+    const sharedPostId = Date.now();
+    S.posts.unshift({
+      id: sharedPostId,
+      userId: 0,
+      name: myDisplayName(),
+      avatar: S.user.avatar,
+      lv: curLv.lv,
+      body: shareMsg,
+      exTag: null,
+      userTags: [...(S.user.tags || [])],
+      sharePhoto: _photoData || null,
+      shareHealth: null,
+      time: '방금 전',
+      stickers: { cheer:0, love:0, congrats:0, cool:0, together:0 },
+      myReactions: [],
+      comments: 0,
+      commentList: [],
+    });
+    apiSync('addPost', {
+      id: String(sharedPostId),
+      deviceId: S.deviceId,
+      userName: myDisplayName(),
+      body: shareMsg,
+      exTag: '',
+      userTags: (S.user.tags || []).join(','),
+      ts: String(sharedPostId),
+    });
+    showToast('커뮤니티에 공유되었어요!');
+  }
+  _shareOn = false;
+  _shareRewrite = false;
+  _shareMsgAuto = false;
+  msgEl.value = '';
+  document.getElementById('share-toggle-btn').classList.remove('on');
+  document.getElementById('share-expand').classList.remove('show');
+  document.getElementById('share-toggle-sub').textContent = '오늘 나의 하루를 친구들과 나눠보세요';
+  save();
+  const commFeed = document.getElementById('posts-feed');
+  if (commFeed) renderCommunity();
 }
 
 let _sharePhoto  = false;
@@ -3673,14 +3826,13 @@ function buildDayMessage() {
   // 운동 — 이모지 유지, 자연스러운 문장
   const tw = todayWorkouts();
   if (tw.length) {
-    const totalMins = tw.reduce((s, w) => s + w.duration, 0);
     const woList = tw.map(w => {
       const ex = EX_TYPES.find(e => e.id === w.exId);
       const name = w.customName || (ex ? ex.name : '운동');
       const icon = ex ? ex.icon : '🏃';
       return icon + ' ' + name + ' ' + w.duration + '분';
     }).join(', ');
-    lines.push(woList + ' 완료했어요! (총 ' + tw.length + '회 · ' + totalMins + '분)');
+    lines.push(woList + ' 완료했어요!');
   }
 
   // 혈당
@@ -3693,9 +3845,7 @@ function buildDayMessage() {
   // 식사
   const dietMap = { good:'매 끼니 잘 챙겨먹었어요', norm:'보통으로 먹었어요', snack:'간식을 많이 먹었네요', over:'과식을 했어요', bad:'한 끼를 거른 것 같아요' };
   if (_dietRating) {
-    const label = _dietRating === 'custom'
-      ? (document.getElementById('diet-custom-input')?.value.trim() || null)
-      : dietMap[_dietRating];
+    const label = dietMap[_dietRating] || _dietRating;
     if (label) {
       const meals = _mealTypes.length ? ' (' + _mealTypes.join(', ') + ')' : '';
       lines.push('식사는 ' + label + meals + '.');
@@ -3703,19 +3853,23 @@ function buildDayMessage() {
   }
 
   // 수면
-  if (_sleepHours !== null && _sleepHours !== undefined) {
-    const sleepEmojiMap = { great:'😴', good:'🙂', short:'😪', bad:'😩', over:'💤' };
-    const sleepTextMap  = { great:'푹 잤어요', good:'잘 잤어요', short:'조금 부족했어요', bad:'많이 못 잤어요', over:'너무 많이 잤어요' };
-    const sleepLabel = typeof _sleepHours === 'number'
-      ? '😴 ' + _sleepHours + '시간 잤어요.'
-      : ((sleepEmojiMap[_sleepHours] || '😴') + ' ' + (sleepTextMap[_sleepHours] || _sleepHours) + '.');
+  if (_sleepHours !== null || _sleepCard !== null) {
+    const sleepTextMap = { great:'푹 잤어요', good:'잘 잤어요', short:'조금 부족했어요', bad:'많이 못 잤어요', over:'너무 많이 잤어요' };
+    let sleepLabel;
+    if (_sleepCard && _sleepHours !== null) {
+      sleepLabel = (sleepTextMap[_sleepCard] || _sleepCard) + ' (' + _sleepHours + '시간).';
+    } else if (_sleepCard) {
+      sleepLabel = (sleepTextMap[_sleepCard] || _sleepCard) + '.';
+    } else {
+      sleepLabel = _sleepHours + '시간 잤어요.';
+    }
     lines.push(sleepLabel);
   }
 
   // 영양제
   if (_suppTaken) {
     const suppMap = { all:'영양제 모두 챙겨 먹었어요', partial:'영양제 일부만 챙겼어요', forgot:'영양제 깜빡했어요', no:'오늘은 영양제를 안 먹었어요', empty:'영양제가 떨어졌어요' };
-    let suppLine = suppMap[_suppTaken] || '영양제 ' + _suppTaken;
+    let suppLine = suppMap[_suppTaken] || _suppTaken;
     if ((_suppTaken === 'all' || _suppTaken === 'partial') && _suppList.length) {
       suppLine += ' (' + _suppList.join(', ') + ')';
     }
@@ -3855,53 +4009,75 @@ function logExercise() {
       || '오늘 ' + exName + ' ' + S.duration + '분 완료했어요! 💪';
     const curLv = getLevel(S.user.points);
     const hasSleep = document.getElementById('hc-sleep-sec').classList.contains('show');
-    const sharedPostId = Date.now();
-    S.posts.unshift({
-      id: sharedPostId,
-      userId: 0,
-      name: myDisplayName(),
-      avatar: S.user.avatar,
-      lv: curLv.lv,
-      body: shareMsg,
-      exTag: exIcon + ' ' + exName + ' ' + S.duration + '분',
-      userTags: [...(S.user.tags || [])],
-      sharePhoto:  (_sharePhoto && _photoData) ? _photoData : null,
-      shareHealth: _shareHealth ? {
-        diet:      _dietRating,
-        mealTypes: _mealTypes.length ? [..._mealTypes] : null,
-        sleep:     hasSleep ? _sleepHours : null,
-        supp:      _suppTaken,
-        suppList:  _suppList.length ? [..._suppList] : null,
-      } : null,
-      time: '방금 전',
-      stickers: { cheer:0, love:0, congrats:0, cool:0, together:0 },
-      myReactions: [],
-      comments: 0,
-      commentList: [],
-    });
-    apiSync('addPost', {
-      id: String(sharedPostId),
-      deviceId: S.deviceId,
-      userName: myDisplayName(),
-      body: shareMsg,
-      exTag: exIcon + ' ' + exName + ' ' + S.duration + '분',
-      userTags: (S.user.tags || []).join(','),
-      ts: String(sharedPostId),
-    });
+    const exTag = exIcon + ' ' + exName + ' ' + S.duration + '분';
+    if (_shareRewrite) {
+      const existing = getTodayMyPost();
+      if (existing) {
+        existing.body = shareMsg;
+        existing.exTag = exTag;
+        existing.time = '방금 전';
+        existing.sharePhoto = _photoData || null;
+        apiSync('addPost', {
+          id: String(existing.id),
+          deviceId: S.deviceId,
+          userName: myDisplayName(),
+          body: shareMsg,
+          exTag,
+          userTags: (S.user.tags || []).join(','),
+          ts: String(existing.id),
+        });
+      }
+    } else {
+      const sharedPostId = Date.now();
+      S.posts.unshift({
+        id: sharedPostId,
+        userId: 0,
+        name: myDisplayName(),
+        avatar: S.user.avatar,
+        lv: curLv.lv,
+        body: shareMsg,
+        exTag,
+        userTags: [...(S.user.tags || [])],
+        sharePhoto:  _photoData || null,
+        shareHealth: _shareHealth ? {
+          diet:      _dietRating,
+          mealTypes: _mealTypes.length ? [..._mealTypes] : null,
+          sleep:     hasSleep ? _sleepHours : null,
+          supp:      _suppTaken,
+          suppList:  _suppList.length ? [..._suppList] : null,
+        } : null,
+        time: '방금 전',
+        stickers: { cheer:0, love:0, congrats:0, cool:0, together:0 },
+        myReactions: [],
+        comments: 0,
+        commentList: [],
+      });
+      apiSync('addPost', {
+        id: String(sharedPostId),
+        deviceId: S.deviceId,
+        userName: myDisplayName(),
+        body: shareMsg,
+        exTag,
+        userTags: (S.user.tags || []).join(','),
+        ts: String(sharedPostId),
+      });
+    }
     document.getElementById('share-msg').value = '';
   }
   // Reset share toggle
   _shareOn = false;
+  _shareRewrite = false;
   _sharePhoto  = false;
   _shareHealth = false;
   _shareMsgAuto = false;
   document.getElementById('share-toggle-btn').classList.remove('on');
   document.getElementById('share-expand').classList.remove('show');
-  document.getElementById('share-options').innerHTML = '';
+  document.getElementById('share-toggle-sub').textContent = '오늘 나의 하루를 친구들과 나눠보세요';
+  const soEl = document.getElementById('share-options');
+  if (soEl) soEl.innerHTML = '';
 
   document.getElementById('ex-memo').value = '';
   if (S.selectedEx === 'custom') document.getElementById('custom-ex-name').value = '';
-  clearPhoto(null);
   resetHealthChecks();
   save();
   // 운동 기록 구글 시트 동기화
@@ -3975,6 +4151,7 @@ let _photoData = null;
 let _dietRating = null;
 let _mealTypes  = [];
 let _sleepHours = null;
+let _sleepCard  = null;
 let _suppTaken  = null;
 let _suppList   = [];
 
@@ -3987,7 +4164,7 @@ function toggleHC(type) {
   btn.classList.toggle('active', opening);
   if (!opening) {
     if (type === 'diet')  { _dietRating = null; _mealTypes = []; document.querySelectorAll('[id^="diet-"],.hc-meal-chip').forEach(e => e.classList.remove('on')); }
-    if (type === 'sleep') { _sleepHours = 7; document.getElementById('sleep-val').textContent = '7'; document.querySelectorAll('#sleep-great,#sleep-good,#sleep-short,#sleep-bad,#sleep-over,#sleep-custom-btn').forEach(e => e.classList.remove('on')); document.getElementById('sleep-custom-wrap')?.classList.remove('show'); }
+    if (type === 'sleep') { _sleepHours = null; _sleepCard = null; document.getElementById('sleep-val').textContent = '7'; document.querySelectorAll('#sleep-great,#sleep-good,#sleep-short,#sleep-bad,#sleep-over,#sleep-custom-btn').forEach(e => e.classList.remove('on')); document.getElementById('sleep-custom-wrap')?.classList.remove('show'); }
     if (type === 'supp')  { clearSuppSection(); }
   }
 }
@@ -4016,22 +4193,26 @@ function setDiet(rating) {
   document.getElementById('diet-custom-wrap')?.classList.remove('show');
   if (map[rating]) document.getElementById(map[rating]).classList.add('on');
   if (_shareOn) updateSharePreview();
+  saveTodayLog();
 }
 function changeSleep(delta) {
   haptic('light');
   const cur = typeof _sleepHours === 'number' ? _sleepHours : 7;
   _sleepHours = Math.max(2, Math.min(12, cur + delta));
   document.getElementById('sleep-val').textContent = _sleepHours % 1 === 0 ? _sleepHours : _sleepHours.toFixed(1);
-  document.querySelectorAll('#sleep-great,#sleep-good,#sleep-short,#sleep-bad,#sleep-over,#sleep-custom-btn').forEach(e => e.classList.remove('on'));
   document.getElementById('sleep-custom-wrap')?.classList.remove('show');
+  document.getElementById('sleep-custom-btn')?.classList.remove('on');
+  if (_shareOn) updateSharePreview();
+  saveTodayLog();
 }
 function setSleepCard(rating) {
   haptic('light');
-  _sleepHours = rating;
+  _sleepCard = rating;
   document.querySelectorAll('#sleep-great,#sleep-good,#sleep-short,#sleep-bad,#sleep-over,#sleep-custom-btn').forEach(e => e.classList.remove('on'));
   document.getElementById('sleep-custom-wrap')?.classList.remove('show');
   document.getElementById('sleep-' + rating)?.classList.add('on');
   if (_shareOn) updateSharePreview();
+  saveTodayLog();
 }
 function toggleSleepCustom() {
   const wrap = document.getElementById('sleep-custom-wrap');
@@ -4056,6 +4237,7 @@ function setSupp(val) {
   document.getElementById('supp-' + val)?.classList.add('on');
   document.getElementById('supp-card-custom-wrap')?.classList.remove('show');
   if (_shareOn) updateSharePreview();
+  saveTodayLog();
 }
 function toggleSuppCardCustom() {
   const wrap = document.getElementById('supp-card-custom-wrap');
@@ -4075,7 +4257,7 @@ function toggleSuppCardCustom() {
 }
 function resetHealthChecks() {
   document.querySelectorAll('[id^="diet-"]').forEach(e => e.classList.remove('on'));
-  _dietRating = null; _mealTypes = []; _sleepHours = null;
+  _dietRating = null; _mealTypes = []; _sleepHours = null; _sleepCard = null;
   document.querySelectorAll('#sleep-great,#sleep-good,#sleep-short,#sleep-bad,#sleep-over').forEach(e => e.classList.remove('on'));
   clearSuppSection();
 }
@@ -4100,6 +4282,7 @@ function toggleMeal(name) {
   const btn = document.querySelector('.hc-meal-chip[data-name="' + name + '"]');
   if (btn) btn.classList.toggle('on', _mealTypes.includes(name));
   if (_shareOn) updateSharePreview();
+  saveTodayLog();
 }
 function toggleSuppItem(name) {
   haptic('light');
@@ -4108,6 +4291,7 @@ function toggleSuppItem(name) {
   const btn = document.querySelector('.hc-supp-preset[data-name="' + name + '"]');
   if (btn) btn.classList.toggle('on', _suppList.includes(name));
   if (_shareOn) updateSharePreview();
+  saveTodayLog();
 }
 function addCustomSupp() {
   const input = document.getElementById('supp-custom-input');
@@ -4402,6 +4586,7 @@ function handlePhotoInput(input) {
   const reader = new FileReader();
   reader.onload = e => compressImage(e.target.result, data => {
     _photoData = data;
+    try { localStorage.setItem('hi_today_photo_' + (ACTIVE_EMPID||'x'), JSON.stringify({ date: new Date().toDateString(), data })); } catch(e) {}
     document.getElementById('photo-preview-img').src = data;
     document.getElementById('photo-preview-img').style.display = 'block';
     document.getElementById('photo-placeholder').style.display = 'none';
@@ -4426,6 +4611,7 @@ function compressImage(dataUrl, cb) {
 function clearPhoto(e) {
   if (e) e.stopPropagation();
   _photoData = null;
+  try { localStorage.removeItem('hi_today_photo_' + (ACTIVE_EMPID||'x')); } catch(e) {}
   const pi = document.getElementById('photo-preview-img');
   pi.src = ''; pi.style.display = 'none';
   document.getElementById('photo-placeholder').style.display = 'block';
@@ -4885,7 +5071,6 @@ function renderCommunity() {
         </div>
         ${(p.userTags || []).length ? `<div class="post-tags-row">${(p.userTags).map(t => `<span class="profile-tag">${t}</span>`).join('')}</div>` : ''}
         <div class="post-body">${p.body}</div>
-        ${p.exTag ? `<div class="post-exercise-tag">${p.exTag}</div>` : ''}
         ${p.sharePhoto ? `<div class="post-photo-wrap"><img class="post-photo" src="${p.sharePhoto}" alt="운동 사진"></div>` : ''}
         ${p.shareHealth ? buildPostHealthHtml(p.shareHealth) : ''}
         <div class="sticker-row">${stickersHtml}</div>
@@ -5923,6 +6108,8 @@ async function doAppLogin() {
   SHOP_ORDERS_KEY = 'hi_health_shop_orders_' + regId;
   SHOP_CART_KEY   = 'hi_health_cart_' + regId;
   load();
+  loadTodayLog();
+  scheduleMidnightReset();
   if (!S.user.name) S.user.name = inputName;
   // 태그 복구: 로그아웃 후 localStorage에서 복원
   if (!S.user.tags?.length) {
@@ -6116,6 +6303,8 @@ function init() {
     SHOP_ORDERS_KEY = 'hi_health_shop_orders_' + savedEmpId;
     SHOP_CART_KEY   = 'hi_health_cart_' + savedEmpId;
     load();
+    loadTodayLog();
+    scheduleMidnightReset();
     loadCart();
     S.user.empId = savedEmpId;
     document.getElementById('app-login-screen').classList.add('hidden');
