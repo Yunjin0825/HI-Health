@@ -121,7 +121,7 @@
     #notch-fill {
       display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 109;
       height: calc(max(env(safe-area-inset-top), 44px) + var(--header-height) - 40px);
-      background: #3730A3;
+      background: linear-gradient(135deg, #2E2B8F 0%, #3730A3 100%);
     }
     #notch-fill.visible { display: block; }
 
@@ -133,7 +133,7 @@
       background: transparent;
       box-shadow: none;
       display: flex; align-items: flex-end; justify-content: space-between;
-      padding: 0 20px 10px; padding-top: max(env(safe-area-inset-top), 44px);
+      padding: 0 20px 14px; padding-top: max(env(safe-area-inset-top), 44px);
       z-index: 110;
       transition: background 0.28s ease, box-shadow 0.28s ease;
     }
