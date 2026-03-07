@@ -729,20 +729,20 @@
     /* ── Health Check ── */
     .hc-section { border-top:1px solid var(--border); padding:12px 0 4px; margin-bottom:4px; }
     .hc-sec-title { font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:8px; }
-    .hc-rate-row { display:flex; gap:7px; }
+    .hc-rate-row { display:flex; gap:7px; flex-wrap:wrap; }
     .hc-rate-btn {
-      flex:1; padding:8px 4px; border-radius:var(--radius-sm);
-      border:1.5px solid var(--border); background:var(--bg);
-      font-size:12px; font-weight:600; cursor:pointer; text-align:center; transition:all 0.2s;
+      padding:6px 12px; border-radius:999px;
+      border:1.5px solid var(--border); background:#fff;
+      font-size:13px; cursor:pointer; white-space:nowrap; transition:all 0.18s;
     }
-    .hc-rate-btn.on { border-color:var(--primary); background:var(--primary-light); color:var(--primary); }
+    .hc-rate-btn.on { border-color:var(--primary); background:#EEF2FF; color:var(--primary); }
     .hc-sub-label { font-size:11px; font-weight:600; color:var(--text-secondary); margin:8px 0 5px; }
     .hc-sub-chips { display:flex; gap:5px; flex-wrap:wrap; }
     .hc-sub-chip {
-      padding:5px 10px; border-radius:20px; border:1.5px solid var(--border);
-      background:var(--bg); font-size:11px; font-weight:600; cursor:pointer; transition:all 0.2s;
+      padding:6px 12px; border-radius:999px; border:1.5px solid var(--border);
+      background:#fff; font-size:13px; cursor:pointer; white-space:nowrap; transition:all 0.18s;
     }
-    .hc-sub-chip.on { border-color:var(--primary); background:var(--primary-light); color:var(--primary); }
+    .hc-sub-chip.on { border-color:var(--primary); background:#EEF2FF; color:var(--primary); }
     .hc-supp-detail { margin-top:10px; padding-top:10px; border-top:1px solid var(--border); display:none; }
     .hc-supp-detail.show { display:block; }
     .hc-custom-supp { margin-top:7px; display:flex; gap:6px; }
@@ -1930,29 +1930,29 @@
     </div>
 
     <div class="card today-log-card">
-      <div class="ex-hero-tabs">
-        <button class="ex-hero-tab active" id="today-tab-diet"  onclick="setTodayTab('diet')">🥗 식단</button>
-        <button class="ex-hero-tab"        id="today-tab-sleep" onclick="setTodayTab('sleep')">😴 수면</button>
-        <button class="ex-hero-tab"        id="today-tab-supp"  onclick="setTodayTab('supp')">💊 영양제</button>
+      <p class="card-title" style="margin-bottom:0; padding:14px 18px 0">오늘 하루는 어땠나요?</p>
+      <div class="ex-hero-tabs" style="margin-top:10px">
+        <button class="ex-hero-tab active" id="today-tab-diet"  onclick="setTodayTab('diet')">식사</button>
+        <button class="ex-hero-tab"        id="today-tab-sleep" onclick="setTodayTab('sleep')">수면</button>
+        <button class="ex-hero-tab"        id="today-tab-supp"  onclick="setTodayTab('supp')">영양제</button>
       </div>
 
-      <!-- 식단 panel -->
+      <!-- 식사 panel -->
       <div id="today-panel-diet">
         <div class="hc-section" id="hc-diet-sec" style="border-top:none">
-          <div class="hc-rate-row">
-            <button type="button" class="hc-rate-btn" id="diet-good"  onclick="setDiet('잘먹음')">잘먹음</button>
-            <button type="button" class="hc-rate-btn" id="diet-norm"  onclick="setDiet('보통')">보통</button>
-            <button type="button" class="hc-rate-btn" id="diet-over"  onclick="setDiet('과식')">과식</button>
-            <button type="button" class="hc-rate-btn" id="diet-bad"   onclick="setDiet('불량')">불량</button>
-          </div>
-          <div class="hc-sub-label">식사 종류</div>
-          <div class="hc-sub-chips">
+          <div class="hc-sub-chips" style="margin-bottom:10px">
             <button type="button" class="hc-sub-chip hc-meal-chip" data-name="아침" onclick="toggleMeal('아침')">아침</button>
             <button type="button" class="hc-sub-chip hc-meal-chip" data-name="아점" onclick="toggleMeal('아점')">아점</button>
             <button type="button" class="hc-sub-chip hc-meal-chip" data-name="점심" onclick="toggleMeal('점심')">점심</button>
             <button type="button" class="hc-sub-chip hc-meal-chip" data-name="저녁" onclick="toggleMeal('저녁')">저녁</button>
             <button type="button" class="hc-sub-chip hc-meal-chip" data-name="간식" onclick="toggleMeal('간식')">간식</button>
             <button type="button" class="hc-sub-chip hc-meal-chip" data-name="야식" onclick="toggleMeal('야식')">야식</button>
+          </div>
+          <div class="hc-rate-row">
+            <button type="button" class="hc-rate-btn" id="diet-good"  onclick="setDiet('잘먹음')">잘먹음</button>
+            <button type="button" class="hc-rate-btn" id="diet-norm"  onclick="setDiet('보통')">보통</button>
+            <button type="button" class="hc-rate-btn" id="diet-over"  onclick="setDiet('과식')">과식</button>
+            <button type="button" class="hc-rate-btn" id="diet-bad"   onclick="setDiet('불량')">불량</button>
           </div>
         </div>
       </div>
