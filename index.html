@@ -887,6 +887,11 @@
     .wo-del { background:none; border:none; cursor:pointer; color:var(--text-secondary); font-size:15px; padding:4px; opacity:0.45; transition:opacity 0.2s; flex-shrink:0; line-height:1; }
     .wo-del:hover { opacity:1; color:#ef4444; }
 
+    /* ── Record Tabs (운동/혈당) ── */
+    .record-tabs { display:flex; border-bottom:2px solid var(--border); margin-bottom:14px; }
+    .record-tab { flex:1; padding:11px 0; background:none; border:none; border-bottom:2px solid transparent; margin-bottom:-2px; font-family:inherit; font-size:14px; font-weight:700; color:var(--text-secondary); cursor:pointer; transition:all 0.18s; }
+    .record-tab.active { color:var(--primary); border-bottom-color:var(--primary); }
+
     /* ── View Tabs (월별/목록/그래프) ── */
     .card-header-right { display:flex; align-items:center; gap:8px; }
     .wo-view-tabs { display:flex; gap:2px; background:var(--bg); border-radius:8px; padding:3px; }
@@ -1831,23 +1836,63 @@
   <section id="page-exercise" class="page">
 
     <div class="card">
-      <div class="card-header">
-        <span class="card-title">운동 기록</span>
-        <div class="card-header-right">
-          <span class="badge badge-success" id="wo-total-badge">총 0회</span>
-          <div class="wo-view-tabs">
-            <button type="button" class="wo-view-tab active" id="wo-tab-recent" onclick="setWoView('recent')">최근</button>
-            <button type="button" class="wo-view-tab" id="wo-tab-monthly" onclick="setWoView('monthly')">월별</button>
+      <div class="record-tabs">
+        <button class="record-tab active" id="rec-tab-exercise" onclick="setRecordTab('exercise')">운동 기록</button>
+        <button class="record-tab" id="rec-tab-glucose" onclick="setRecordTab('glucose')">혈당 기록</button>
+      </div>
+
+      <div id="rec-panel-exercise">
+        <div class="card-header" style="padding-top:0">
+          <div class="card-header-right">
+            <span class="badge badge-success" id="wo-total-badge">총 0회</span>
+            <div class="wo-view-tabs">
+              <button type="button" class="wo-view-tab active" id="wo-tab-recent" onclick="setWoView('recent')">최근</button>
+              <button type="button" class="wo-view-tab" id="wo-tab-monthly" onclick="setWoView('monthly')">월별</button>
+            </div>
           </div>
         </div>
+        <div class="wo-type-filter" id="wo-type-filter"></div>
+        <div class="wo-month-nav" id="wo-month-nav">
+          <button type="button" class="wo-month-btn" id="wo-prev-btn" onclick="changeWoMonth(-1)">‹</button>
+          <span class="wo-month-lbl" id="wo-month-label">-</span>
+          <button type="button" class="wo-month-btn" id="wo-next-btn" onclick="changeWoMonth(1)">›</button>
+        </div>
+        <div id="wo-history"></div>
       </div>
-      <div class="wo-type-filter" id="wo-type-filter"></div>
-      <div class="wo-month-nav" id="wo-month-nav">
-        <button type="button" class="wo-month-btn" id="wo-prev-btn" onclick="changeWoMonth(-1)">‹</button>
-        <span class="wo-month-lbl" id="wo-month-label">-</span>
-        <button type="button" class="wo-month-btn" id="wo-next-btn" onclick="changeWoMonth(1)">›</button>
+
+      <div id="rec-panel-glucose" style="display:none">
+        <div class="card-header" style="padding-top:0">
+          <div class="card-header-right">
+            <span class="badge glucose-badge-red" id="glucose-total-badge">총 0회</span>
+            <div class="wo-view-tabs">
+              <button type="button" class="wo-view-tab active" id="gl-tab-list" onclick="setGlucoseView('list')">목록</button>
+              <button type="button" class="wo-view-tab" id="gl-tab-graph" onclick="setGlucoseView('graph')">그래프</button>
+            </div>
+          </div>
+        </div>
+        <div class="glucose-input-wrap-sa">
+          <button type="button" class="dur-btn" onclick="changeGlucoseVal(-5)">−</button>
+          <div class="glucose-val-display">
+            <span class="glucose-val-num" id="sa-glucose-num">100</span>
+            <span class="glucose-val-unit">mg/dL</span>
+          </div>
+          <button type="button" class="dur-btn" onclick="changeGlucoseVal(5)">+</button>
+        </div>
+        <div class="glucose-timing-row">
+          <button type="button" class="glucose-timing-btn" id="sa-gt-fasting"  onclick="setGlucoseTiming('공복')">공복</button>
+          <button type="button" class="glucose-timing-btn" id="sa-gt-after"    onclick="setGlucoseTiming('식후')">식후</button>
+          <button type="button" class="glucose-timing-btn" id="sa-gt-after2h"  onclick="setGlucoseTiming('식후2h')">식후 2h</button>
+          <button type="button" class="glucose-timing-btn" id="sa-gt-before"   onclick="setGlucoseTiming('식전')">식전</button>
+          <button type="button" class="glucose-timing-btn" id="sa-gt-bedtime"  onclick="setGlucoseTiming('취침전')">취침 전</button>
+          <button type="button" class="glucose-timing-btn glucose-time-toggle" id="sa-gt-time" onclick="toggleGlucoseTimeInput()">🕐 시간</button>
+        </div>
+        <div class="glucose-time-expand" id="sa-glucose-time-wrap">
+          <input type="time" id="sa-glucose-time" class="glucose-time-input" oninput="_glucoseTime=this.value">
+        </div>
+        <button class="btn btn-primary btn-full glucose-log-btn" onclick="logGlucoseStandalone()">혈당 기록하기 (+5p)</button>
+        <div id="glucose-daily-info" class="daily-limit-info daily-limit-info--center"></div>
+        <div class="glucose-history-list" id="glucose-history"></div>
       </div>
-      <div id="wo-history"></div>
     </div>
 
     <div class="card">
@@ -1989,40 +2034,6 @@
 
     </div>
 
-    <div class="card">
-      <div class="glucose-card-header">
-        <span class="card-title">혈당 기록</span>
-        <div class="card-header-right">
-          <span class="badge glucose-badge-red" id="glucose-total-badge">총 0회</span>
-          <div class="wo-view-tabs">
-            <button type="button" class="wo-view-tab active" id="gl-tab-list" onclick="setGlucoseView('list')">목록</button>
-            <button type="button" class="wo-view-tab" id="gl-tab-graph" onclick="setGlucoseView('graph')">그래프</button>
-          </div>
-        </div>
-      </div>
-      <div class="glucose-input-wrap-sa">
-        <button type="button" class="dur-btn" onclick="changeGlucoseVal(-5)">−</button>
-        <div class="glucose-val-display">
-          <span class="glucose-val-num" id="sa-glucose-num">100</span>
-          <span class="glucose-val-unit">mg/dL</span>
-        </div>
-        <button type="button" class="dur-btn" onclick="changeGlucoseVal(5)">+</button>
-      </div>
-      <div class="glucose-timing-row">
-        <button type="button" class="glucose-timing-btn" id="sa-gt-fasting"  onclick="setGlucoseTiming('공복')">공복</button>
-        <button type="button" class="glucose-timing-btn" id="sa-gt-after"    onclick="setGlucoseTiming('식후')">식후</button>
-        <button type="button" class="glucose-timing-btn" id="sa-gt-after2h"  onclick="setGlucoseTiming('식후2h')">식후 2h</button>
-        <button type="button" class="glucose-timing-btn" id="sa-gt-before"   onclick="setGlucoseTiming('식전')">식전</button>
-        <button type="button" class="glucose-timing-btn" id="sa-gt-bedtime"  onclick="setGlucoseTiming('취침전')">취침 전</button>
-        <button type="button" class="glucose-timing-btn glucose-time-toggle" id="sa-gt-time" onclick="toggleGlucoseTimeInput()">🕐 시간</button>
-      </div>
-      <div class="glucose-time-expand" id="sa-glucose-time-wrap">
-        <input type="time" id="sa-glucose-time" class="glucose-time-input" oninput="_glucoseTime=this.value">
-      </div>
-      <button class="btn btn-primary btn-full glucose-log-btn" onclick="logGlucoseStandalone()">혈당 기록하기 (+5p)</button>
-      <div id="glucose-daily-info" class="daily-limit-info daily-limit-info--center"></div>
-      <div class="glucose-history-list" id="glucose-history"></div>
-    </div>
 
   </section>
 
@@ -3335,6 +3346,13 @@ let _woViewMode = 'recent';
 let _woMonthOffset = 0;
 let _woShowCount = 10;
 let _woTypeFilter = 'all';
+
+function setRecordTab(tab) {
+  document.getElementById('rec-tab-exercise').classList.toggle('active', tab === 'exercise');
+  document.getElementById('rec-tab-glucose').classList.toggle('active', tab === 'glucose');
+  document.getElementById('rec-panel-exercise').style.display = tab === 'exercise' ? '' : 'none';
+  document.getElementById('rec-panel-glucose').style.display = tab === 'glucose' ? '' : 'none';
+}
 
 function setWoView(mode) {
   _woViewMode = mode;
