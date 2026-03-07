@@ -1999,7 +1999,15 @@
       <!-- 수면 panel -->
       <div id="today-panel-sleep" style="display:none">
         <div class="hc-section" id="hc-sleep-sec" style="border-top:none">
-          <div class="diet-card-grid">
+          <div class="hc-sleep-row">
+            <button type="button" class="dur-btn" onclick="changeSleep(-0.5)">−</button>
+            <div>
+              <div class="hc-sleep-val" id="sleep-val">7</div>
+              <div class="hc-sleep-unit">시간</div>
+            </div>
+            <button type="button" class="dur-btn" onclick="changeSleep(0.5)">+</button>
+          </div>
+          <div class="diet-card-grid" style="margin-top:12px">
             <button type="button" class="diet-card" id="sleep-great" onclick="setSleepCard('great')">
               <span class="diet-card-emoji">😴</span>
               <span class="diet-card-label">푹 잤어요</span>
@@ -2020,13 +2028,6 @@
               <span class="diet-card-emoji">💤</span>
               <span class="diet-card-label">너무 많이 잤어요</span>
             </button>
-            <button type="button" class="diet-card" id="sleep-custom-btn" onclick="toggleSleepCustom()">
-              <span class="diet-card-emoji">✏️</span>
-              <span class="diet-card-label">직접 입력</span>
-            </button>
-          </div>
-          <div class="custom-ex-wrap" id="sleep-custom-wrap">
-            <input type="number" class="ch-form-input" id="sleep-custom-input" placeholder="수면 시간을 입력하세요 (예: 6.5)" min="0" max="24" step="0.5" oninput="_sleepHours = parseFloat(this.value) || null">
           </div>
         </div>
       </div>
@@ -3908,7 +3909,7 @@ function toggleHC(type) {
   btn.classList.toggle('active', opening);
   if (!opening) {
     if (type === 'diet')  { _dietRating = null; _mealTypes = []; document.querySelectorAll('[id^="diet-"],.hc-meal-chip').forEach(e => e.classList.remove('on')); }
-    if (type === 'sleep') { _sleepHours = null; document.querySelectorAll('#sleep-great,#sleep-good,#sleep-short,#sleep-bad,#sleep-over,#sleep-custom-btn').forEach(e => e.classList.remove('on')); document.getElementById('sleep-custom-wrap')?.classList.remove('show'); }
+    if (type === 'sleep') { _sleepHours = 7; document.getElementById('sleep-val').textContent = '7'; document.querySelectorAll('#sleep-great,#sleep-good,#sleep-short,#sleep-bad,#sleep-over').forEach(e => e.classList.remove('on')); }
     if (type === 'supp')  { clearSuppSection(); }
   }
 }
@@ -3939,29 +3940,16 @@ function setDiet(rating) {
 }
 function changeSleep(delta) {
   haptic('light');
-  _sleepHours = Math.max(2, Math.min(12, (_sleepHours || 7) + delta));
-  document.getElementById('sleep-val') && (document.getElementById('sleep-val').textContent = _sleepHours % 1 === 0 ? _sleepHours : _sleepHours.toFixed(1));
+  const cur = typeof _sleepHours === 'number' ? _sleepHours : 7;
+  _sleepHours = Math.max(2, Math.min(12, cur + delta));
+  document.getElementById('sleep-val').textContent = _sleepHours % 1 === 0 ? _sleepHours : _sleepHours.toFixed(1);
+  document.querySelectorAll('#sleep-great,#sleep-good,#sleep-short,#sleep-bad,#sleep-over').forEach(e => e.classList.remove('on'));
 }
 function setSleepCard(rating) {
   haptic('light');
   _sleepHours = rating;
-  document.querySelectorAll('#sleep-great,#sleep-good,#sleep-short,#sleep-bad,#sleep-over,#sleep-custom-btn').forEach(e => e.classList.remove('on'));
-  document.getElementById('sleep-custom-wrap')?.classList.remove('show');
+  document.querySelectorAll('#sleep-great,#sleep-good,#sleep-short,#sleep-bad,#sleep-over').forEach(e => e.classList.remove('on'));
   document.getElementById('sleep-' + rating)?.classList.add('on');
-}
-function toggleSleepCustom() {
-  const wrap = document.getElementById('sleep-custom-wrap');
-  const btn  = document.getElementById('sleep-custom-btn');
-  const open = !wrap.classList.contains('show');
-  wrap.classList.toggle('show', open);
-  btn.classList.toggle('on', open);
-  if (open) {
-    document.querySelectorAll('#sleep-great,#sleep-good,#sleep-short,#sleep-bad,#sleep-over').forEach(e => e.classList.remove('on'));
-    document.getElementById('sleep-custom-input').focus();
-    _sleepHours = null;
-  } else {
-    _sleepHours = null;
-  }
 }
 function setSupp(val) {
   haptic('light');
@@ -3979,8 +3967,7 @@ function setSupp(val) {
 function resetHealthChecks() {
   document.querySelectorAll('[id^="diet-"]').forEach(e => e.classList.remove('on'));
   _dietRating = null; _mealTypes = []; _sleepHours = null;
-  document.querySelectorAll('#sleep-great,#sleep-good,#sleep-short,#sleep-bad,#sleep-over,#sleep-custom-btn').forEach(e => e.classList.remove('on'));
-  document.getElementById('sleep-custom-wrap')?.classList.remove('show');
+  document.querySelectorAll('#sleep-great,#sleep-good,#sleep-short,#sleep-bad,#sleep-over').forEach(e => e.classList.remove('on'));
   clearSuppSection();
 }
 function clearSuppSection() {
