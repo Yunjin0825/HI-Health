@@ -3171,11 +3171,36 @@ function renderHome() {
   const todayMins = tw.reduce((s,w) => s+w.duration, 0);
   const todayPts  = tw.reduce((s,w) => s+w.points, 0);
 
-  const greetings = [
-    '안녕하세요! 오늘도 건강하게 👋',
-    '오늘도 파이팅! 함께 해요 💪',
-    '건강한 하루 시작해볼까요? 🌿',
-  ];
+  const hour = new Date().getHours();
+  let greetings;
+  if (hour >= 5 && hour < 12) {
+    greetings = [
+      '안녕하세요! 오늘도 건강하게 👋',
+      '좋은 아침이에요! 오늘도 몸을 움직여볼까요? 🌅',
+      '상쾌한 아침, 가볍게 스트레칭으로 시작해보세요 🤸',
+      '건강한 하루 시작해볼까요? 🌿',
+    ];
+  } else if (hour >= 12 && hour < 18) {
+    greetings = [
+      '편안한 오후 보내고 계신가요? 가볍게 걷기라도 시작해보세요 🚶',
+      '오후의 짧은 산책이 기분을 한층 가볍게 해줄 거예요 🌤️',
+      '잠깐 자리에서 일어나 몸을 움직여볼까요? 💫',
+      '오늘 오후도 건강하게 보내고 있나요? 🌸',
+    ];
+  } else if (hour >= 18 && hour < 22) {
+    greetings = [
+      '오늘 하루도 수고하셨어요! 저녁 운동으로 마무리해볼까요? 🌙',
+      '저녁 시간, 가벼운 요가나 스트레칭 어떠세요? 🧘',
+      '하루의 피로를 운동으로 날려버려요 ✨',
+      '안녕하세요! 오늘도 건강하게 👋',
+    ];
+  } else {
+    greetings = [
+      '충분한 숙면은 좋은 세포를 만드는 데 도움이 돼요 🌙',
+      '오늘도 잘 하셨어요! 푹 쉬고 내일도 함께해요 💤',
+      '편안한 밤 되세요. 수면도 건강의 일부예요 🌟',
+    ];
+  }
   document.getElementById('hero-greeting').textContent = greetings[Math.floor(Math.random() * greetings.length)];
   document.getElementById('hero-name').textContent = myDisplayName() + '님';
   const tagsEl = document.getElementById('hero-tags');
