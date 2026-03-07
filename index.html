@@ -533,7 +533,7 @@
       position: absolute; top: 50%; left: 0;
       transform: translate(-50%, -50%) rotate(0deg) scaleX(1);
       font-size: 18px; line-height: 1;
-      transition: left 3.2s cubic-bezier(0.34, 1.06, 0.64, 1);
+      transition: left 3.2s cubic-bezier(0.34, 0.98, 0.64, 1);
       animation: runnerAnim 2.2s ease-in-out 3.0s 1 forwards;
       pointer-events: none;
       filter: drop-shadow(0 2px 4px rgba(0,0,0,0.18));
@@ -2131,7 +2131,8 @@
         </div>
         <div class="share-expand" id="share-expand">
           <div class="share-expand-inner">
-            <textarea class="share-msg-input" id="share-msg" rows="5" placeholder="공유할 메시지를 입력하세요..." oninput="_shareMsgAuto=false"></textarea>
+            <textarea class="share-msg-input" id="share-msg" rows="5" placeholder="공유할 메시지를 입력하세요..." oninput="_shareMsgAuto=false; updateShareDiff()"></textarea>
+            <div id="share-diff" style="display:none; font-size:12px; line-height:1.8; margin-top:6px; padding:8px 10px; background:var(--bg); border-radius:8px; border:1px solid var(--border)"></div>
             <div class="share-hint">💡 내가 기록한 항목들이 자동으로 태그됩니다</div>
             <button type="button" class="btn btn-primary" id="share-submit-btn" onclick="submitShareNow()" style="width:100%;margin-top:10px;border-radius:12px">지금 공유하기</button>
           </div>
@@ -2538,7 +2539,7 @@ const LEVELS = [
       </circle>
     </svg>` },
   { lv:2, name:'초보자', min:200,  max:499,  color:'#84CC16',
-    icon:`<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" style="vertical-align:middle">
+    icon:`<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" width="0.78em" height="0.78em" style="vertical-align:middle">
       <g><animateTransform attributeName="transform" type="rotate" values="0 20 20;360 20 20" dur="10s" repeatCount="indefinite"/>
         <ellipse cx="20" cy="5.5" rx="2.2" ry="5" fill="#FDE68A"/>
         <ellipse cx="20" cy="5.5" rx="2.2" ry="5" fill="#FCD34D" transform="rotate(45 20 20)"/>
@@ -3124,7 +3125,17 @@ function load() {
 
 function saveTodayLog() {
   const today = new Date().toDateString();
-  S.todayLog = { date: today, dietRating: _dietRating, mealTypes: [..._mealTypes], sleepHours: _sleepHours, sleepCard: _sleepCard, suppTaken: _suppTaken, suppList: [..._suppList] };
+  const sleepCustomShown = document.getElementById('sleep-custom-wrap')?.classList.contains('show');
+  S.todayLog = {
+    date: today,
+    dietRating: _dietRating,
+    mealTypes: [..._mealTypes],
+    sleepHours: _sleepHours,
+    sleepCard: _sleepCard,
+    sleepCustomVal: sleepCustomShown ? (document.getElementById('sleep-custom-input')?.value || '') : '',
+    suppTaken: _suppTaken,
+    suppList: [..._suppList],
+  };
   save();
 }
 
@@ -3142,17 +3153,45 @@ function loadTodayLog() {
   _suppTaken  = d.suppTaken  || null;
   _suppList   = d.suppList   || [];
   // UI 복원
+  const presetDietKeys = ['good', 'norm', 'snack', 'over', 'bad'];
   const dietMap = { good:'diet-good', norm:'diet-norm', snack:'diet-snack', over:'diet-over', bad:'diet-bad' };
-  if (_dietRating && dietMap[_dietRating]) document.getElementById(dietMap[_dietRating])?.classList.add('on');
+  if (_dietRating) {
+    if (dietMap[_dietRating]) {
+      document.getElementById(dietMap[_dietRating])?.classList.add('on');
+    } else {
+      // 직접입력 복원
+      const inp = document.getElementById('diet-custom-input');
+      if (inp) inp.value = _dietRating;
+      document.getElementById('diet-custom-wrap')?.classList.add('show');
+      document.getElementById('diet-custom-btn')?.classList.add('on');
+    }
+  }
   _mealTypes.forEach(n => document.querySelector('.hc-meal-chip[data-name="'+n+'"]')?.classList.add('on'));
   if (_sleepCard) {
     document.getElementById('sleep-val').textContent = _sleepHours !== null ? (_sleepHours % 1 === 0 ? _sleepHours : _sleepHours.toFixed(1)) : '7';
     document.getElementById('sleep-' + _sleepCard)?.classList.add('on');
+  } else if (d.sleepCustomVal) {
+    // 수면 직접입력 복원
+    const inp = document.getElementById('sleep-custom-input');
+    if (inp) inp.value = d.sleepCustomVal;
+    document.getElementById('sleep-custom-wrap')?.classList.add('show');
+    document.getElementById('sleep-custom-btn')?.classList.add('on');
   } else if (_sleepHours !== null) {
     document.getElementById('sleep-val').textContent = _sleepHours % 1 === 0 ? _sleepHours : _sleepHours.toFixed(1);
   }
+  const presetSuppKeys = ['all', 'partial', 'forgot', 'no', 'empty'];
   const suppCardMap = { all:'supp-all', partial:'supp-partial', forgot:'supp-forgot', no:'supp-no', empty:'supp-empty' };
-  if (_suppTaken && suppCardMap[_suppTaken]) document.getElementById(suppCardMap[_suppTaken])?.classList.add('on');
+  if (_suppTaken) {
+    if (suppCardMap[_suppTaken]) {
+      document.getElementById(suppCardMap[_suppTaken])?.classList.add('on');
+    } else {
+      // 영양제 직접입력 복원
+      const inp = document.getElementById('supp-card-custom-input');
+      if (inp) inp.value = _suppTaken;
+      document.getElementById('supp-card-custom-wrap')?.classList.add('show');
+      document.getElementById('supp-custom-card')?.classList.add('on');
+    }
+  }
   _suppList.forEach(n => document.querySelector('.hc-supp-preset[data-name="'+n+'"]')?.classList.add('on'));
   // 사진 복원
   try {
@@ -3452,8 +3491,8 @@ function renderHome() {
     ? ((S.user.points - lv.min) / (nextLv.min - lv.min) * 100).toFixed(1)
     : '100';
   const dot = document.getElementById('lv-bar-dot');
-  const BAR_TRANSITION = 'width 3.2s cubic-bezier(0.34,1.06,0.64,1)';
-  const DOT_TRANSITION = 'left 3.2s cubic-bezier(0.34,1.06,0.64,1)';
+  const BAR_TRANSITION = 'width 3.2s cubic-bezier(0.34,0.98,0.64,1)';
+  const DOT_TRANSITION = 'left 3.2s cubic-bezier(0.34,0.98,0.64,1)';
   bar.style.transition = 'none'; bar.style.width = '0%';
   if (dot) { dot.style.transition = 'none'; dot.style.left = '0%'; dot.style.opacity = '0'; }
   requestAnimationFrame(() => requestAnimationFrame(() => {
@@ -3742,6 +3781,7 @@ function toggleShare() {
       document.getElementById('share-submit-btn').textContent = '수정하기';
       _shareMsgAuto = true;
       updateSharePreview();
+      _shareOrigMsg = buildDayMessage();
     } else {
       _shareRewrite = false;
       document.getElementById('share-toggle-sub').textContent = '오늘 나의 하루를 친구들과 나눠보세요';
@@ -3807,10 +3847,13 @@ function submitShareNow() {
   _shareOn = false;
   _shareRewrite = false;
   _shareMsgAuto = false;
+  _shareOrigMsg = '';
   msgEl.value = '';
   document.getElementById('share-toggle-btn').classList.remove('on');
   document.getElementById('share-expand').classList.remove('show');
   document.getElementById('share-toggle-sub').textContent = '오늘 나의 하루를 친구들과 나눠보세요';
+  const diffEl = document.getElementById('share-diff');
+  if (diffEl) diffEl.style.display = 'none';
   save();
   const commFeed = document.getElementById('posts-feed');
   if (commFeed) renderCommunity();
@@ -3819,6 +3862,19 @@ function submitShareNow() {
 let _sharePhoto  = false;
 let _shareHealth = false;
 let _shareMsgAuto = false;
+let _shareOrigMsg = '';
+
+function updateShareDiff() {
+  const el = document.getElementById('share-diff');
+  if (!el || !_shareRewrite || !_shareOrigMsg) { if (el) el.style.display = 'none'; return; }
+  const origLines = _shareOrigMsg.split('\n').filter(l => l.trim());
+  const curLines  = (document.getElementById('share-msg').value || '').split('\n').filter(l => l.trim());
+  const removed   = origLines.filter(l => !curLines.some(c => c.trim() === l.trim()));
+  if (!removed.length) { el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  el.innerHTML = '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">삭제된 항목</div>'
+    + removed.map(l => `<div style="text-decoration:line-through;color:var(--text-muted);opacity:0.7">${l}</div>`).join('');
+}
 
 function buildDayMessage() {
   const lines = [];
@@ -4388,7 +4444,6 @@ function todayGlucoseRecords() {
 }
 
 function logGlucoseStandalone() {
-  if (!_glucoseTiming) { haptic('error'); showToast('측정 시점을 선택해주세요'); return; }
   // 하루 기록 횟수 제한
   const todayGl = todayGlucoseRecords();
   if (todayGl.length >= DAILY_GLUCOSE_LIMIT) {
@@ -4396,8 +4451,8 @@ function logGlucoseStandalone() {
     showToast(`⚠️ 하루 최대 ${DAILY_GLUCOSE_LIMIT}회까지 혈당을 기록할 수 있어요`);
     return;
   }
-  // 같은 시점 중복 기록 방지
-  if (todayGl.some(r => r.timing === _glucoseTiming)) {
+  // 같은 시점 중복 기록 방지 (시점 선택 시에만)
+  if (_glucoseTiming && todayGl.some(r => r.timing === _glucoseTiming)) {
     haptic('error');
     showToast(`⚠️ 오늘 '${_glucoseTiming}' 혈당은 이미 기록했어요`);
     return;
@@ -4571,7 +4626,7 @@ function renderGlucose() {
     return `<div class="glucose-item">
       <div class="glucose-badge"><span class="glucose-badge-val">${r.value}</span><span class="glucose-val-unit">mg/dL</span></div>
       <div class="glucose-info">
-        <span class="glucose-timing-lbl">${r.timing}</span>
+        ${r.timing ? `<span class="glucose-timing-lbl">${r.timing}</span>` : ''}
         <span class="glucose-time">${timeStr}</span>
       </div>
       <span class="glucose-status-tag ${st.cls}">${st.label}</span>
