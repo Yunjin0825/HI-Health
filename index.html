@@ -530,8 +530,8 @@
     }
     .qi-icon svg { width: 26px !important; height: 26px !important; }
     .qi-title, .qi-sub { position: relative; z-index: 1; }
-    .quick-btn:hover::before { transform: scale(1); opacity: 1; }
-    .quick-btn:hover .qi-icon { color: #5F0080; }
+    .quick-btn:hover::before, .quick-btn.clicked::before { transform: scale(1); opacity: 1; }
+    .quick-btn:hover .qi-icon, .quick-btn.clicked .qi-icon { color: #5F0080; }
     .quick-btn:active::before { transform: scale(0.94); }
     .qi-title { font-size: 13px; font-weight: 600; }
     .qi-sub { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
@@ -1670,7 +1670,7 @@
     </div>
 
     <div class="quick-grid">
-      <button class="quick-btn" onclick="navigate('exercise')">
+      <button class="quick-btn" onclick="quickNav(this,()=>navigate('exercise'))">
         <div class="qi-icon">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <path d="M6.5 6.5h1a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1z"/>
@@ -1681,7 +1681,7 @@
         </div>
         <div><div class="qi-title">운동 기록</div><div class="qi-sub">오늘 운동 추가</div></div>
       </button>
-      <button class="quick-btn" onclick="navigate('community'); setCommunityTab('league')">
+      <button class="quick-btn" onclick="quickNav(this,()=>{navigate('community');setCommunityTab('league')})">
         <div class="qi-icon">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
             <path d="M8 6h8v8a4 4 0 0 1-8 0V6Z"/><path d="M8 9H5a2 2 0 0 0 0 4h3"/><path d="M16 9h3a2 2 0 0 1 0 4h-3"/>
@@ -1690,7 +1690,7 @@
         </div>
         <div><div class="qi-title">내 순위</div><div class="qi-sub" id="my-rank-quick">순위 확인</div></div>
       </button>
-      <button class="quick-btn" onclick="navigate('community')">
+      <button class="quick-btn" onclick="quickNav(this,()=>navigate('community'))">
         <div class="qi-icon">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2v-1"/>
@@ -1699,7 +1699,7 @@
         </div>
         <div><div class="qi-title">커뮤니티</div><div class="qi-sub">응원 메시지 보기</div></div>
       </button>
-      <button class="quick-btn" onclick="navigate('rewards')">
+      <button class="quick-btn" onclick="quickNav(this,()=>navigate('rewards'))">
         <div class="qi-icon">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="8" r="6"/>
@@ -2915,6 +2915,19 @@ function myWeekPts() {
 /* ════════════════════════════════════════
    NAVIGATION
 ════════════════════════════════════════ */
+const _isTouch = () => window.matchMedia('(hover: none)').matches;
+function quickNav(btn, fn) {
+  if (!_isTouch()) { fn(); return; }
+  if (btn._ready) {
+    btn._ready = false;
+    btn.classList.remove('clicked');
+    fn();
+  } else {
+    btn._ready = true;
+    btn.classList.add('clicked');
+  }
+}
+
 function navigate(page) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -4391,7 +4404,7 @@ function closeComments() {
   _commentPostId = null;
 }
 function renderCommentList() {
-  const post = S.posts.find(p => p.id === _commentPostId);
+  const post = S.posts.find(p => p.id === _commentPostId) || (S.communityPosts || []).find(p => p.id === _commentPostId);
   if (!post) return;
   const list = post.commentList || [];
   const el = document.getElementById('cm-list');
@@ -4417,7 +4430,7 @@ function submitComment() {
   const body = input.value.trim();
   if (!body) return;
   haptic('medium');
-  const post = S.posts.find(p => p.id === _commentPostId);
+  const post = S.posts.find(p => p.id === _commentPostId) || (S.communityPosts || []).find(p => p.id === _commentPostId);
   if (!post) return;
   if (!post.commentList) post.commentList = [];
   const lv = getLevel(S.user.points);
@@ -4438,7 +4451,7 @@ function submitComment() {
 
 function react(postId, stickerId) {
   haptic('light');
-  const post = S.posts.find(p => p.id === postId);
+  const post = S.posts.find(p => p.id === postId) || (S.communityPosts || []).find(p => p.id === postId);
   if (!post) return;
   if (!S.myReactions[postId]) S.myReactions[postId] = [];
   const myR = S.myReactions[postId];
