@@ -1930,67 +1930,74 @@
     </div>
 
     <div class="card today-log-card">
-      <p class="card-title" style="margin-bottom:16px">오늘 하루는 어땠나요?</p>
-
-      <!-- 식단 -->
-      <div class="hc-section" id="hc-diet-sec">
-        <div class="hc-sec-title">🥗 식단</div>
-        <div class="hc-rate-row">
-          <button type="button" class="hc-rate-btn" id="diet-good"  onclick="setDiet('잘먹음')">잘먹음</button>
-          <button type="button" class="hc-rate-btn" id="diet-norm"  onclick="setDiet('보통')">보통</button>
-          <button type="button" class="hc-rate-btn" id="diet-over"  onclick="setDiet('과식')">과식</button>
-          <button type="button" class="hc-rate-btn" id="diet-bad"   onclick="setDiet('불량')">불량</button>
-        </div>
-        <div class="hc-sub-label">식사 종류</div>
-        <div class="hc-sub-chips">
-          <button type="button" class="hc-sub-chip hc-meal-chip" data-name="아침" onclick="toggleMeal('아침')">아침</button>
-          <button type="button" class="hc-sub-chip hc-meal-chip" data-name="아점" onclick="toggleMeal('아점')">아점</button>
-          <button type="button" class="hc-sub-chip hc-meal-chip" data-name="점심" onclick="toggleMeal('점심')">점심</button>
-          <button type="button" class="hc-sub-chip hc-meal-chip" data-name="저녁" onclick="toggleMeal('저녁')">저녁</button>
-          <button type="button" class="hc-sub-chip hc-meal-chip" data-name="간식" onclick="toggleMeal('간식')">간식</button>
-          <button type="button" class="hc-sub-chip hc-meal-chip" data-name="야식" onclick="toggleMeal('야식')">야식</button>
-        </div>
+      <div class="ex-hero-tabs">
+        <button class="ex-hero-tab active" id="today-tab-diet"  onclick="setTodayTab('diet')">🥗 식단</button>
+        <button class="ex-hero-tab"        id="today-tab-sleep" onclick="setTodayTab('sleep')">😴 수면</button>
+        <button class="ex-hero-tab"        id="today-tab-supp"  onclick="setTodayTab('supp')">💊 영양제</button>
       </div>
 
-      <!-- 수면 -->
-      <div class="hc-section" id="hc-sleep-sec">
-        <div class="hc-sec-title">😴 수면</div>
-        <div class="hc-sleep-row">
-          <button type="button" class="dur-btn" onclick="changeSleep(-0.5)">−</button>
-          <div>
-            <div class="hc-sleep-val" id="sleep-val">7</div>
-            <div class="hc-sleep-unit">시간</div>
+      <!-- 식단 panel -->
+      <div id="today-panel-diet">
+        <div class="hc-section" id="hc-diet-sec" style="border-top:none">
+          <div class="hc-rate-row">
+            <button type="button" class="hc-rate-btn" id="diet-good"  onclick="setDiet('잘먹음')">잘먹음</button>
+            <button type="button" class="hc-rate-btn" id="diet-norm"  onclick="setDiet('보통')">보통</button>
+            <button type="button" class="hc-rate-btn" id="diet-over"  onclick="setDiet('과식')">과식</button>
+            <button type="button" class="hc-rate-btn" id="diet-bad"   onclick="setDiet('불량')">불량</button>
           </div>
-          <button type="button" class="dur-btn" onclick="changeSleep(0.5)">+</button>
-        </div>
-      </div>
-
-      <!-- 영양제 -->
-      <div class="hc-section" id="hc-supp-sec">
-        <div class="hc-sec-title">💊 영양제</div>
-        <div class="hc-rate-row">
-          <button type="button" class="hc-rate-btn" id="supp-yes" onclick="setSupp(true)">복용완료</button>
-          <button type="button" class="hc-rate-btn" id="supp-no"  onclick="setSupp(false)">미복용</button>
-        </div>
-        <div class="hc-supp-detail" id="hc-supp-detail">
-          <div class="hc-sub-label">복용한 영양제</div>
+          <div class="hc-sub-label">식사 종류</div>
           <div class="hc-sub-chips">
-            <button type="button" class="hc-sub-chip hc-supp-preset" data-name="비타민C"    onclick="toggleSuppItem('비타민C')">비타민C</button>
-            <button type="button" class="hc-sub-chip hc-supp-preset" data-name="비타민D"    onclick="toggleSuppItem('비타민D')">비타민D</button>
-            <button type="button" class="hc-sub-chip hc-supp-preset" data-name="오메가3"    onclick="toggleSuppItem('오메가3')">오메가3</button>
-            <button type="button" class="hc-sub-chip hc-supp-preset" data-name="철분"       onclick="toggleSuppItem('철분')">철분</button>
-            <button type="button" class="hc-sub-chip hc-supp-preset" data-name="칼슘"       onclick="toggleSuppItem('칼슘')">칼슘</button>
-            <button type="button" class="hc-sub-chip hc-supp-preset" data-name="마그네슘"   onclick="toggleSuppItem('마그네슘')">마그네슘</button>
-            <button type="button" class="hc-sub-chip hc-supp-preset" data-name="유산균"     onclick="toggleSuppItem('유산균')">유산균</button>
-            <button type="button" class="hc-sub-chip hc-supp-preset" data-name="종합비타민" onclick="toggleSuppItem('종합비타민')">종합비타민</button>
-            <button type="button" class="hc-sub-chip hc-supp-preset" data-name="아르기닌"   onclick="toggleSuppItem('아르기닌')">아르기닌</button>
-            <button type="button" class="hc-sub-chip hc-supp-preset" data-name="코큐텐"     onclick="toggleSuppItem('코큐텐')">코큐텐</button>
+            <button type="button" class="hc-sub-chip hc-meal-chip" data-name="아침" onclick="toggleMeal('아침')">아침</button>
+            <button type="button" class="hc-sub-chip hc-meal-chip" data-name="아점" onclick="toggleMeal('아점')">아점</button>
+            <button type="button" class="hc-sub-chip hc-meal-chip" data-name="점심" onclick="toggleMeal('점심')">점심</button>
+            <button type="button" class="hc-sub-chip hc-meal-chip" data-name="저녁" onclick="toggleMeal('저녁')">저녁</button>
+            <button type="button" class="hc-sub-chip hc-meal-chip" data-name="간식" onclick="toggleMeal('간식')">간식</button>
+            <button type="button" class="hc-sub-chip hc-meal-chip" data-name="야식" onclick="toggleMeal('야식')">야식</button>
           </div>
-          <div class="hc-custom-supp">
-            <input type="text" id="supp-custom-input" placeholder="기타 직접 입력" maxlength="20">
-            <button type="button" onclick="addCustomSupp()">추가</button>
+        </div>
+      </div>
+
+      <!-- 수면 panel -->
+      <div id="today-panel-sleep" style="display:none">
+        <div class="hc-section" id="hc-sleep-sec" style="border-top:none">
+          <div class="hc-sleep-row">
+            <button type="button" class="dur-btn" onclick="changeSleep(-0.5)">−</button>
+            <div>
+              <div class="hc-sleep-val" id="sleep-val">7</div>
+              <div class="hc-sleep-unit">시간</div>
+            </div>
+            <button type="button" class="dur-btn" onclick="changeSleep(0.5)">+</button>
           </div>
-          <div class="hc-sub-chips hc-custom-list" id="supp-custom-list"></div>
+        </div>
+      </div>
+
+      <!-- 영양제 panel -->
+      <div id="today-panel-supp" style="display:none">
+        <div class="hc-section" id="hc-supp-sec" style="border-top:none">
+          <div class="hc-rate-row">
+            <button type="button" class="hc-rate-btn" id="supp-yes" onclick="setSupp(true)">복용완료</button>
+            <button type="button" class="hc-rate-btn" id="supp-no"  onclick="setSupp(false)">미복용</button>
+          </div>
+          <div class="hc-supp-detail" id="hc-supp-detail">
+            <div class="hc-sub-label">복용한 영양제</div>
+            <div class="hc-sub-chips">
+              <button type="button" class="hc-sub-chip hc-supp-preset" data-name="비타민C"    onclick="toggleSuppItem('비타민C')">비타민C</button>
+              <button type="button" class="hc-sub-chip hc-supp-preset" data-name="비타민D"    onclick="toggleSuppItem('비타민D')">비타민D</button>
+              <button type="button" class="hc-sub-chip hc-supp-preset" data-name="오메가3"    onclick="toggleSuppItem('오메가3')">오메가3</button>
+              <button type="button" class="hc-sub-chip hc-supp-preset" data-name="철분"       onclick="toggleSuppItem('철분')">철분</button>
+              <button type="button" class="hc-sub-chip hc-supp-preset" data-name="칼슘"       onclick="toggleSuppItem('칼슘')">칼슘</button>
+              <button type="button" class="hc-sub-chip hc-supp-preset" data-name="마그네슘"   onclick="toggleSuppItem('마그네슘')">마그네슘</button>
+              <button type="button" class="hc-sub-chip hc-supp-preset" data-name="유산균"     onclick="toggleSuppItem('유산균')">유산균</button>
+              <button type="button" class="hc-sub-chip hc-supp-preset" data-name="종합비타민" onclick="toggleSuppItem('종합비타민')">종합비타민</button>
+              <button type="button" class="hc-sub-chip hc-supp-preset" data-name="아르기닌"   onclick="toggleSuppItem('아르기닌')">아르기닌</button>
+              <button type="button" class="hc-sub-chip hc-supp-preset" data-name="코큐텐"     onclick="toggleSuppItem('코큐텐')">코큐텐</button>
+            </div>
+            <div class="hc-custom-supp">
+              <input type="text" id="supp-custom-input" placeholder="기타 직접 입력" maxlength="20">
+              <button type="button" onclick="addCustomSupp()">추가</button>
+            </div>
+            <div class="hc-sub-chips hc-custom-list" id="supp-custom-list"></div>
+          </div>
         </div>
       </div>
 
@@ -3360,6 +3367,13 @@ let _woViewMode = 'recent';
 let _woMonthOffset = 0;
 let _woShowCount = 5;
 let _woTypeFilter = 'all';
+
+function setTodayTab(tab) {
+  ['diet','sleep','supp'].forEach(t => {
+    document.getElementById('today-tab-' + t)?.classList.toggle('active', t === tab);
+    document.getElementById('today-panel-' + t).style.display = t === tab ? '' : 'none';
+  });
+}
 
 function setRecordTab(tab) {
   ['exercise','glucose'].forEach(t => {
