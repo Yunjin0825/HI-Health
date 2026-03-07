@@ -2789,7 +2789,11 @@ function save() {
       glucoseRecords: S.glucoseRecords,
     }));
   } catch(e) {}
-  // 사용자 정보 구글 시트 동기화
+  // 태그를 별도 키에 저장 (로그아웃 후에도 유지)
+  if (S.user.empId && S.user.tags?.length) {
+    localStorage.setItem('hi_health_tags_' + S.user.empId, JSON.stringify(S.user.tags));
+  }
+  // 사용자 정보 Supabase 동기화 (tags는 문자열로 저장)
   apiSync('syncUser', {
     deviceId: S.deviceId,
     name: S.user.name,
@@ -2798,7 +2802,7 @@ function save() {
     dept: S.user.dept || '',
     points: S.user.points,
     streak: S.user.streak,
-    tags: S.user.tags || [],
+    tags: (S.user.tags || []).join(','),
     registrationId: S.user.registrationId || '',
   });
 }
@@ -5373,6 +5377,13 @@ async function doAppLogin() {
   SHOP_CART_KEY   = 'hi_health_cart_' + regId;
   load();
   if (!S.user.name) S.user.name = inputName;
+  // 태그 복구: 로그아웃 후 localStorage에서 복원
+  if (!S.user.tags?.length) {
+    try {
+      const saved = JSON.parse(localStorage.getItem('hi_health_tags_' + regId));
+      if (saved?.length) S.user.tags = saved;
+    } catch(e) {}
+  }
 
   S.user.empId = S.user.empId || ACTIVE_EMPID;
   if (!S.user.name) S.user.name = inputName;
