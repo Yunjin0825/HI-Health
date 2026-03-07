@@ -1948,11 +1948,12 @@
             <button type="button" class="hc-sub-chip hc-meal-chip" data-name="간식" onclick="toggleMeal('간식')">간식</button>
             <button type="button" class="hc-sub-chip hc-meal-chip" data-name="야식" onclick="toggleMeal('야식')">야식</button>
           </div>
-          <div class="hc-rate-row">
-            <button type="button" class="hc-rate-btn" id="diet-good"  onclick="setDiet('잘먹음')">잘먹음</button>
-            <button type="button" class="hc-rate-btn" id="diet-norm"  onclick="setDiet('보통')">보통</button>
-            <button type="button" class="hc-rate-btn" id="diet-over"  onclick="setDiet('과식')">과식</button>
-            <button type="button" class="hc-rate-btn" id="diet-bad"   onclick="setDiet('불량')">불량</button>
+          <div class="hc-rate-row" style="margin-top:4px">
+            <button type="button" class="hc-rate-btn" id="diet-good"  onclick="setDiet('good')">매 끼니 잘 챙겨먹었어요</button>
+            <button type="button" class="hc-rate-btn" id="diet-norm"  onclick="setDiet('norm')">보통으로 먹었어요</button>
+            <button type="button" class="hc-rate-btn" id="diet-snack" onclick="setDiet('snack')">간식을 많이 먹었네요</button>
+            <button type="button" class="hc-rate-btn" id="diet-over"  onclick="setDiet('over')">과식을 했어요</button>
+            <button type="button" class="hc-rate-btn" id="diet-bad"   onclick="setDiet('bad')">한 끼를 거른 것 같아요</button>
           </div>
         </div>
       </div>
@@ -3853,9 +3854,9 @@ function toggleHC(type) {
 function setDiet(rating) {
   haptic('light');
   _dietRating = rating;
-  const map = { '잘먹음':'diet-good', '보통':'diet-norm', '과식':'diet-over', '불량':'diet-bad' };
+  const map = { 'good':'diet-good', 'norm':'diet-norm', 'snack':'diet-snack', 'over':'diet-over', 'bad':'diet-bad' };
   document.querySelectorAll('[id^="diet-"]').forEach(e => e.classList.remove('on'));
-  document.getElementById(map[rating]).classList.add('on');
+  if (map[rating]) document.getElementById(map[rating]).classList.add('on');
 }
 function changeSleep(delta) {
   haptic('light');
