@@ -2134,9 +2134,8 @@
         </div>
         <div class="share-expand" id="share-expand">
           <div class="share-expand-inner">
-            <textarea class="share-msg-input" id="share-msg" rows="5" placeholder="공유할 메시지를 입력하세요..." oninput="_shareMsgAuto=false; updateShareDiff()"></textarea>
-            <div id="share-diff" style="display:none; font-size:12px; line-height:1.8; margin-top:6px; padding:8px 10px; background:var(--bg); border-radius:8px; border:1px solid var(--border)"></div>
-            <div class="share-hint">💡 내가 기록한 항목들이 자동으로 태그됩니다</div>
+            <textarea class="share-msg-input" id="share-msg" rows="5" placeholder="공유할 메시지를 입력하세요..." oninput="_shareMsgAuto=false"></textarea>
+            <div class="share-hint">💡 내가 기록한 항목들이 자동으로 태그됩니다. 메모는 자유롭게 편집하실 수 있습니다.</div>
             <button type="button" class="btn btn-primary" id="share-submit-btn" onclick="submitShareNow()" style="width:100%;margin-top:10px;border-radius:12px">지금 공유하기</button>
           </div>
         </div>
@@ -3802,10 +3801,9 @@ function toggleShare() {
       _shareRewrite = true;
       document.getElementById('share-toggle-sub').textContent = '오늘 이미 공유했어요 · 다시 작성하면 덮어씌워져요';
       document.getElementById('share-submit-btn').textContent = '수정하기';
-      _shareOrigMsg = existing.body || '';
       _shareMsgAuto = false;
       const _rwMsgEl = document.getElementById('share-msg');
-      if (_rwMsgEl) _rwMsgEl.value = _shareOrigMsg;
+      if (_rwMsgEl) _rwMsgEl.value = existing.body || '';
       updateSharePreview();
     } else {
       _shareRewrite = false;
@@ -3872,13 +3870,10 @@ function submitShareNow() {
   _shareOn = false;
   _shareRewrite = false;
   _shareMsgAuto = false;
-  _shareOrigMsg = '';
   msgEl.value = '';
   document.getElementById('share-toggle-btn').classList.remove('on');
   document.getElementById('share-expand').classList.remove('show');
   document.getElementById('share-toggle-sub').textContent = '오늘 나의 하루를 친구들과 나눠보세요';
-  const diffEl = document.getElementById('share-diff');
-  if (diffEl) diffEl.style.display = 'none';
   save();
   const commFeed = document.getElementById('posts-feed');
   if (commFeed) renderCommunity();
@@ -3887,19 +3882,6 @@ function submitShareNow() {
 let _sharePhoto  = false;
 let _shareHealth = false;
 let _shareMsgAuto = false;
-let _shareOrigMsg = '';
-
-function updateShareDiff() {
-  const el = document.getElementById('share-diff');
-  if (!el || !_shareRewrite || !_shareOrigMsg) { if (el) el.style.display = 'none'; return; }
-  const origLines = _shareOrigMsg.split('\n').filter(l => l.trim());
-  const curLines  = (document.getElementById('share-msg').value || '').split('\n').filter(l => l.trim());
-  const removed   = origLines.filter(l => !curLines.some(c => c.trim() === l.trim()));
-  if (!removed.length) { el.style.display = 'none'; return; }
-  el.style.display = 'block';
-  el.innerHTML = '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">삭제된 항목</div>'
-    + removed.map(l => `<div style="text-decoration:line-through;color:var(--text-muted);opacity:0.7">${l}</div>`).join('');
-}
 
 function buildDayMessage() {
   const lines = [];
