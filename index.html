@@ -1899,8 +1899,11 @@
           <button type="button" class="ex-type-btn" id="sa-gt-after2h"  onclick="setGlucoseTiming('식후2h')">식후 2h</button>
           <button type="button" class="ex-type-btn" id="sa-gt-before"   onclick="setGlucoseTiming('식전')">식전</button>
           <button type="button" class="ex-type-btn" id="sa-gt-bedtime"  onclick="setGlucoseTiming('취침전')">취침 전</button>
+          <button type="button" class="ex-type-btn" id="sa-gt-time" onclick="toggleGlucoseTimeInput()">🕐 시간</button>
         </div>
-        <input type="time" id="sa-glucose-time" class="glucose-time-input" style="margin-top:8px" oninput="_glucoseTime=this.value">
+        <div class="custom-ex-wrap" id="sa-glucose-time-wrap">
+          <input type="time" id="sa-glucose-time" class="glucose-time-input" oninput="_glucoseTime=this.value">
+        </div>
         <div class="glucose-input-wrap-sa">
           <button type="button" class="dur-btn" onclick="changeGlucoseVal(-5)">−</button>
           <div class="glucose-val-display">
@@ -3909,7 +3912,20 @@ let _glucoseTime   = '';
 
 const GLUCOSE_TIMINGS = ['공복','식후','식후2h','식전','취침전'];
 const TIMING_ID_MAP = { '공복':'fasting', '식후':'after', '식후2h':'after2h', '식전':'before', '취침전':'bedtime' };
-function toggleGlucoseTimeInput() {}
+function toggleGlucoseTimeInput() {
+  haptic('light');
+  const wrap = document.getElementById('sa-glucose-time-wrap');
+  const btn  = document.getElementById('sa-gt-time');
+  const isOpen = wrap.classList.toggle('show');
+  btn.classList.toggle('selected', isOpen);
+  if (!isOpen) {
+    _glucoseTime = '';
+    const el = document.getElementById('sa-glucose-time');
+    if (el) el.value = '';
+  } else {
+    document.getElementById('sa-glucose-time')?.focus();
+  }
+}
 
 function getGlucoseStatus(val) {
   if (val < 70)  return { label:'저혈당', cls:'glucose-status-low' };
@@ -3984,6 +4000,8 @@ function logGlucoseStandalone() {
   _glucoseVal = 100; _glucoseTiming = null; _glucoseTime = '';
   const timeEl = document.getElementById('sa-glucose-time');
   if (timeEl) timeEl.value = '';
+  document.getElementById('sa-glucose-time-wrap')?.classList.remove('show');
+  document.getElementById('sa-gt-time')?.classList.remove('selected');
   syncGlucoseUI();
   renderGlucose();
   renderHeader();
