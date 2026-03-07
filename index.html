@@ -4415,7 +4415,7 @@ function renderCommentList() {
   el.innerHTML = list.map(c => {
     const clv = LEVELS[Math.min((c.lv || 1) - 1, LEVELS.length - 1)];
     return `<div class="cm-item">
-      <span class="cm-av">${c.avatar}</span>
+      <span class="cm-av">${avHTML(c.avatar)}</span>
       <div class="cm-bubble">
         <div class="cm-name">${c.name} <span style="font-weight:400;color:var(--text-secondary)">${clv.icon}</span></div>
         <div class="cm-body">${c.body}</div>
