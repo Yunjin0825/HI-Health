@@ -2061,7 +2061,7 @@
               <button type="button" onclick="addSuppDirect()" style="padding:8px 14px;border-radius:var(--radius-sm);border:none;background:var(--primary);color:#fff;font-size:13px;cursor:pointer;white-space:nowrap">추가</button>
             </div>
           </div>
-          <div class="diet-card-grid" style="grid-template-columns:repeat(2,1fr); margin-top:4px">
+          <div class="diet-card-grid" style="grid-template-columns:repeat(3,1fr); margin-top:4px">
             <button type="button" class="diet-card" id="supp-all"     onclick="setSupp('all')">
               <span class="diet-card-emoji">✅</span>
               <span class="diet-card-label">모두 복용했어요</span>
@@ -2078,13 +2078,17 @@
               <span class="diet-card-emoji">❌</span>
               <span class="diet-card-label">오늘은 안했어요</span>
             </button>
+            <button type="button" class="diet-card" id="supp-empty"   onclick="setSupp('empty')">
+              <span class="diet-card-emoji">📦</span>
+              <span class="diet-card-label">영양제가 떨어졌어요</span>
+            </button>
+            <button type="button" class="diet-card" id="supp-custom-card" onclick="toggleSuppCardCustom()">
+              <span class="diet-card-emoji">✏️</span>
+              <span class="diet-card-label">직접 입력</span>
+            </button>
           </div>
-          <div class="hc-supp-detail" id="hc-supp-detail">
-            <div class="hc-custom-supp">
-              <input type="text" id="supp-custom-input" placeholder="기타 영양제 직접 입력" maxlength="20">
-              <button type="button" onclick="addCustomSupp()">추가</button>
-            </div>
-            <div class="hc-sub-chips hc-custom-list" id="supp-custom-list"></div>
+          <div class="custom-ex-wrap" id="supp-card-custom-wrap">
+            <input type="text" class="ch-form-input" id="supp-card-custom-input" placeholder="오늘 영양제 복용을 한 줄로 적어보세요" maxlength="40" oninput="_suppTaken = this.value.trim() || null; if(_shareOn) updateSharePreview();">
           </div>
         </div>
       </div>
@@ -3714,7 +3718,7 @@ function buildDayMessage() {
 
   // 영양제
   if (_suppTaken) {
-    const suppMap = { all:'영양제 모두 챙겨 먹었어요', partial:'영양제 일부만 챙겼어요', forgot:'영양제 깜빡했어요', no:'오늘은 영양제를 안 먹었어요' };
+    const suppMap = { all:'영양제 모두 챙겨 먹었어요', partial:'영양제 일부만 챙겼어요', forgot:'영양제 깜빡했어요', no:'오늘은 영양제를 안 먹었어요', empty:'영양제가 떨어졌어요' };
     let suppLine = suppMap[_suppTaken] || '영양제 ' + _suppTaken;
     if ((_suppTaken === 'all' || _suppTaken === 'partial') && _suppList.length) {
       suppLine += ' (' + _suppList.join(', ') + ')';
@@ -4050,19 +4054,28 @@ function toggleSleepCustom() {
 function setSupp(val) {
   haptic('light');
   _suppTaken = val;
-  ['supp-all','supp-partial','supp-forgot','supp-no'].forEach(id => {
+  ['supp-all','supp-partial','supp-forgot','supp-no','supp-empty','supp-custom-card'].forEach(id => {
     document.getElementById(id)?.classList.remove('on');
   });
   document.getElementById('supp-' + val)?.classList.add('on');
-  const showDetail = val === 'all' || val === 'partial';
-  document.getElementById('hc-supp-detail').classList.toggle('show', showDetail);
-  if (!showDetail) {
-    _suppList = [];
-    document.querySelectorAll('.hc-supp-preset').forEach(e => e.classList.remove('on'));
-    document.getElementById('supp-custom-list').innerHTML = '';
-    document.getElementById('supp-custom-input').value = '';
-  }
+  document.getElementById('supp-card-custom-wrap')?.classList.remove('show');
   if (_shareOn) updateSharePreview();
+}
+function toggleSuppCardCustom() {
+  const wrap = document.getElementById('supp-card-custom-wrap');
+  const btn  = document.getElementById('supp-custom-card');
+  const open = !wrap.classList.contains('show');
+  wrap.classList.toggle('show', open);
+  btn.classList.toggle('on', open);
+  if (open) {
+    ['supp-all','supp-partial','supp-forgot','supp-no','supp-empty'].forEach(id => {
+      document.getElementById(id)?.classList.remove('on');
+    });
+    _suppTaken = null;
+    document.getElementById('supp-card-custom-input').focus();
+  } else {
+    _suppTaken = null;
+  }
 }
 function resetHealthChecks() {
   document.querySelectorAll('[id^="diet-"]').forEach(e => e.classList.remove('on'));
@@ -4072,13 +4085,12 @@ function resetHealthChecks() {
 }
 function clearSuppSection() {
   _suppTaken = null; _suppList = [];
-  ['supp-all','supp-partial','supp-forgot','supp-no'].forEach(id => {
+  ['supp-all','supp-partial','supp-forgot','supp-no','supp-empty','supp-custom-card'].forEach(id => {
     document.getElementById(id)?.classList.remove('on');
   });
-  document.getElementById('hc-supp-detail').classList.remove('show');
   document.querySelectorAll('.hc-supp-preset').forEach(e => e.classList.remove('on'));
-  document.getElementById('supp-custom-list').innerHTML = '';
-  document.getElementById('supp-custom-input').value = '';
+  document.getElementById('supp-card-custom-wrap')?.classList.remove('show');
+  document.getElementById('supp-card-custom-input') && (document.getElementById('supp-card-custom-input').value = '');
   document.getElementById('supp-direct-wrap')?.classList.remove('show');
   document.getElementById('supp-direct-btn')?.classList.remove('selected');
   document.getElementById('supp-direct-input') && (document.getElementById('supp-direct-input').value = '');
