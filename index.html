@@ -42,8 +42,8 @@
       --separator:      #D1D5DB;
       --shadow:         0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
       --shadow-hover:   0 4px 16px rgba(79,70,229,0.15);
-      --nav-height:     82px;
-      --header-height:  64px;
+      --nav-height:     70px;
+      --header-height:  56px;
       --radius:         14px;
       --radius-sm:      10px;
       --radius-lg:      20px;
@@ -400,7 +400,7 @@
         linear-gradient(to bottom, rgba(0,0,0,0.28) 0%, rgba(0,0,0,0) 90px),
         linear-gradient(135deg, #3730A3 0%, #4F46E5 100%);
       border-radius: 0 0 28px 28px;
-      padding: calc(var(--header-height) + 72px) 22px 28px;
+      padding: calc(var(--header-height) + 52px) 20px 22px;
       color: #fff;
       margin-top: calc(-1 * var(--header-height));
       margin-left: -18px; margin-right: -18px;
@@ -425,10 +425,10 @@
     /* .hero-name overridden below with flex layout */
     .hero-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
     .hero-stat {
-      background: rgba(255,255,255,0.15); border-radius: 12px;
-      padding: 12px 6px; text-align: center; backdrop-filter: blur(10px);
+      background: rgba(255,255,255,0.15); border-radius: 10px;
+      padding: 9px 5px; text-align: center; backdrop-filter: blur(10px);
     }
-    .hero-stat-value { font-size: 22px; font-weight: 700; }
+    .hero-stat-value { font-size: 18px; font-weight: 700; }
     .hero-stat-label { font-size: 10px; opacity: 0.8; margin-top: 2px; }
 
     .level-card {
@@ -441,11 +441,11 @@
     .level-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
     .level-info { display: flex; align-items: center; gap: 10px; }
     .level-icon-bg {
-      width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0;
+      width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
       background: linear-gradient(135deg, #F3E8FF 0%, #EDE9FE 100%);
       display: flex; align-items: center; justify-content: center;
     }
-    .level-icon-large { font-size: 52px; line-height: 1; display: flex; align-items: center; }
+    .level-icon-large { font-size: 42px; line-height: 1; display: flex; align-items: center; }
     .level-title-row { display: flex; align-items: baseline; gap: 5px; }
     .level-name { font-size: 13px; font-weight: 800; color: var(--text); }
     .level-num { font-size: 11px; color: var(--text-secondary); font-weight: 600; }
@@ -508,7 +508,7 @@
       -webkit-backdrop-filter: blur(20px) saturate(180%);
       backdrop-filter: blur(20px) saturate(180%);
       border-radius: var(--radius);
-      padding: 14px; display: flex; align-items: center; gap: 12px;
+      padding: 12px; display: flex; align-items: center; gap: 10px;
       box-shadow: 0 4px 24px rgba(0,0,0,0.11), 0 1px 4px rgba(0,0,0,0.06);
       cursor: pointer; transition: transform 0.18s;
       border: none; font-family: inherit; text-align: left; color: var(--text);
@@ -541,7 +541,7 @@
     .week-day { display: flex; flex-direction: column; align-items: center; gap: 4px; }
     .week-label { font-size: 9px; color: var(--text-secondary); }
     .week-date { font-size: 9px; color: var(--text-secondary); opacity: 0.7; }
-    .week-bar { width: 100%; height: 52px; background: var(--border); border-radius: 5px; display: flex; align-items: flex-end; overflow: hidden; }
+    .week-bar { width: 100%; height: 40px; background: var(--border); border-radius: 5px; display: flex; align-items: flex-end; overflow: hidden; }
     .week-fill { width: 100%; background: linear-gradient(180deg, #6366F1, var(--primary)); border-radius: 5px; transition: height 0.9s ease; }
     .week-val { font-size: 9px; font-weight: 600; color: var(--text); }
     .week-day:first-child .week-label { color: #F472B6; }
@@ -553,13 +553,13 @@
     .ach-strip::-webkit-scrollbar { display: none; }
     .ach-chip { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 3px; }
     .ach-circle {
-      width: 54px; height: 54px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center; font-size: 28px;
+      width: 46px; height: 46px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; font-size: 22px;
       box-shadow: 0 3px 0 rgba(0,0,0,0.12), 0 1px 6px rgba(0,0,0,0.08);
     }
     .ach-circle.earned { background: var(--ach-color, #eee); }
     .ach-circle.locked { background: #E5E7EB; filter: grayscale(1); opacity: 0.45; }
-    .ach-label { font-size: 9px; color: var(--text-secondary); text-align: center; max-width: 48px; line-height: 1.3; }
+    .ach-label { font-size: 9px; color: var(--text-secondary); text-align: center; max-width: 40px; line-height: 1.3; }
 
     /* ══════════════════════════════
        EXERCISE
@@ -842,7 +842,7 @@
     .glucose-graph-legend { display:flex; gap:12px; justify-content:center; font-size:10px; font-weight:600; margin-top:8px; flex-wrap:wrap; color:var(--text-secondary); }
     .glucose-graph-empty { text-align:center; padding:24px 0; color:var(--text-secondary); font-size:13px; line-height:1.7; }
 
-    .hero-name { font-size:21px; font-weight:700; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+    .hero-name { font-size:18px; font-weight:700; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
     .profile-edit-btn { background:rgba(255,255,255,0.22); border:none; cursor:pointer; font-size:12px; padding:3px 10px; border-radius:20px; color:white; flex-shrink:0; }
     .profile-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:200; display:flex; align-items:center; justify-content:center; padding:20px; }
     .profile-modal { background:var(--card); border-radius:var(--radius); padding:28px 24px; width:100%; max-width:360px; max-height:88vh; overflow-y:auto; }
@@ -3060,6 +3060,12 @@ function renderHome() {
       </div>
     `;
   }).join('');
+
+  // 운동기록 카드 물방울 기본값
+  requestAnimationFrame(() => {
+    const btns = document.querySelectorAll('.quick-btn');
+    if (btns[0]) { btns[0]._ready = true; btns[0].classList.add('clicked'); }
+  });
 }
 
 /* ════════════════════════════════════════
