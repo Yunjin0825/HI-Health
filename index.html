@@ -1831,6 +1831,26 @@
   <section id="page-exercise" class="page">
 
     <div class="card">
+      <div class="card-header">
+        <span class="card-title">운동 기록</span>
+        <div class="card-header-right">
+          <span class="badge badge-success" id="wo-total-badge">총 0회</span>
+          <div class="wo-view-tabs">
+            <button type="button" class="wo-view-tab active" id="wo-tab-recent" onclick="setWoView('recent')">최근</button>
+            <button type="button" class="wo-view-tab" id="wo-tab-monthly" onclick="setWoView('monthly')">월별</button>
+          </div>
+        </div>
+      </div>
+      <div class="wo-type-filter" id="wo-type-filter"></div>
+      <div class="wo-month-nav" id="wo-month-nav">
+        <button type="button" class="wo-month-btn" id="wo-prev-btn" onclick="changeWoMonth(-1)">‹</button>
+        <span class="wo-month-lbl" id="wo-month-label">-</span>
+        <button type="button" class="wo-month-btn" id="wo-next-btn" onclick="changeWoMonth(1)">›</button>
+      </div>
+      <div id="wo-history"></div>
+    </div>
+
+    <div class="card">
       <button class="btn btn-primary btn-full btn-record" onclick="logExercise()">운동 기록하기</button>
       <hr style="border:none;border-top:1px solid var(--border);margin:16px 0 14px">
       <p class="card-title" style="margin-bottom:13px">운동 종류 선택</p>
@@ -1967,26 +1987,6 @@
         </div>
       </div>
 
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <span class="card-title">운동 기록</span>
-        <div class="card-header-right">
-          <span class="badge badge-success" id="wo-total-badge">총 0회</span>
-          <div class="wo-view-tabs">
-            <button type="button" class="wo-view-tab active" id="wo-tab-recent" onclick="setWoView('recent')">최근</button>
-            <button type="button" class="wo-view-tab" id="wo-tab-monthly" onclick="setWoView('monthly')">월별</button>
-          </div>
-        </div>
-      </div>
-      <div class="wo-type-filter" id="wo-type-filter"></div>
-      <div class="wo-month-nav" id="wo-month-nav">
-        <button type="button" class="wo-month-btn" id="wo-prev-btn" onclick="changeWoMonth(-1)">‹</button>
-        <span class="wo-month-lbl" id="wo-month-label">-</span>
-        <button type="button" class="wo-month-btn" id="wo-next-btn" onclick="changeWoMonth(1)">›</button>
-      </div>
-      <div id="wo-history"></div>
     </div>
 
     <div class="card">
