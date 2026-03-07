@@ -3709,10 +3709,11 @@ function buildDayMessage() {
 
   // 수면
   if (_sleepHours !== null && _sleepHours !== undefined) {
-    const sleepMap = { great:'푹 잤어요', good:'잘 잤어요', short:'조금 부족했어요', bad:'많이 못 잤어요', over:'너무 많이 잤어요' };
+    const sleepEmojiMap = { great:'😴', good:'🙂', short:'😪', bad:'😩', over:'💤' };
+    const sleepTextMap  = { great:'푹 잤어요', good:'잘 잤어요', short:'조금 부족했어요', bad:'많이 못 잤어요', over:'너무 많이 잤어요' };
     const sleepLabel = typeof _sleepHours === 'number'
-      ? _sleepHours + '시간 잤어요.'
-      : ('수면은 ' + (sleepMap[_sleepHours] || _sleepHours) + '.');
+      ? '😴 ' + _sleepHours + '시간 잤어요.'
+      : ((sleepEmojiMap[_sleepHours] || '😴') + ' ' + (sleepTextMap[_sleepHours] || _sleepHours) + '.');
     lines.push(sleepLabel);
   }
 
