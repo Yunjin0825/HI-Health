@@ -624,35 +624,42 @@
     .ex-today-num { font-size: 28px; font-weight: 900; line-height: 1.1; letter-spacing: -1px; }
     .ex-today-lbl { font-size: 10px; opacity: 0.72; margin-top: 3px; font-weight: 500; }
 
-    /* ── Exercise Type Grid ── */
-    .ex-type-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 8px; }
+    /* ── Exercise Type Scroll Pills ── */
+    .ex-type-grid {
+      display: flex; gap: 8px; overflow-x: auto; padding: 2px 0 8px;
+      scrollbar-width: none; -ms-overflow-style: none; margin-bottom: 4px;
+    }
+    .ex-type-grid::-webkit-scrollbar { display: none; }
     .custom-ex-wrap { display:none; margin-top:10px; }
     .custom-ex-wrap.show { display:block; }
     .ex-type-btn {
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 5px; padding: 12px 4px 10px; border-radius: 16px;
+      display: flex; flex-direction: row; align-items: center;
+      gap: 7px; padding: 7px 14px 7px 7px; border-radius: 999px;
       border: 1.5px solid var(--border); background: #fff;
       cursor: pointer; transition: all 0.18s; font-family: inherit;
+      flex-shrink: 0; white-space: nowrap;
     }
-    .ex-type-btn.selected { border-color: var(--primary); background: #EEF2FF; box-shadow: 0 2px 12px rgba(79,70,229,0.15); }
+    .ex-type-btn.selected {
+      border-color: var(--primary); background: #EEF2FF;
+      box-shadow: 0 2px 10px rgba(79,70,229,0.18);
+    }
     .ex-type-icon-bg {
-      width: 42px; height: 42px; border-radius: 13px;
+      width: 30px; height: 30px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-size: 22px; transition: background 0.18s;
+      font-size: 17px; flex-shrink: 0; transition: background 0.18s;
     }
     .ex-type-btn.selected .ex-type-icon-bg { background: rgba(79,70,229,0.13) !important; }
-    .ex-type-name { font-size: 11px; font-weight: 600; color: var(--text); }
-    .ex-type-pts { font-size: 9px; color: var(--text-secondary); }
+    .ex-type-name { font-size: 13px; font-weight: 600; color: var(--text); }
+    .ex-type-pts { display: none; }
     .ex-type-btn.selected .ex-type-name { color: var(--primary); }
-    .ex-type-btn.selected .ex-type-pts { color: var(--primary); opacity: 0.7; }
     .custom-ex-link {
-      display: block; width: 100%; margin-top: 10px;
-      background: none; border: none; padding: 6px 0;
-      font-size: 12px; color: var(--text-secondary); cursor: pointer;
-      font-family: inherit; text-align: center;
+      display: inline-flex; align-items: center; gap: 5px;
+      flex-shrink: 0; padding: 7px 14px; border-radius: 999px;
+      border: 1.5px dashed var(--border); background: none;
+      font-size: 13px; color: var(--text-secondary); cursor: pointer;
+      font-family: inherit; white-space: nowrap;
     }
-    .custom-ex-link:hover, .custom-ex-link.selected { color: var(--primary); }
-    .custom-ex-link.selected { font-weight: 600; }
+    .custom-ex-link.selected { border-color: var(--primary); color: var(--primary); font-weight: 600; background: #EEF2FF; border-style: solid; }
     #custom-ex-name { font-size: 11px; padding: 8px 11px; }
 
     /* ── Duration Control ── */
@@ -1841,7 +1848,7 @@
     <div class="card">
       <p class="card-title" style="margin-bottom:13px">운동 종류 선택</p>
       <div class="ex-type-grid" id="ex-type-grid"></div>
-      <button type="button" class="custom-ex-link" id="custom-ex-btn" onclick="selectEx('custom')">찾으시는 운동이 없으신가요? 직접 입력하기</button>
+      <!-- custom-ex-btn is now rendered inside ex-type-grid scroll row -->
       <div id="custom-ex-wrap" class="custom-ex-wrap">
         <input type="text" class="ch-form-input" id="custom-ex-name"
                placeholder="운동 이름을 입력하세요 (예: 줄넘기, 스키...)"
@@ -3471,19 +3478,18 @@ function renderExercise() {
   if (minsEl) minsEl.textContent = todayMins + '분';
   if (ptsEl)  ptsEl.textContent  = '+' + todayPts + 'p';
 
-  // Exercise type buttons
-  document.getElementById('ex-type-grid').innerHTML = EX_TYPES.filter(e => e.id !== 'custom').map(e => `
-    <button class="ex-type-btn ${S.selectedEx === e.id ? 'selected' : ''}"
-            onclick="selectEx('${e.id}')">
-      <div class="ex-type-icon-bg" style="background:${e.bg}">${e.icon}</div>
-      <span class="ex-type-name">${e.name}</span>
-      <span class="ex-type-pts">${e.ppm}p/분</span>
-    </button>
-  `).join('');
-
+  // Exercise type buttons (including custom at end of scroll row)
   const isCustom = S.selectedEx === 'custom';
-  const cb = document.getElementById('custom-ex-btn');
-  if (cb) cb.classList.toggle('selected', isCustom);
+  document.getElementById('ex-type-grid').innerHTML =
+    EX_TYPES.filter(e => e.id !== 'custom').map(e => `
+      <button class="ex-type-btn ${S.selectedEx === e.id ? 'selected' : ''}"
+              onclick="selectEx('${e.id}')">
+        <div class="ex-type-icon-bg" style="background:${e.bg}">${e.icon}</div>
+        <span class="ex-type-name">${e.name}</span>
+      </button>
+    `).join('')
+    + `<button class="custom-ex-link ${isCustom ? 'selected' : ''}" onclick="selectEx('custom')">✏️ 직접 입력</button>`;
+
   const cw = document.getElementById('custom-ex-wrap');
   if (cw) cw.classList.toggle('show', isCustom);
 
