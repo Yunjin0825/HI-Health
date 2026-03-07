@@ -736,6 +736,17 @@
       font-size:13px; cursor:pointer; white-space:nowrap; transition:all 0.18s;
     }
     .hc-rate-btn.on { border-color:var(--primary); background:#EEF2FF; color:var(--primary); }
+    .diet-card-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:4px; }
+    .diet-card {
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:5px; padding:12px 6px; border-radius:14px;
+      border:1.5px solid var(--border); background:#fff;
+      cursor:pointer; transition:all 0.18s; font-family:inherit;
+    }
+    .diet-card-emoji { font-size:24px; line-height:1; }
+    .diet-card-label { font-size:12px; color:var(--text-secondary); text-align:center; word-break:keep-all; }
+    .diet-card.on { border-color:var(--primary); background:#EEF2FF; }
+    .diet-card.on .diet-card-label { color:var(--primary); font-weight:600; }
     .hc-sub-label { font-size:11px; font-weight:600; color:var(--text-secondary); margin:8px 0 5px; }
     .hc-sub-chips { display:flex; gap:5px; flex-wrap:wrap; }
     .hc-sub-chip {
@@ -1953,13 +1964,31 @@
             <button type="button" class="hc-sub-chip hc-meal-chip" data-name="배달음식" onclick="toggleMeal('배달음식')">배달음식</button>
             <button type="button" class="hc-sub-chip hc-meal-chip" data-name="술자리" onclick="toggleMeal('술자리')">술자리</button>
           </div>
-          <div class="hc-rate-row" style="margin-top:4px">
-            <button type="button" class="hc-rate-btn" id="diet-good"  onclick="setDiet('good')">매 끼니 잘 챙겨먹었어요</button>
-            <button type="button" class="hc-rate-btn" id="diet-norm"  onclick="setDiet('norm')">보통으로 먹었어요</button>
-            <button type="button" class="hc-rate-btn" id="diet-snack" onclick="setDiet('snack')">간식을 많이 먹었네요</button>
-            <button type="button" class="hc-rate-btn" id="diet-over"  onclick="setDiet('over')">과식을 했어요</button>
-            <button type="button" class="hc-rate-btn" id="diet-bad"   onclick="setDiet('bad')">한 끼를 거른 것 같아요</button>
-            <button type="button" class="custom-ex-link" id="diet-custom-btn" onclick="toggleDietCustom()">✏️ 직접 입력</button>
+          <div class="diet-card-grid">
+            <button type="button" class="diet-card" id="diet-good"  onclick="setDiet('good')">
+              <span class="diet-card-emoji">😋</span>
+              <span class="diet-card-label">잘 챙겨먹음</span>
+            </button>
+            <button type="button" class="diet-card" id="diet-norm"  onclick="setDiet('norm')">
+              <span class="diet-card-emoji">😐</span>
+              <span class="diet-card-label">보통</span>
+            </button>
+            <button type="button" class="diet-card" id="diet-snack" onclick="setDiet('snack')">
+              <span class="diet-card-emoji">🍿</span>
+              <span class="diet-card-label">간식 많음</span>
+            </button>
+            <button type="button" class="diet-card" id="diet-over"  onclick="setDiet('over')">
+              <span class="diet-card-emoji">😵</span>
+              <span class="diet-card-label">과식</span>
+            </button>
+            <button type="button" class="diet-card" id="diet-bad"   onclick="setDiet('bad')">
+              <span class="diet-card-emoji">🥺</span>
+              <span class="diet-card-label">한 끼 건너뜀</span>
+            </button>
+            <button type="button" class="diet-card" id="diet-custom-btn" onclick="toggleDietCustom()">
+              <span class="diet-card-emoji">✏️</span>
+              <span class="diet-card-label">직접 입력</span>
+            </button>
           </div>
           <div class="custom-ex-wrap" id="diet-custom-wrap">
             <input type="text" class="ch-form-input" id="diet-custom-input" placeholder="오늘 식사를 한 줄로 적어보세요" maxlength="40" oninput="setDiet('custom')">
@@ -3865,9 +3894,9 @@ function toggleDietCustom() {
   const btn  = document.getElementById('diet-custom-btn');
   const open = !wrap.classList.contains('show');
   wrap.classList.toggle('show', open);
-  btn.classList.toggle('selected', open);
+  btn.classList.toggle('on', open);
   if (open) {
-    document.querySelectorAll('[id^="diet-good"],[id="diet-norm"],[id="diet-snack"],[id="diet-over"],[id="diet-bad"]').forEach(e => e.classList.remove('on'));
+    document.querySelectorAll('#diet-good,#diet-norm,#diet-snack,#diet-over,#diet-bad').forEach(e => e.classList.remove('on'));
     document.getElementById('diet-custom-input').focus();
   } else {
     _dietRating = null;
@@ -3881,9 +3910,8 @@ function setDiet(rating) {
   }
   _dietRating = rating;
   const map = { 'good':'diet-good', 'norm':'diet-norm', 'snack':'diet-snack', 'over':'diet-over', 'bad':'diet-bad' };
-  document.querySelectorAll('[id^="diet-good"],[id="diet-norm"],[id="diet-snack"],[id="diet-over"],[id="diet-bad"]').forEach(e => e.classList.remove('on'));
+  document.querySelectorAll('#diet-good,#diet-norm,#diet-snack,#diet-over,#diet-bad,#diet-custom-btn').forEach(e => e.classList.remove('on'));
   document.getElementById('diet-custom-wrap')?.classList.remove('show');
-  document.getElementById('diet-custom-btn')?.classList.remove('selected');
   if (map[rating]) document.getElementById(map[rating]).classList.add('on');
 }
 function changeSleep(delta) {
