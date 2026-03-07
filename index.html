@@ -1954,6 +1954,10 @@
             <button type="button" class="hc-rate-btn" id="diet-snack" onclick="setDiet('snack')">간식을 많이 먹었네요</button>
             <button type="button" class="hc-rate-btn" id="diet-over"  onclick="setDiet('over')">과식을 했어요</button>
             <button type="button" class="hc-rate-btn" id="diet-bad"   onclick="setDiet('bad')">한 끼를 거른 것 같아요</button>
+            <button type="button" class="custom-ex-link" id="diet-custom-btn" onclick="toggleDietCustom()">✏️ 직접 입력</button>
+          </div>
+          <div class="custom-ex-wrap" id="diet-custom-wrap">
+            <input type="text" class="ch-form-input" id="diet-custom-input" placeholder="오늘 식사를 한 줄로 적어보세요" maxlength="40" oninput="setDiet('custom')">
           </div>
         </div>
       </div>
@@ -3851,11 +3855,30 @@ function toggleHC(type) {
     if (type === 'supp')  { clearSuppSection(); }
   }
 }
+function toggleDietCustom() {
+  const wrap = document.getElementById('diet-custom-wrap');
+  const btn  = document.getElementById('diet-custom-btn');
+  const open = !wrap.classList.contains('show');
+  wrap.classList.toggle('show', open);
+  btn.classList.toggle('selected', open);
+  if (open) {
+    document.querySelectorAll('[id^="diet-good"],[id="diet-norm"],[id="diet-snack"],[id="diet-over"],[id="diet-bad"]').forEach(e => e.classList.remove('on'));
+    document.getElementById('diet-custom-input').focus();
+  } else {
+    _dietRating = null;
+  }
+}
 function setDiet(rating) {
-  haptic('light');
+  if (rating !== 'custom') haptic('light');
+  if (rating === 'custom') {
+    _dietRating = document.getElementById('diet-custom-input').value.trim() || null;
+    return;
+  }
   _dietRating = rating;
   const map = { 'good':'diet-good', 'norm':'diet-norm', 'snack':'diet-snack', 'over':'diet-over', 'bad':'diet-bad' };
-  document.querySelectorAll('[id^="diet-"]').forEach(e => e.classList.remove('on'));
+  document.querySelectorAll('[id^="diet-good"],[id="diet-norm"],[id="diet-snack"],[id="diet-over"],[id="diet-bad"]').forEach(e => e.classList.remove('on'));
+  document.getElementById('diet-custom-wrap')?.classList.remove('show');
+  document.getElementById('diet-custom-btn')?.classList.remove('selected');
   if (map[rating]) document.getElementById(map[rating]).classList.add('on');
 }
 function changeSleep(delta) {
