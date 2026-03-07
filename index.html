@@ -409,7 +409,7 @@
       position: relative; overflow: hidden;
     }
     .hero-card::before {
-      content: ''; position: absolute; top: -50px; right: -50px;
+      content: ''; position: absolute; top: calc(max(env(safe-area-inset-top), 44px) - 60px); right: -50px;
       width: 200px; height: 200px; background: rgba(255,255,255,0.08); border-radius: 50%;
     }
     .hero-card::after {
@@ -1624,8 +1624,8 @@
   <section id="page-home" class="page active">
 
     <div class="hero-card">
-      <div class="hc-circle" style="width:150px;height:150px;top:-40px;left:-50px;background:rgba(255,255,255,0.07)"></div>
-      <div class="hc-circle" style="width:80px;height:80px;top:40px;left:40px;background:rgba(255,255,255,0.05)"></div>
+      <div class="hc-circle" style="width:150px;height:150px;top:calc(max(env(safe-area-inset-top),44px) - 50px);left:-50px;background:rgba(255,255,255,0.07)"></div>
+      <div class="hc-circle" style="width:80px;height:80px;top:calc(max(env(safe-area-inset-top),44px) + 30px);left:40px;background:rgba(255,255,255,0.05)"></div>
       <p class="hero-greeting" id="hero-greeting">안녕하세요! 오늘도 건강하게 👋</p>
       <h2 class="hero-name"><span id="hero-name">사용자님</span></h2>
       <div class="hero-tags" id="hero-tags"></div>
