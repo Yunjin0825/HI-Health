@@ -3779,9 +3779,11 @@ function toggleShare() {
       _shareRewrite = true;
       document.getElementById('share-toggle-sub').textContent = '오늘 이미 공유했어요 · 다시 작성하면 덮어씌워져요';
       document.getElementById('share-submit-btn').textContent = '수정하기';
-      _shareMsgAuto = true;
+      _shareOrigMsg = existing.body || '';
+      _shareMsgAuto = false;
+      const _rwMsgEl = document.getElementById('share-msg');
+      if (_rwMsgEl) _rwMsgEl.value = _shareOrigMsg;
       updateSharePreview();
-      _shareOrigMsg = buildDayMessage();
     } else {
       _shareRewrite = false;
       document.getElementById('share-toggle-sub').textContent = '오늘 나의 하루를 친구들과 나눠보세요';
