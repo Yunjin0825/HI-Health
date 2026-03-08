@@ -3889,7 +3889,7 @@ function renderHome() {
   if (S.user.registrationId) {
     const chTotal = MOCK_USERS.filter(u => u.isChallenger).length + 1;
     const chRank  = MOCK_USERS.filter(u => u.isChallenger && u.pts > S.user.points).length + 1;
-    document.getElementById('my-rank-quick').textContent = chRank + '/' + chTotal + '위';
+    document.getElementById('my-rank-quick').textContent = '🏅 ' + chRank + '/' + chTotal + '위';
   } else {
     document.getElementById('my-rank-quick').textContent = myLeagueRank() + '/' + (MOCK_USERS.length + 1) + '위';
   }
