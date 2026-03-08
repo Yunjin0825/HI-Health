@@ -3894,11 +3894,12 @@ function renderHome() {
     const chTotal = MOCK_USERS.filter(u => u.isChallenger).length + 1;
     const chRank  = MOCK_USERS.filter(u => u.isChallenger && u.pts > (S.user.totalPoints || S.user.points)).length + 1;
     document.getElementById('rank-quick-label').textContent = '(챌린지)';
-    document.getElementById('my-rank-quick').textContent = (_medals[chRank] ? _medals[chRank] + ' ' : '') + chRank + '/' + chTotal + '위';
+    document.getElementById('my-rank-quick').textContent = (_medals[chRank] ? _medals[chRank] + ' ' : '') + chRank + '위 / 전체 ' + chTotal + '위';
   } else {
     const lgRank = myLeagueRank();
+    const lgTotal = MOCK_USERS.length + 1;
     document.getElementById('rank-quick-label').textContent = '';
-    document.getElementById('my-rank-quick').textContent = (_medals[lgRank] ? _medals[lgRank] + ' ' : '') + lgRank + '/' + (MOCK_USERS.length + 1) + '위';
+    document.getElementById('my-rank-quick').textContent = (_medals[lgRank] ? _medals[lgRank] + ' ' : '') + lgRank + '위 / 전체 ' + lgTotal + '위';
   }
   const canRedeem = REWARDS_DATA.some(r => !S.redeemedRewards.includes(r.id) && !S.pendingRewards.includes(r.id) && S.user.points >= r.cost);
   document.getElementById('pts-quick').textContent = '보유 ' + S.user.points + 'p' + (canRedeem ? ' · 교환 가능' : '');
