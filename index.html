@@ -1848,7 +1848,7 @@
             <line x1="8.5" y1="12" x2="15.5" y2="12"/>
           </svg>
         </div>
-        <div><div class="qi-title">운동, 혈당 기록</div><div class="qi-sub">오늘 운동 추가</div></div>
+        <div><div class="qi-title">운동, 혈당 기록</div><div class="qi-sub">오늘을 기록해보세요</div></div>
       </button>
       <button class="quick-btn" onclick="quickNav(this,()=>{navigate('community');setCommunityTab('league')})">
         <div class="qi-icon">
@@ -3886,7 +3886,7 @@ function renderHome() {
     : '최고 레벨 달성! 🎉';
 
   // Quick action subtitles
-  document.getElementById('my-rank-quick').textContent = myLeagueRank() + '위';
+  document.getElementById('my-rank-quick').textContent = myLeagueRank() + '/' + (MOCK_USERS.length + 1) + '위';
   const canRedeem = REWARDS_DATA.some(r => !S.redeemedRewards.includes(r.id) && !S.pendingRewards.includes(r.id) && S.user.points >= r.cost);
   document.getElementById('pts-quick').textContent = '보유 ' + S.user.points + 'p' + (canRedeem ? ' · 교환 가능' : '');
 
