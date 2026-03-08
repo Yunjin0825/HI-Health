@@ -5373,12 +5373,11 @@ function renderLeague() {
           <div class="lb-rank ${u.rank <= 3 ? 'top3' : ''}">${u.rank}</div>
           <div class="lb-avatar">${avHTML(u.avatar)}</div>
           <div class="lb-info">
-            <div class="lb-name">${u.name}</div>
-            <div class="lb-level">${lv.icon} ${lv.name}</div>
+            <div class="lb-name">${lv.icon} ${u.name}</div>
             ${(u.tags || []).length ? `<div class="lb-tags">${u.tags.map(t => `<span class="profile-tag">${t}</span>`).join('')}</div>` : ''}
           </div>
           <div class="lb-right">
-            <div class="lb-pts">⭐ ${u.pts}p</div>
+            <div class="lb-pts">${u.pts}p</div>
             <span class="lb-change ch-eq">−</span>
           </div>
         </div>
@@ -5456,12 +5455,11 @@ function renderLeague() {
         <div class="lb-rank ${u.rank<=3?'top3':''}">${u.rank}</div>
         <div class="lb-avatar">${avHTML(u.avatar)}</div>
         <div class="lb-info">
-          <div class="lb-name">${u.name}</div>
-          <div class="lb-level">${lv.icon} ${lv.name}</div>
+          <div class="lb-name">${lv.icon} ${u.name}</div>
           ${(u.tags || []).length ? `<div class="lb-tags">${u.tags.map(t => `<span class="profile-tag">${t}</span>`).join('')}</div>` : ''}
         </div>
         <div class="lb-right">
-          <div class="lb-pts">⭐ ${tab==='weekly'?u.wPts:u.pts}p</div>
+          <div class="lb-pts">${tab==='weekly'?u.wPts:u.pts}p</div>
           ${chgHtml}
         </div>
       </div>
@@ -6283,7 +6281,7 @@ function renderRewards() {
           : pending
           ? `<div class="reward-cost reward-pending-badge">⏳ 요청 중</div>
              <button class="reward-confirm-btn" onclick="confirmReward('${r.id}')">✓ 직원 확인 완료</button>`
-          : `<div class="reward-cost">⭐ ${r.cost}p</div>`
+          : `<div class="reward-cost">${r.cost}p</div>`
         }
       </div>
     `;
@@ -6346,7 +6344,7 @@ function renderRewards() {
             <span class="reward-hist-emoji">${h.emoji || '🎁'}</span>
             <div style="flex:1">
               <div class="reward-hist-name">${h.name}</div>
-              <div class="reward-hist-cost">⭐ ${h.cost}p${dateStr ? ' · ' + dateStr + ' 신청' : ''}${doneDateStr ? ' · ' + doneDateStr + ' 완료' : ''}</div>
+              <div class="reward-hist-cost">${h.cost}p${dateStr ? ' · ' + dateStr + ' 신청' : ''}${doneDateStr ? ' · ' + doneDateStr + ' 완료' : ''}</div>
             </div>
             <span class="order-status-badge ${h.status === 'done' ? 'os-done' : 'os-pending'}">
               ${h.status === 'done' ? '교환 완료' : '처리 대기'}
