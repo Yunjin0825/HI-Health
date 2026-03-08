@@ -2242,7 +2242,7 @@
         <button class="league-tab active" data-tab="weekly"     onclick="setTab(this,'weekly')">이번 주</button>
         <button class="league-tab"        data-tab="monthly"    onclick="setTab(this,'monthly')">이번 달</button>
         <button class="league-tab"        data-tab="alltime"    onclick="setTab(this,'alltime')">전체 기록</button>
-        <button class="league-tab" id="league-tab-challenger" data-tab="challenger" onclick="setTab(this,'challenger')"><img src="icons/HI_icon_4.png" class="league-tab-icon" alt="챌린지"> 챌린지</button>
+        <button class="league-tab" id="league-tab-challenger" data-tab="challenger" onclick="setTab(this,'challenger')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><path d="M6 9H3V5h3M18 9h3V5h-3M6 9c0 3.31 2.69 6 6 6s6-2.69 6-6V5H6v4z"/><line x1="12" y1="15" x2="12" y2="19"/><line x1="8" y1="19" x2="16" y2="19"/></svg> 챌린지</button>
       </div>
 
       <div class="my-rank-card" id="my-rank-card"></div>
@@ -5322,7 +5322,7 @@ function renderLeague() {
       </div>
     `).join('');
 
-    document.getElementById('lb-list').innerHTML = challengers.slice(3).map(u => {
+    document.getElementById('lb-list').innerHTML = challengers.slice(3, 20).map(u => {
       const lv = LEVELS[Math.min(u.lv - 1, LEVELS.length - 1)];
       return `
         <div class="lb-item ${u.isMe ? 'me' : ''}">
@@ -5387,7 +5387,7 @@ function renderLeague() {
     </div>
   `).join('');
 
-  document.getElementById('lb-list').innerHTML = list.slice(3).map(u => {
+  document.getElementById('lb-list').innerHTML = list.slice(3, 20).map(u => {
     const lv    = LEVELS[Math.min(u.lv-1, LEVELS.length-1)];
     const chg   = tab==='weekly' ? u.change : 0;
     const chgHtml = chg > 0 ? `<span class="lb-change ch-up">▲${chg}</span>`
