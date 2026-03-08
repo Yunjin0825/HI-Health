@@ -3375,18 +3375,18 @@ async function shareLevelCard() {
   const logoPngUrl   = imgToPng(logoPng, logoPng ? logoPng.naturalWidth : 240, logoPng ? logoPng.naturalHeight : 60) || 'images/logo-white.png';
   const runnerPngUrl = imgToPng(runnerImg, 36);
   const avatarPngUrl = imgToPng(avatarImg, 64);
-  // 배지 흰 배경 제거 (R,G,B 모두 220 이상인 픽셀 → 투명 처리)
+  // 배지: 흰 원형 배경 위에 이미지 합성
   const badgePngUrls = badgeImgs.map(img => {
     if (!img) return '';
+    const sz = 32, pad = 4;
     const c = document.createElement('canvas');
-    c.width = c.height = 48;
+    c.width = c.height = sz;
     const ctx = c.getContext('2d');
-    ctx.drawImage(img, 0, 0, 48, 48);
-    const d = ctx.getImageData(0, 0, 48, 48);
-    for (let i = 0; i < d.data.length; i += 4) {
-      if (d.data[i] > 220 && d.data[i+1] > 220 && d.data[i+2] > 220) d.data[i+3] = 0;
-    }
-    ctx.putImageData(d, 0, 0);
+    ctx.beginPath();
+    ctx.arc(sz/2, sz/2, sz/2, 0, Math.PI*2);
+    ctx.fillStyle = '#ffffff';
+    ctx.fill();
+    ctx.drawImage(img, pad, pad, sz - pad*2, sz - pad*2);
     try { return c.toDataURL('image/png'); } catch(e) { return ''; }
   }).filter(Boolean);
 
@@ -3427,8 +3427,8 @@ async function shareLevelCard() {
     <div style="text-align:center;position:relative;flex-shrink:0">
       <img src="${lvIconPng}" style="width:60px;height:60px;display:block;margin:0 auto 8px">
       <div style="display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:8px">
-        <span style="font-size:22px;font-weight:900;letter-spacing:-0.5px;line-height:1;margin-right:${badgePngUrls.length ? '10px' : '0'}">${name}님</span>
-        ${badgePngUrls.map((url, i) => `<img src="${url}" style="width:30px;height:30px;object-fit:contain;flex-shrink:0;${i > 0 ? 'margin-left:-8px;' : ''}filter:drop-shadow(0 2px 4px rgba(0,0,0,0.28));z-index:${badgePngUrls.length - i};position:relative">`).join('')}
+        <span style="font-size:22px;font-weight:900;letter-spacing:-0.5px;line-height:1;margin-right:${badgePngUrls.length ? '8px' : '0'}">${name}님</span>
+        ${badgePngUrls.map((url, i) => `<img src="${url}" style="width:22px;height:22px;border-radius:50%;flex-shrink:0;${i > 0 ? 'margin-left:-5px;' : ''}box-shadow:-1px 0 3px rgba(0,0,0,0.18);position:relative;z-index:${badgePngUrls.length - i}">`).join('')}
       </div>
       <div style="display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,0.2);padding:6px 18px;border-radius:24px">
         <span style="font-size:13px;font-weight:800">레벨 ${lv.lv}</span>
