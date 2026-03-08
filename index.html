@@ -819,7 +819,7 @@
     .share-toggle-sub { display:block; font-size:11px; color:var(--text-secondary); margin-top:2px; }
     .share-toggle-chevron {
       flex-shrink:0; display:flex; align-items:center; justify-content:center;
-      width:28px; height:28px; border-radius:50%; background:rgba(255,255,255,0.18);
+      width:28px; height:28px; border-radius:50%; background:var(--border);
       transition:transform 0.25s;
     }
     .share-toggle-card.on .share-toggle-chevron { transform:rotate(180deg); }
@@ -2165,19 +2165,19 @@
 
     <div class="card" style="padding:0;overflow:hidden;margin-bottom:13px">
       <div class="share-section" style="margin-bottom:0">
-        <div class="share-toggle-card on" id="share-toggle-btn" onclick="toggleShare()" style="background:var(--primary);border-color:var(--primary)">
+        <div class="share-toggle-card on" id="share-toggle-btn" onclick="toggleShare()">
           <div class="share-toggle-icon-wrap">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.95)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2v-1"/>
               <path d="M15 3H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l4-4h4a2 2 0 002-2V5a2 2 0 00-2-2z"/>
             </svg>
           </div>
           <div class="share-toggle-text">
-            <span class="share-toggle-title" style="color:#fff">커뮤니티에 공유하기</span>
-            <span class="share-toggle-sub" id="share-toggle-sub" style="color:rgba(255,255,255,0.75)">오늘 나의 하루를 친구들과 나눠보세요</span>
+            <span class="share-toggle-title">커뮤니티에 공유하기</span>
+            <span class="share-toggle-sub" id="share-toggle-sub">오늘 나의 하루를 친구들과 나눠보세요</span>
           </div>
           <div class="share-toggle-chevron">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
           </div>
         </div>
         <div class="share-expand show" id="share-expand" style="padding:0 14px 14px">
