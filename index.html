@@ -3268,20 +3268,112 @@ async function shareLevelCard() {
   }
   const btn = document.querySelector('.level-share-btn');
   if (btn) { btn.disabled = true; btn.textContent = '이미지 생성 중...'; }
+
+  const restoreBtn = () => {
+    if (!btn) return;
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> 내 레벨 공유하기';
+  };
+
+  // ── 데이터 수집 ──────────────────────────────────────
+  const lv       = getLevel(S.user.totalPoints || S.user.points);
+  const name     = myDisplayName() || '회원';
+  const streak   = S.user.streak || 0;
+  const totalCnt = S.workouts.length;
+  const totalMin = S.workouts.reduce((s, w) => s + (w.duration || 0), 0);
+  const totalPts = S.user.totalPoints || S.user.points || 0;
+  const timeStr  = totalMin >= 60
+    ? `${Math.floor(totalMin / 60)}h ${totalMin % 60}m`
+    : `${totalMin}분`;
+  const lvEmoji  = ['🌱', '⭐', '🌸', '🔥', '🏆', '👑'][lv.lv - 1] || '🌱';
+
+  // ── 공유 카드 DOM 생성 ────────────────────────────────
+  const card = document.createElement('div');
+  Object.assign(card.style, {
+    position: 'fixed', left: '-9999px', top: '0',
+    width: '360px',
+    background: 'linear-gradient(145deg,#3B1FA3 0%,#2563EB 55%,#1E3A8A 100%)',
+    borderRadius: '24px',
+    fontFamily: "-apple-system,'Apple SD Gothic Neo','Noto Sans KR',sans-serif",
+    color: '#fff', padding: '28px 24px 26px', boxSizing: 'border-box',
+    overflow: 'hidden',
+  });
+
+  card.innerHTML = `
+    <div style="position:absolute;top:-70px;right:-70px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,0.07);pointer-events:none"></div>
+    <div style="position:absolute;bottom:-90px;left:-50px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,0.05);pointer-events:none"></div>
+    <div style="position:absolute;top:50%;right:-30px;width:120px;height:120px;border-radius:50%;background:rgba(99,102,241,0.18);pointer-events:none"></div>
+
+    <!-- 헤더 -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:26px;position:relative">
+      <div style="font-size:20px;font-weight:900;letter-spacing:-0.5px;opacity:0.95">HI Health</div>
+      <div style="font-size:11px;background:rgba(255,255,255,0.2);padding:5px 12px;border-radius:20px;font-weight:700;letter-spacing:0.3px">나의 건강 기록</div>
+    </div>
+
+    <!-- 레벨 & 이름 -->
+    <div style="text-align:center;margin-bottom:26px;position:relative">
+      <div style="font-size:60px;line-height:1;margin-bottom:12px">${lvEmoji}</div>
+      <div style="font-size:24px;font-weight:900;margin-bottom:8px;letter-spacing:-0.5px">${name}님</div>
+      <div style="display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,0.2);padding:7px 18px;border-radius:24px;backdrop-filter:blur(8px)">
+        <span style="font-size:13px;font-weight:800">레벨 ${lv.lv}</span>
+        <span style="opacity:0.6;font-size:11px">·</span>
+        <span style="font-size:13px;font-weight:800">${lv.name} 단계</span>
+      </div>
+    </div>
+
+    <!-- 통계 3칸 -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;position:relative">
+      <div style="background:rgba(255,255,255,0.14);border-radius:16px;padding:16px 6px 14px;text-align:center;border:1px solid rgba(255,255,255,0.12)">
+        <div style="font-size:24px;font-weight:900;line-height:1;margin-bottom:6px">${totalCnt}<span style="font-size:13px;font-weight:700">회</span></div>
+        <div style="font-size:10px;font-weight:600;opacity:0.75">총 운동횟수</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.14);border-radius:16px;padding:16px 6px 14px;text-align:center;border:1px solid rgba(255,255,255,0.12)">
+        <div style="font-size:${totalMin >= 600 ? '16px' : '20px'};font-weight:900;line-height:1.1;margin-bottom:6px">${timeStr}</div>
+        <div style="font-size:10px;font-weight:600;opacity:0.75">총 운동시간</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.14);border-radius:16px;padding:16px 6px 14px;text-align:center;border:1px solid rgba(255,255,255,0.12)">
+        <div style="font-size:24px;font-weight:900;line-height:1;margin-bottom:6px">${totalPts}<span style="font-size:13px;font-weight:700">p</span></div>
+        <div style="font-size:10px;font-weight:600;opacity:0.75">총 포인트</div>
+      </div>
+    </div>
+
+    <!-- 연속 기록 -->
+    <div style="background:rgba(255,255,255,0.13);border-radius:16px;padding:14px 16px;margin-bottom:18px;display:flex;align-items:center;gap:12px;position:relative;border:1px solid rgba(255,255,255,0.1)">
+      <div style="font-size:30px;flex-shrink:0">🏃</div>
+      <div>
+        <div style="font-size:15px;font-weight:900;margin-bottom:3px">${streak}일 연속 운동기록을 하고 있어요!</div>
+        <div style="font-size:11px;opacity:0.72;font-weight:600">꾸준한 건강 관리, 정말 대단해요</div>
+      </div>
+    </div>
+
+    <!-- 응원 메시지 -->
+    <div style="text-align:center;position:relative">
+      <div style="font-size:14px;font-weight:800;opacity:0.9;letter-spacing:0.2px">함께 응원해주세요 💪</div>
+    </div>
+  `;
+
+  document.body.appendChild(card);
+
   try {
-    const el = document.querySelector('.level-card');
-    const canvas = await html2canvas(el, {
+    const canvas = await html2canvas(card, {
       scale: 3,
-      backgroundColor: '#ffffff',
+      backgroundColor: '#3B1FA3',
       useCORS: true,
       logging: false,
+      windowWidth: 360,
     });
+    document.body.removeChild(card);
+
     canvas.toBlob(async (blob) => {
-      if (btn) { btn.disabled = false; btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> 내 레벨 공유하기'; }
+      restoreBtn();
       const file = new File([blob], 'hi-health-level.png', { type: 'image/png' });
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
-          await navigator.share({ files: [file], title: 'HI Health 레벨', text: '내 HI Health 레벨을 확인해보세요!' });
+          await navigator.share({
+            files: [file],
+            title: 'HI Health',
+            text: `${name}님의 HI Health 레벨을 확인해보세요!`,
+          });
         } catch(e) {
           if (e.name !== 'AbortError') showToast('공유에 실패했어요');
         }
@@ -3296,7 +3388,8 @@ async function shareLevelCard() {
       }
     }, 'image/png');
   } catch(e) {
-    if (btn) { btn.disabled = false; btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> 내 레벨 공유하기'; }
+    if (document.body.contains(card)) document.body.removeChild(card);
+    restoreBtn();
     showToast('이미지 생성에 실패했어요');
   }
 }
