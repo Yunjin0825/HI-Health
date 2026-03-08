@@ -3267,34 +3267,29 @@ function loadTodayLog() {
   } catch(e) {}
 }
 
-// 날짜 기반 연속기록 응원 멘트 (매일 변경)
-function _shareStreakMsg() {
-  const msgs = [
-    '오늘도 몸이 달라지고 있어요 💪',
-    '꾸준함이 최고의 실력이에요 🔥',
-    '작은 습관이 큰 변화를 만들어요 🌱',
-    '포기하지 않는 당신, 멋져요 ⭐',
-    '건강한 하루하루가 쌓이고 있어요 🏃',
-    '오늘의 운동이 내일을 바꿔요 ✨',
-    '몸도 마음도 단단해지는 중이에요 💎',
-    '최고의 투자, 바로 건강이에요 🏆',
-    '당신의 노력이 빛나고 있어요 🌟',
-    '매일 조금씩, 분명히 달라져요 🎯',
-    '건강한 습관, 계속 이어가요 🙌',
-    '오늘도 최선을 다한 당신 수고했어요 👏',
-    '운동하는 오늘이 내일의 나를 만들어요 🌈',
-    '쉬지 않고 달리는 당신 응원해요 🚀',
-    '지금 이 순간이 쌓여 기적이 돼요 🌊',
-    '오늘도 나 자신을 위해 움직였어요 🦋',
-    '건강한 몸이 행복한 삶의 시작이에요 😊',
-    '당신의 의지가 정말 대단해요 👑',
-    '한 걸음씩, 반드시 목표에 닿아요 🎯',
-    '운동이 습관이 된 당신, 최고예요 🥇',
-    '오늘의 땀이 내일의 자신감이에요 💦',
-  ];
-  const now = new Date();
-  const idx = (now.getMonth() * 31 + now.getDate()) % msgs.length;
-  return msgs[idx];
+// 연속일수 기반 응원 멘트
+function _shareStreakMsg(streak) {
+  const map = {
+    1:  '첫 발걸음이 시작됐어요 🌱',
+    2:  '이틀 연속, 훌륭한 시작이에요 ✨',
+    3:  '3일째! 습관의 씨앗이 심어졌어요 🔥',
+    4:  '나흘 연속, 의지가 보여요 💪',
+    5:  '5일 달성! 정말 대단해요 ⭐',
+    6:  '엿새째, 거의 일주일이에요 🎯',
+    7:  '일주일 완성! 진짜 멋져요 🏆',
+    8:  '8일 연속, 습관이 되고 있어요 🌿',
+    9:  '아홉째 날, 포기를 모르는군요 💎',
+    10: '열흘 연속! 놀라운 의지예요 🌟',
+    14: '2주 달성! 대단한 기록이에요 🎉',
+    21: '3주 연속! 완전한 습관이에요 👑',
+    30: '한 달 연속! 당신은 전설이에요 🥇',
+  };
+  if (map[streak]) return map[streak];
+  if (streak >= 100) return '100일 이상! 믿기지 않는 기록이에요 🌈';
+  if (streak >= 60)  return '두 달 이상 연속! 정말 존경스러워요 🚀';
+  if (streak >= 30)  return `${streak}일 연속! 꾸준함의 챔피언이에요 🏅`;
+  if (streak >= 14)  return `${streak}일 연속! 습관이 완전히 자리잡았어요 💫`;
+  return '매일 조금씩, 분명히 달라지고 있어요 🌊';
 }
 
 // SVG 문자열 → PNG data URL (html2canvas 호환용)
@@ -3436,7 +3431,7 @@ async function shareLevelCard() {
     display: 'flex', flexDirection: 'column',
   });
 
-  const streakMsg = _shareStreakMsg();
+  const streakMsg = _shareStreakMsg(streak);
 
   card.innerHTML = `
     <!-- ① 히어로 섹션 -->
