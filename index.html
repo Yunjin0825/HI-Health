@@ -1846,7 +1846,7 @@
         </div>
         <div><div class="qi-title">운동, 혈당 기록</div><div class="qi-sub" id="rec-quick">오늘을 기록해보세요</div></div>
       </button>
-      <button class="quick-btn" onclick="quickNav(this,()=>{navigate('community');setCommunityTab('league')})">
+      <button class="quick-btn" onclick="quickNav(this,()=>{navigate('community');setCommunityTab('league');if(S.user.registrationId){S.leagueTab='challenger';const ct=document.getElementById('league-tab-challenger');if(ct){document.querySelectorAll('.league-tab').forEach(t=>t.classList.remove('active'));ct.classList.add('active');renderLeague();}}})">
         <div class="qi-icon">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
             <path d="M8 6h8v8a4 4 0 0 1-8 0V6Z"/><path d="M8 9H5a2 2 0 0 0 0 4h3"/><path d="M16 9h3a2 2 0 0 1 0 4h-3"/>
