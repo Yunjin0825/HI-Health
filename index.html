@@ -2273,9 +2273,9 @@
 
     <div id="comm-league-panel" style="display:none">
       <div class="league-tabs">
-        <button class="league-tab active" data-tab="weekly"     onclick="setTab(this,'weekly')">이번 주</button>
-        <button class="league-tab"        data-tab="monthly"    onclick="setTab(this,'monthly')">이번 달</button>
-        <button class="league-tab"        data-tab="alltime"    onclick="setTab(this,'alltime')">전체 기록</button>
+        <button class="league-tab active" data-tab="weekly"     onclick="setTab(this,'weekly')">이번주</button>
+        <button class="league-tab"        data-tab="level"      onclick="setTab(this,'level')">레벨별</button>
+        <button class="league-tab"        data-tab="alltime"    onclick="setTab(this,'alltime')">전체기록</button>
         <button class="league-tab" id="league-tab-challenger" data-tab="challenger" onclick="setTab(this,'challenger')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><path d="M6 9H3V5h3M18 9h3V5h-3M6 9c0 3.31 2.69 6 6 6s6-2.69 6-6V5H6v4z"/><line x1="12" y1="15" x2="12" y2="19"/><line x1="8" y1="19" x2="16" y2="19"/></svg> 챌린지</button>
       </div>
 
@@ -3755,6 +3755,10 @@ function earnedAchs() {
 }
 function myLeagueRank() {
   const tab = S.leagueTab;
+  if (tab === 'level') {
+    const myLv = getLevel(S.user.totalPoints || S.user.points).lv;
+    return MOCK_USERS.filter(u => u.lv > myLv || (u.lv === myLv && u.pts > (S.user.totalPoints || S.user.points))).length + 1;
+  }
   const myPts = tab === 'weekly' ? weekData().reduce((s,d) => s+Math.round(d.mins*0.8),0)
                : (S.user.totalPoints || S.user.points);
   const others = MOCK_USERS.map(u => tab === 'weekly' ? u.wPts : u.pts);
@@ -5380,6 +5384,7 @@ function renderLeague() {
 
   // ── 일반 랭킹 ──
   const myPts  = tab === 'weekly' ? myWeekPts() : (S.user.totalPoints || S.user.points);
+  const myLvObj = getLevel(S.user.totalPoints || S.user.points);
   const myRank = myLeagueRank();
   const myLv   = getLevel(S.user.points);
   const total  = MOCK_USERS.length + 1;
@@ -5392,7 +5397,7 @@ function renderLeague() {
       <div class="mrc-sub">상위 ${pct}%</div>
     </div>
     <div class="mrc-stat">
-      <div class="mrc-label">${tab === 'weekly' ? '이번주' : tab === 'monthly' ? '이번달' : '누적'} 포인트</div>
+      <div class="mrc-label">${tab === 'weekly' ? '이번주' : tab === 'level' ? '레벨별' : '누적'} 포인트</div>
       <div class="mrc-value pts">${myPts}p</div>
       <div class="mrc-sub"><span class="lb-change ch-eq">−</span></div>
     </div>
@@ -5411,7 +5416,7 @@ function renderLeague() {
   const list = [
     ...MOCK_USERS.map(u => ({ ...u, isMe: false })),
     me
-  ].sort((a,b) => (tab === 'weekly' ? b.wPts - a.wPts : b.pts - a.pts))
+  ].sort((a,b) => tab === 'weekly' ? b.wPts - a.wPts : tab === 'level' ? (b.lv - a.lv || b.pts - a.pts) : b.pts - a.pts)
    .map((u,i) => ({ ...u, rank: i+1 }));
 
   document.getElementById('podium').className = 'podium';
@@ -5425,6 +5430,7 @@ function renderLeague() {
     const lv = LEVELS[Math.min(u.lv - 1, LEVELS.length - 1)];
     const tags = (u.tags || []).slice(0, 2).map(t => `<span class="profile-tag" style="font-size:9px;padding:1px 5px">${t}</span>`).join('');
     const pts = tab === 'weekly' ? u.wPts : u.pts;
+    const lv2 = LEVELS[Math.min(u.lv - 1, LEVELS.length - 1)];
     return `
       <div class="podium-item">
         <div class="podium-av-wrap">
@@ -5432,7 +5438,7 @@ function renderLeague() {
           <div class="podium-avatar">${avHTML(u.avatar)}</div>
         </div>
         <div class="podium-name">${medals[i]} ${u.name}</div>
-        <div class="podium-pts">${pts}p</div>
+        <div class="podium-pts">${tab === 'level' ? lv2.name : pts + 'p'}</div>
         <div class="podium-stand ${standClass[i]}">${standNum[i]}</div>
       </div>`;
   }).join('');
@@ -5453,7 +5459,7 @@ function renderLeague() {
         </div>
         <div class="lb-right">
           ${chgHtml}
-          <div class="lb-pts">${tab==='weekly'?u.wPts:u.pts}p</div>
+          <div class="lb-pts">${tab==='level' ? lv.name : tab==='weekly'?u.wPts:u.pts+'p'}</div>
         </div>
       </div>
     `;
