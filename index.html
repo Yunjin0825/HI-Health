@@ -3378,21 +3378,19 @@ async function shareLevelCard() {
   const logoPngUrl   = imgToPng(logoPng, logoPng ? logoPng.naturalWidth : 240, logoPng ? logoPng.naturalHeight : 60) || 'images/logo-white.png';
   const runnerPngUrl = imgToPng(runnerImg, 36);
   const avatarPngUrl = imgToPng(avatarImg, 64);
-  // 하단 배경 이미지: html2canvas는 object-fit 미지원 → JS로 cover+center bottom 직접 계산
-  // 앱: .illus-banner img { object-fit: cover } 가 .illus-home { object-fit: contain } 보다 specificity 높음
+  // 하단 배경 이미지: html2canvas는 object-fit 미지원 → JS로 cover+center top 직접 계산
   const bgSectionH = 92;
   const bgSectionW = 360;
   let bgImgStyle = '';
   if (bgImg && bgImg.naturalWidth) {
     const imgW = bgImg.naturalWidth, imgH = bgImg.naturalHeight;
-    // cover: 컨테이너를 완전히 채우는 scale (큰 쪽 기준)
+    // cover: 컨테이너를 완전히 채우는 scale
     const scale = Math.max(bgSectionW / imgW, bgSectionH / imgH);
     const dw = Math.round(imgW * scale);
     const dh = Math.round(imgH * scale);
-    // center bottom: 가로 중앙, 세로 하단 정렬
+    // center top: 가로 중앙, 세로 상단 정렬 (이미지 상단이 보임)
     const left = Math.round((bgSectionW - dw) / 2);
-    const top  = -(dh - bgSectionH); // 하단 고정 = 이미지 상단을 위로 밀어냄
-    bgImgStyle = `position:absolute;width:${dw}px;height:${dh}px;left:${left}px;top:${top}px;opacity:0.75`;
+    bgImgStyle = `position:absolute;width:${dw}px;height:${dh}px;left:${left}px;top:0;opacity:0.75`;
   }
   const bgPngUrl     = bgImg ? imgToPng(bgImg, bgImg.naturalWidth, bgImg.naturalHeight) : '';
   // 배지: 연보라 원형 배경 위에 이미지 합성
