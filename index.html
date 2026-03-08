@@ -3905,7 +3905,7 @@ function renderHome() {
   document.getElementById('pts-quick').textContent = '보유 ' + S.user.points + 'p' + (canRedeem ? ' · 교환 가능' : '');
   const woCnt = (S.workouts || []).length;
   const glCnt = (S.glucoseRecords || []).length;
-  document.getElementById('rec-quick').textContent = '운동 ' + woCnt + '회 · 혈당 ' + glCnt + '회';
+  document.getElementById('rec-quick').textContent = (woCnt === 0 && glCnt === 0) ? '기록을 시작해보세요' : '운동 ' + woCnt + '회 · 혈당 ' + glCnt + '회';
   const myPostCnt    = (S.posts || []).length;
   const myName       = myDisplayName();
   const allPosts     = [...(S.posts || []), ...(S.communityPosts || [])];
