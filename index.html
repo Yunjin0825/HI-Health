@@ -3386,7 +3386,7 @@ async function shareLevelCard() {
   const runnerPngUrl = imgToPng(runnerImg, 144);
   const avatarPngUrl = imgToPng(avatarImg, 192);
   // 하단 배경 이미지: html2canvas는 object-fit 미지원 → JS로 cover+center top 직접 계산
-  const bgSectionH = 72;
+  const bgSectionH = 74;
   const bgSectionW = 360;
   let bgImgStyle = '';
   if (bgImg && bgImg.naturalWidth) {
@@ -3511,7 +3511,7 @@ async function shareLevelCard() {
     </div>
 
     <!-- ③ 하단 이미지 -->
-    <div style="flex-shrink:0;height:72px;position:relative;overflow:hidden;margin-top:-8px;background:#fff">
+    <div style="flex-shrink:0;height:74px;position:relative;overflow:hidden;margin-top:-8px;background:#fff">
       ${bgPngUrl ? `<img src="${bgPngUrl}" style="${bgImgStyle}">` : ''}
       <!-- 상하 + 좌우 그라디언트 (하단 흐림 축소) -->
       <div style="position:absolute;inset:0;background:linear-gradient(to right,rgba(255,255,255,0.7) 0%,rgba(255,255,255,0) 12%,rgba(255,255,255,0) 88%,rgba(255,255,255,0.7) 100%),linear-gradient(to bottom,rgba(255,255,255,1) 0%,rgba(255,255,255,0) 30%,rgba(255,255,255,0) 85%,rgba(255,255,255,0.2) 100%);pointer-events:none;z-index:1"></div>
