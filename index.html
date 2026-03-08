@@ -5362,7 +5362,7 @@ function renderLeague() {
           <div class="lb-avatar">${avHTML(u.avatar)}</div>
           <div class="lb-info">
             <div class="lb-name">${lv.icon} ${u.name}</div>
-            ${(u.tags || []).length ? `<div class="lb-tags">${u.tags.slice(0,2).map(t => `<span class="profile-tag">${t}</span>`).join('')}${u.tags.length > 2 ? `<span class="profile-tag" style="letter-spacing:1px">···</span>` : ''}</div>` : ''}
+            ${(u.tags || []).length ? `<div class="lb-tags">${u.tags.slice(0,3).map(t => `<span class="profile-tag">${t}</span>`).join('')}${u.tags.length > 3 ? `<span class="profile-tag" style="letter-spacing:1px">···</span>` : ''}</div>` : ''}
           </div>
           <div class="lb-right">
             <div class="lb-pts">${u.pts}p</div>
@@ -5444,7 +5444,7 @@ function renderLeague() {
         <div class="lb-avatar">${avHTML(u.avatar)}</div>
         <div class="lb-info">
           <div class="lb-name">${lv.icon} ${u.name}</div>
-          ${(u.tags || []).length ? `<div class="lb-tags">${u.tags.slice(0,2).map(t => `<span class="profile-tag">${t}</span>`).join('')}${u.tags.length > 2 ? `<span class="profile-tag" style="letter-spacing:1px">···</span>` : ''}</div>` : ''}
+          ${(u.tags || []).length ? `<div class="lb-tags">${u.tags.slice(0,3).map(t => `<span class="profile-tag">${t}</span>`).join('')}${u.tags.length > 3 ? `<span class="profile-tag" style="letter-spacing:1px">···</span>` : ''}</div>` : ''}
         </div>
         <div class="lb-right">
           <div class="lb-pts">${tab==='weekly'?u.wPts:u.pts}p</div>
