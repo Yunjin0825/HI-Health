@@ -1801,7 +1801,7 @@
         <div class="level-bar-dot" id="lv-bar-dot" style="left:0%"><img src="icons/HI_icon_4.png" style="width:30px;height:30px;display:block"></div>
       </div>
       <div class="level-bar-text">
-        <span id="lv-cur-pts">0p</span>
+        <span id="lv-cur-pts">누적 0p</span>
         <span id="lv-next-pts">다음 레벨까지 200p</span>
       </div>
     </div>
@@ -3058,7 +3058,7 @@ const WEEK_DAYS = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
 ════════════════════════════════════════ */
 let S = {
   deviceId: null,
-  user: { name:'', avatar:'🏃', points:0, streak:0, stickersReceived:0, registrationId:null, tags:[] },
+  user: { name:'', avatar:'🏃', points:0, totalPoints:0, streak:0, stickersReceived:0, registrationId:null, tags:[] },
   workouts: [],
   posts: JSON.parse(JSON.stringify(MOCK_POSTS_SEED)),
   redeemedRewards: [],
@@ -3136,6 +3136,8 @@ function load() {
     const d = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
     if (!d) return;
     S.user = { ...S.user, ...d.user };
+    // 기존 사용자 마이그레이션: totalPoints 없으면 현재 points로 초기화
+    if (!S.user.totalPoints) S.user.totalPoints = S.user.points;
     S.workouts = d.workouts || [];
     S.posts = d.posts || JSON.parse(JSON.stringify(MOCK_POSTS_SEED));
     S.redeemedRewards = d.redeemedRewards || [];
@@ -3362,11 +3364,11 @@ function updateStreak() {
   S.user.streak = streak;
 }
 function earnedAchs() {
-  const lv = getLevel(S.user.points).lv;
+  const lv = getLevel(S.user.totalPoints || S.user.points).lv;
   return ACHIEVEMENTS_DATA.filter(a => {
     const val = a.key === 'totalWorkouts' ? totalWorkouts()
               : a.key === 'streak'        ? S.user.streak
-              : a.key === 'points'        ? S.user.points
+              : a.key === 'points'        ? (S.user.totalPoints || S.user.points)
               : a.key === 'level'         ? lv
               : a.key === 'stickersReceived' ? S.user.stickersReceived
               : 0;
@@ -3466,7 +3468,7 @@ function renderHeader() {
    RENDER: HOME
 ════════════════════════════════════════ */
 function renderHome() {
-  const lv = getLevel(S.user.points);
+  const lv = getLevel(S.user.totalPoints || S.user.points);
   const tw = todayWorkouts();
   const todayMins = tw.reduce((s,w) => s+w.duration, 0);
   const todayPts  = tw.reduce((s,w) => s+w.points, 0);
@@ -3530,8 +3532,9 @@ function renderHome() {
   const bar = document.getElementById('lv-bar');
   bar.style.transition = 'none';
   bar.style.width = '0%';
+  const tp = S.user.totalPoints || S.user.points;
   const targetPct = nextLv
-    ? ((S.user.points - lv.min) / (nextLv.min - lv.min) * 100).toFixed(1)
+    ? ((tp - lv.min) / (nextLv.min - lv.min) * 100).toFixed(1)
     : '100';
   const dot = document.getElementById('lv-bar-dot');
   const BAR_TRANSITION = 'width 3.2s cubic-bezier(0.34,0.98,0.64,1)';
@@ -3543,9 +3546,9 @@ function renderHome() {
     bar.style.width = targetPct + '%';
     if (dot) { dot.style.transition = DOT_TRANSITION; dot.style.left = targetPct + '%'; dot.style.opacity = targetPct > 0 ? '1' : '0'; }
   }));
-  document.getElementById('lv-cur-pts').textContent = S.user.points + 'p';
+  document.getElementById('lv-cur-pts').textContent = '누적 ' + tp + 'p';
   document.getElementById('lv-next-pts').textContent = nextLv
-    ? '다음 레벨까지 ' + (nextLv.min - S.user.points) + 'p'
+    ? '다음 레벨까지 ' + (nextLv.min - tp) + 'p'
     : '최고 레벨 달성! 🎉';
 
   // Quick action subtitles
@@ -4080,6 +4083,7 @@ function logExercise() {
   });
   const prevEarnedIds = new Set(earnedAchs().map(a => a.id));
   S.user.points += pts;
+  S.user.totalPoints = (S.user.totalPoints || 0) + pts;
   updateStreak();
   const wasShared = _shareOn;
   // Community share
@@ -4194,8 +4198,8 @@ function logExercise() {
   const newBadges = earnedAchs().filter(a => !prevEarnedIds.has(a.id));
 
   // Check level up
-  const lv = getLevel(S.user.points);
-  const prevPts = S.user.points - pts;
+  const lv = getLevel(S.user.totalPoints || S.user.points);
+  const prevPts = (S.user.totalPoints || S.user.points) - pts;
   const prevLv = getLevel(prevPts);
   if (lv.lv > prevLv.lv) {
     setTimeout(() => { haptic('levelup'); showCelebration('levelup', lv); }, 1200);
@@ -4219,6 +4223,7 @@ function deleteWorkout(id) {
       haptic('delete');
       S.workouts.splice(idx, 1);
       S.user.points = Math.max(0, S.user.points - wo.points);
+      S.user.totalPoints = Math.max(0, (S.user.totalPoints || 0) - wo.points);
       updateStreak();
       save();
       renderHeader();
@@ -4522,6 +4527,7 @@ function logGlucoseStandalone() {
   const rec = { id: Date.now(), value: _glucoseVal, timing: _glucoseTiming, ts, points: GLUCOSE_POINTS };
   S.glucoseRecords.unshift(rec);
   S.user.points += GLUCOSE_POINTS;
+  S.user.totalPoints = (S.user.totalPoints || 0) + GLUCOSE_POINTS;
   save();
   apiSync('addGlucose', {
     id: rec.id,
@@ -4556,6 +4562,7 @@ function deleteGlucose(id) {
       haptic('delete');
       S.glucoseRecords = S.glucoseRecords.filter(r => r.id !== id);
       S.user.points = Math.max(0, S.user.points - (rec.points || GLUCOSE_POINTS));
+      S.user.totalPoints = Math.max(0, (S.user.totalPoints || 0) - (rec.points || GLUCOSE_POINTS));
       save();
       renderHeader();
       renderGlucose();
@@ -5793,10 +5800,10 @@ function renderRewards() {
   const earned = earnedAchs();
   document.getElementById('ach-list').innerHTML = ACHIEVEMENTS_DATA.map(a => {
     const isEarned = !!earned.find(e => e.id === a.id);
-    const lv = getLevel(S.user.points);
+    const lv = getLevel(S.user.totalPoints || S.user.points);
     const curVal = a.key === 'totalWorkouts' ? totalWorkouts()
                  : a.key === 'streak'        ? S.user.streak
-                 : a.key === 'points'        ? S.user.points
+                 : a.key === 'points'        ? (S.user.totalPoints || S.user.points)
                  : a.key === 'level'         ? lv.lv
                  : S.user.stickersReceived;
     const pct = Math.min(100, Math.round((curVal/a.goal)*100));
