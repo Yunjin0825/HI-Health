@@ -5318,12 +5318,12 @@ function renderLeague() {
         <div class="mrc-stat">
           <div class="mrc-label">누적 포인트</div>
           <div class="mrc-value pts">${S.user.totalPoints || S.user.points}p</div>
-          <div class="mrc-sub">&nbsp;</div>
+          <div class="mrc-sub"><span class="lb-change ch-eq">−</span></div>
         </div>
         <div class="mrc-stat">
           <div class="mrc-label">내 레벨</div>
           <div class="mrc-value" style="font-size:48px">${myLv.icon}</div>
-          <div class="mrc-sub">&nbsp;</div>
+          <div class="mrc-sub">Level ${myLv.lv}</div>
         </div>
       `;
     } else {
@@ -5390,12 +5390,12 @@ function renderLeague() {
     <div class="mrc-stat">
       <div class="mrc-label">${tab === 'weekly' ? '이번주' : tab === 'monthly' ? '이번달' : '누적'} 포인트</div>
       <div class="mrc-value pts">${myPts}p</div>
-      <div class="mrc-sub">&nbsp;</div>
+      <div class="mrc-sub"><span class="lb-change ch-eq">−</span></div>
     </div>
     <div class="mrc-stat">
       <div class="mrc-label">내 레벨</div>
       <div class="mrc-value" style="font-size:48px">${myLv.icon}</div>
-      <div class="mrc-sub">&nbsp;</div>
+      <div class="mrc-sub">Level ${myLv.lv}</div>
     </div>
   `;
 
