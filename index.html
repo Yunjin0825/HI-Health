@@ -3403,14 +3403,13 @@ async function shareLevelCard() {
       </div>
     </div>
 
-    <!-- 레벨 아이콘 + 이름 + 획득배지 + 레벨배지 -->
+    <!-- 레벨 아이콘 + 이름+배지 한 줄 + 레벨배지 -->
     <div style="text-align:center;position:relative;flex-shrink:0">
-      <img src="${lvIconPng}" style="width:72px;height:72px;display:block;margin:0 auto 8px">
-      <div style="font-size:24px;font-weight:900;margin-bottom:8px;letter-spacing:-0.5px">${name}님</div>
-      ${badgePngUrls.length ? `
-      <div style="display:flex;justify-content:center;align-items:center;gap:6px;margin-bottom:8px">
-        ${badgePngUrls.map(url => `<img src="${url}" style="width:30px;height:30px;border-radius:50%;border:2px solid rgba(255,255,255,0.4);background:rgba(255,255,255,0.15);object-fit:contain;padding:2px">`).join('')}
-      </div>` : ''}
+      <img src="${lvIconPng}" style="width:60px;height:60px;display:block;margin:0 auto 8px">
+      <div style="display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:8px;flex-wrap:nowrap">
+        <span style="font-size:22px;font-weight:900;letter-spacing:-0.5px;line-height:1">${name}님</span>
+        ${badgePngUrls.map(url => `<img src="${url}" style="width:24px;height:24px;object-fit:contain;flex-shrink:0">`).join('')}
+      </div>
       <div style="display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,0.2);padding:6px 18px;border-radius:24px">
         <span style="font-size:13px;font-weight:800">레벨 ${lv.lv}</span>
         <span style="opacity:0.5;font-size:10px">·</span>
