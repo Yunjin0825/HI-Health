@@ -3435,8 +3435,8 @@ async function shareLevelCard() {
     <div style="flex-shrink:0;background:linear-gradient(to bottom,rgba(0,0,0,0.22) 0%,rgba(0,0,0,0) 80px),linear-gradient(145deg,#1E1A6E 0%,#3730A3 35%,#4F46E5 68%,#6366F1 100%),linear-gradient(to bottom right,rgba(255,255,255,0.07) 0%,transparent 55%);padding:12px 18px 14px;border-radius:0 0 28px 28px;position:relative;overflow:hidden;color:#fff">
       <!-- 광택 오버레이 -->
       <div style="position:absolute;top:0;left:0;right:0;height:100%;background:linear-gradient(180deg,rgba(255,255,255,0.06) 0%,transparent 50%);pointer-events:none"></div>
-      <!-- ::before 상당: 우측 상단, 120px, blur(14px) -->
-      <div style="position:absolute;top:-45px;right:-35px;width:120px;height:120px;border-radius:50%;background:linear-gradient(to bottom,transparent 0%,rgba(255,255,255,0.07) 55%);filter:blur(14px);pointer-events:none"></div>
+      <!-- ::before 상당: 우측 상단, 160px, blur(14px) -->
+      <div style="position:absolute;top:-50px;right:-40px;width:160px;height:160px;border-radius:50%;background:linear-gradient(to bottom,transparent 0%,rgba(255,255,255,0.07) 55%);filter:blur(14px);pointer-events:none"></div>
       <!-- ::after 상당: 우측 하단, 75px, blur(10px) -->
       <div style="position:absolute;bottom:-30px;right:40px;width:75px;height:75px;border-radius:50%;background:rgba(255,255,255,0.05);filter:blur(10px);pointer-events:none"></div>
       <!-- hc-circle 좌측 대: 95px, blur(6px) -->
@@ -3485,7 +3485,7 @@ async function shareLevelCard() {
       <div style="display:flex;align-items:center;gap:10px">
         <img src="${lvIconPng}" style="width:34px;height:34px;flex-shrink:0">
         <div style="display:flex;align-items:center;gap:6px">
-          <span style="font-size:15px;font-weight:900;color:#1E1B4B;letter-spacing:-0.3px">${lv.name} 단계</span>
+          <span style="font-size:15px;font-weight:900;color:#1E1B4B;letter-spacing:-0.3px">${lv.name}</span>
           <span style="width:4px;height:4px;border-radius:50%;background:#A78BFA;display:inline-block;flex-shrink:0"></span>
           <span style="font-size:13px;font-weight:700;color:#7C3AED">레벨 ${lv.lv}</span>
         </div>
