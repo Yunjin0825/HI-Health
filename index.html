@@ -3378,6 +3378,21 @@ async function shareLevelCard() {
   const logoPngUrl   = imgToPng(logoPng, logoPng ? logoPng.naturalWidth : 240, logoPng ? logoPng.naturalHeight : 60) || 'images/logo-white.png';
   const runnerPngUrl = imgToPng(runnerImg, 36);
   const avatarPngUrl = imgToPng(avatarImg, 64);
+  // 하단 배경 이미지: html2canvas는 object-fit 미지원 → JS로 contain 크기 직접 계산
+  const bgSectionH = 100;
+  const bgSectionW = 360;
+  let bgImgStyle = '';
+  if (bgImg && bgImg.naturalWidth) {
+    const aspect = bgImg.naturalWidth / bgImg.naturalHeight;
+    const byH = bgSectionH; const byHW = byH * aspect;
+    const byW = bgSectionW; const byWH = byW / aspect;
+    let dw, dh;
+    if (byHW <= bgSectionW) { dw = byHW; dh = byH; } // height 기준 contain
+    else { dw = byW; dh = byWH; }                     // width 기준 contain
+    const left = (bgSectionW - dw) / 2;
+    const bottom = 0;
+    bgImgStyle = `position:absolute;width:${dw}px;height:${dh}px;left:${left}px;bottom:${bottom}px;opacity:0.75`;
+  }
   const bgPngUrl     = bgImg ? imgToPng(bgImg, bgImg.naturalWidth, bgImg.naturalHeight) : '';
   // 배지: 연보라 원형 배경 위에 이미지 합성
   const badgePngUrls = badgeImgs.map(img => {
@@ -3490,9 +3505,9 @@ async function shareLevelCard() {
     </div>
 
     <!-- ③ 하단 섹션: happy-play 이미지 (홈탭 illus-banner 완전 동일) -->
-    <div style="flex:1;min-height:50px;position:relative;overflow:hidden;margin-top:8px">
-      ${bgPngUrl ? `<img src="${bgPngUrl}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center bottom;opacity:0.75;display:block">` : ''}
-      <!-- 상하 + 좌우 4방향 그라디언트 (illus-banner::before 동일) -->
+    <div style="height:${bgSectionH}px;flex-shrink:0;position:relative;overflow:hidden;margin-top:8px;background:#fff">
+      ${bgPngUrl ? `<img src="${bgPngUrl}" style="${bgImgStyle}">` : ''}
+      <!-- 상하 + 좌우 4방향 그라디언트 (illus-banner::before 완전 동일) -->
       <div style="position:absolute;inset:0;background:linear-gradient(to right,rgba(255,255,255,0.7) 0%,rgba(255,255,255,0) 12%,rgba(255,255,255,0) 88%,rgba(255,255,255,0.7) 100%),linear-gradient(to bottom,rgba(255,255,255,1) 0%,rgba(255,255,255,0) 30%,rgba(255,255,255,0) 70%,rgba(255,255,255,0.55) 100%);pointer-events:none;z-index:1"></div>
       <!-- URL -->
       <div style="position:absolute;bottom:8px;left:0;right:0;display:flex;align-items:center;justify-content:center;gap:8px;z-index:2">
