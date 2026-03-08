@@ -1124,13 +1124,17 @@
     }
     .mrc-stat {
       flex: 1; display: flex; flex-direction: column; align-items: center;
-      gap: 4px; padding: 4px 8px;
+      gap: 3px; padding: 4px 8px;
     }
     .mrc-stat + .mrc-stat { border-left: 1px solid var(--border); }
-    .mrc-label { font-size: 11px; color: var(--text-secondary); font-weight: 500; }
-    .mrc-value { font-size: 22px; font-weight: 800; color: var(--primary); line-height: 1.1; }
+    .mrc-label { font-size: 11px; color: var(--text-secondary); font-weight: 500; line-height: 1.2; }
+    .mrc-value {
+      font-size: 22px; font-weight: 800; color: var(--primary);
+      line-height: 1; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+    }
     .mrc-value.pts { color: #f59e0b; }
-    .mrc-sub { font-size: 11px; color: var(--text-secondary); }
+    .mrc-sub { font-size: 11px; color: var(--text-secondary); line-height: 1.2; }
 
     /* Podium */
     .podium {
