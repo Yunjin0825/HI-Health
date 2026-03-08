@@ -1867,7 +1867,7 @@
             <path d="M15 3H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l4-4h4a2 2 0 002-2V5a2 2 0 00-2-2z"/>
           </svg>
         </div>
-        <div><div class="qi-title">커뮤니티</div><div class="qi-sub">응원 메시지 보기</div></div>
+        <div><div class="qi-title">커뮤니티</div><div class="qi-sub" id="comm-quick">응원 메시지 보기</div></div>
       </button>
       <button class="quick-btn" onclick="quickNav(this,()=>navigate('rewards'))">
         <div class="qi-icon">
@@ -3900,6 +3900,9 @@ function renderHome() {
   }
   const canRedeem = REWARDS_DATA.some(r => !S.redeemedRewards.includes(r.id) && !S.pendingRewards.includes(r.id) && S.user.points >= r.cost);
   document.getElementById('pts-quick').textContent = '보유 ' + S.user.points + 'p' + (canRedeem ? ' · 교환 가능' : '');
+  const myPostCnt    = (S.posts || []).length;
+  const myCommentCnt = (S.posts || []).reduce((s, p) => s + ((p.commentList || []).length), 0);
+  document.getElementById('comm-quick').textContent = '내 글 ' + myPostCnt + '개 · 댓글 ' + myCommentCnt + '개';
 
   // Weekly chart
   const wd = weekData();
