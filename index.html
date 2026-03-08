@@ -2852,22 +2852,17 @@ function openCartPanel() {
   if (orders.length === 0) {
     histEl.innerHTML = '<div class="cart-panel-empty">구매내역이 없어요</div>';
   } else {
-    const statusLabel = { pending:'확인중', confirmed:'수령완료', done:'처리완료' };
-    histEl.innerHTML = orders.slice(0, 20).map(o => `
+    const statusLabel = { pending:'확인중', confirmed:'수령완료', done:'처리완료', cancelled:'취소됨' };
+    const shown = orders.slice(0, 3);
+    const more  = orders.length > 3;
+    histEl.innerHTML = shown.map(o => `
       <div class="cart-hist-item">
         <div class="cart-hist-row">
-          <span class="cart-hist-id">${o.id} · ${o.orderedAt ? o.orderedAt.slice(0,10) : ''}</span>
+          <div class="cart-hist-names" style="flex:1;font-size:12px">${(o.items||[]).map(i => i.name + ' ×' + i.qty).join(', ')}</div>
           <span class="cart-hist-status">${statusLabel[o.status] || o.status}</span>
         </div>
-        <div class="cart-hist-row" style="margin-top:4px">
-          <div class="cart-hist-names">${(o.items||[]).map(i => i.name + ' ×' + i.qty).join(', ')}</div>
-          <span class="cart-hist-total">${(o.total||0).toLocaleString()}원</span>
-        </div>
-        <div class="cart-hist-row" style="margin-top:4px">
-          <span style="font-size:11px;color:var(--text-secondary)">${o.pickup || ''}</span>
-          <button type="button" class="cart-hist-detail-btn" onclick="openOrderDetail('${o.id}')">상세보기</button>
-        </div>
-      </div>`).join('');
+      </div>`).join('')
+    + (more ? `<button type="button" class="cart-hist-detail-btn" style="width:100%;text-align:center;margin-top:6px;padding:4px 0" onclick="closeCartPanel();navigate('rewards');setRewardsTab('shop')">더보기 (${orders.length}건 전체보기)</button>` : '');
   }
   panel.classList.remove('hidden');
   backdrop.classList.remove('hidden');
