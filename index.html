@@ -3886,7 +3886,13 @@ function renderHome() {
     : '최고 레벨 달성! 🎉';
 
   // Quick action subtitles
-  document.getElementById('my-rank-quick').textContent = myLeagueRank() + '/' + (MOCK_USERS.length + 1) + '위';
+  if (S.user.registrationId) {
+    const chTotal = MOCK_USERS.filter(u => u.isChallenger).length + 1;
+    const chRank  = MOCK_USERS.filter(u => u.isChallenger && u.pts > S.user.points).length + 1;
+    document.getElementById('my-rank-quick').textContent = chRank + '/' + chTotal + '위';
+  } else {
+    document.getElementById('my-rank-quick').textContent = myLeagueRank() + '/' + (MOCK_USERS.length + 1) + '위';
+  }
   const canRedeem = REWARDS_DATA.some(r => !S.redeemedRewards.includes(r.id) && !S.pendingRewards.includes(r.id) && S.user.points >= r.cost);
   document.getElementById('pts-quick').textContent = '보유 ' + S.user.points + 'p' + (canRedeem ? ' · 교환 가능' : '');
 
