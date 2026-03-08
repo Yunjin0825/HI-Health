@@ -3385,7 +3385,7 @@ async function shareLevelCard() {
   const runnerPngUrl = imgToPng(runnerImg, 144);
   const avatarPngUrl = imgToPng(avatarImg, 192);
   // 하단 배경 이미지: html2canvas는 object-fit 미지원 → JS로 cover+center top 직접 계산
-  const bgSectionH = 92;
+  const bgSectionH = 80;
   const bgSectionW = 360;
   let bgImgStyle = '';
   if (bgImg && bgImg.naturalWidth) {
@@ -3431,7 +3431,7 @@ async function shareLevelCard() {
 
   card.innerHTML = `
     <!-- ① 히어로 섹션 -->
-    <div style="flex-shrink:0;background:linear-gradient(to bottom,rgba(0,0,0,0.22) 0%,rgba(0,0,0,0) 80px),linear-gradient(145deg,#1E1A6E 0%,#3730A3 35%,#4F46E5 68%,#6366F1 100%),linear-gradient(to bottom right,rgba(255,255,255,0.07) 0%,transparent 55%);padding:20px 20px 26px;border-radius:0 0 28px 28px;position:relative;overflow:hidden;color:#fff">
+    <div style="flex-shrink:0;background:linear-gradient(to bottom,rgba(0,0,0,0.22) 0%,rgba(0,0,0,0) 80px),linear-gradient(145deg,#1E1A6E 0%,#3730A3 35%,#4F46E5 68%,#6366F1 100%),linear-gradient(to bottom right,rgba(255,255,255,0.07) 0%,transparent 55%);padding:12px 18px 14px;border-radius:0 0 28px 28px;position:relative;overflow:hidden;color:#fff">
       <!-- 광택 오버레이 -->
       <div style="position:absolute;top:0;left:0;right:0;height:100%;background:linear-gradient(180deg,rgba(255,255,255,0.06) 0%,transparent 50%);pointer-events:none"></div>
       <!-- ::before 상당: 우측 상단, 200px, blur(14px), 상단→하단 페이드 (mask-image 근사) -->
@@ -3450,38 +3450,38 @@ async function shareLevelCard() {
           <span style="font-size:10px;font-weight:600;opacity:0.65;letter-spacing:0.4px;white-space:nowrap">나의 건강 기록</span>
         </div>
         ${avatarPngUrl
-          ? `<img src="${avatarPngUrl}" style="width:38px;height:38px;border-radius:50%;border:2px solid rgba(255,255,255,0.5);object-fit:cover;flex-shrink:0">`
-          : `<div style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.2);flex-shrink:0"></div>`}
+          ? `<img src="${avatarPngUrl}" style="width:34px;height:34px;border-radius:50%;border:2px solid rgba(255,255,255,0.5);object-fit:cover;flex-shrink:0">`
+          : `<div style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.2);flex-shrink:0"></div>`}
       </div>
 
       <!-- 닉네임 + 태그 (3개 이상은 2줄 허용) -->
-      <div style="display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-top:14px;position:relative">
-        <span style="font-size:21px;font-weight:900;letter-spacing:-0.5px;line-height:1;flex-shrink:0">${name}님</span>
+      <div style="display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-top:8px;position:relative">
+        <span style="font-size:19px;font-weight:900;letter-spacing:-0.5px;line-height:1;flex-shrink:0">${name}님</span>
         ${userTags.map(t => `<span style="font-size:10px;padding:3px 9px;border-radius:20px;background:rgba(255,255,255,0.92);color:#4F46E5;font-weight:700;flex-shrink:0;white-space:nowrap;box-shadow:0 1px 6px rgba(0,0,0,0.12)">${t}</span>`).join('')}
       </div>
 
       <!-- 통계 3칸 (border 제거 — 원래 hero-stat과 동일) -->
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;position:relative">
-        <div style="background:rgba(255,255,255,0.15);border-radius:10px;padding:9px 5px;text-align:center">
-          <div style="font-size:20px;font-weight:700;line-height:1">${totalCnt}<span style="font-size:10px;font-weight:600;opacity:0.8">회</span></div>
-          <div style="font-size:9px;opacity:0.8;margin-top:2px;font-weight:600">총 운동횟수</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px;position:relative">
+        <div style="background:rgba(255,255,255,0.15);border-radius:10px;padding:6px 5px;text-align:center">
+          <div style="font-size:18px;font-weight:700;line-height:1">${totalCnt}<span style="font-size:9px;font-weight:600;opacity:0.8">회</span></div>
+          <div style="font-size:8px;opacity:0.8;margin-top:2px;font-weight:600">총 운동횟수</div>
         </div>
-        <div style="background:rgba(255,255,255,0.15);border-radius:10px;padding:9px 5px;text-align:center">
-          <div style="font-size:${totalMin >= 600 ? '14px' : '20px'};font-weight:700;line-height:1">${timeStr}</div>
-          <div style="font-size:9px;opacity:0.8;margin-top:2px;font-weight:600">총 운동시간</div>
+        <div style="background:rgba(255,255,255,0.15);border-radius:10px;padding:6px 5px;text-align:center">
+          <div style="font-size:${totalMin >= 600 ? '13px' : '18px'};font-weight:700;line-height:1">${timeStr}</div>
+          <div style="font-size:8px;opacity:0.8;margin-top:2px;font-weight:600">총 운동시간</div>
         </div>
-        <div style="background:rgba(255,255,255,0.15);border-radius:10px;padding:9px 5px;text-align:center">
-          <div style="font-size:20px;font-weight:700;line-height:1">${curPts}<span style="font-size:10px;font-weight:600;opacity:0.8">p</span></div>
-          <div style="font-size:9px;opacity:0.8;margin-top:2px;font-weight:600">총 포인트</div>
+        <div style="background:rgba(255,255,255,0.15);border-radius:10px;padding:6px 5px;text-align:center">
+          <div style="font-size:18px;font-weight:700;line-height:1">${curPts}<span style="font-size:9px;font-weight:600;opacity:0.8">p</span></div>
+          <div style="font-size:8px;opacity:0.8;margin-top:2px;font-weight:600">총 포인트</div>
         </div>
       </div>
     </div>
 
     <!-- ② 레벨 카드 (화이트, 히어로 섹션 아래 여백 두고 배치) -->
-    <div style="flex-shrink:0;background:#fff;border-radius:16px;margin:10px 14px 0;padding:14px 16px 12px;box-shadow:0 2px 16px rgba(109,40,217,0.08),0 1px 3px rgba(0,0,0,0.04);position:relative">
+    <div style="flex-shrink:0;background:#fff;border-radius:16px;margin:6px 12px 0;padding:10px 14px 8px;box-shadow:0 2px 16px rgba(109,40,217,0.08),0 1px 3px rgba(0,0,0,0.04);position:relative">
       <!-- 레벨 아이콘 + 레벨명 + 레벨번호 한 줄 -->
       <div style="display:flex;align-items:center;gap:10px">
-        <img src="${lvIconPng}" style="width:38px;height:38px;flex-shrink:0">
+        <img src="${lvIconPng}" style="width:34px;height:34px;flex-shrink:0">
         <div style="display:flex;align-items:center;gap:6px">
           <span style="font-size:15px;font-weight:900;color:#1E1B4B;letter-spacing:-0.3px">${lv.name} 단계</span>
           <span style="width:4px;height:4px;border-radius:50%;background:#A78BFA;display:inline-block;flex-shrink:0"></span>
@@ -3490,7 +3490,7 @@ async function shareLevelCard() {
       </div>
 
       <!-- 레벨 바 -->
-      <div style="margin-top:10px">
+      <div style="margin-top:8px">
         <div style="display:flex;justify-content:space-between;font-size:9px;color:#6D28D9;opacity:0.55;margin-bottom:5px;font-weight:600">
           <span>${curPts}p</span>
           <span>${nextLv ? `다음 레벨까지 ${nextLv.min - curPts}p` : '최고 레벨 달성!'}</span>
@@ -3502,13 +3502,13 @@ async function shareLevelCard() {
       </div>
 
       <!-- 연속 운동 응원 멘트 -->
-      <div style="margin-top:16px;background:rgba(237,233,254,0.65);border-radius:10px;padding:8px 12px;display:flex;align-items:center;gap:8px;border:1px solid rgba(124,58,237,0.12)">
+      <div style="margin-top:8px;background:rgba(237,233,254,0.65);border-radius:10px;padding:6px 10px;display:flex;align-items:center;gap:8px;border:1px solid rgba(124,58,237,0.12)">
         <img src="${flameIconPng}" style="width:18px;height:18px;flex-shrink:0">
         <span style="font-size:11px;font-weight:800;color:#3730A3;white-space:nowrap">${streak}일 연속 운동기록 중!</span>
         <span style="font-size:10px;color:#6D28D9;opacity:0.7;font-weight:600;flex:1;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${streakMsg}</span>
       </div>
       <!-- URL -->
-      <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px">
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px">
         <div style="flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(124,58,237,0.25))"></div>
         <span style="font-size:8px;color:#7C3AED;opacity:0.5;font-weight:500;letter-spacing:0.4px">yunjin0825.github.io/HI-Health</span>
         <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(124,58,237,0.25),transparent)"></div>
