@@ -1192,6 +1192,7 @@
     .post-av { width:38px; height:38px; border-radius:50%; overflow:hidden; flex-shrink:0; background:var(--bg); }
     .post-uname { font-size: 13px; font-weight: 600; }
     .post-meta { font-size: 11px; color: var(--text-secondary); display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+    .post-lv-icon { font-size: 18px; line-height: 1; vertical-align: middle; }
     .post-del { margin-left:auto; background:none; border:none; cursor:pointer; font-size:15px; opacity:0.35; transition:opacity 0.2s; padding:4px; line-height:1; flex-shrink:0; }
     .post-del:hover { opacity:1; color:#ef4444; }
     .post-edit { background:none; border:none; cursor:pointer; opacity:0.35; transition:opacity 0.2s; padding:4px; line-height:1; flex-shrink:0; margin-left:auto; }
@@ -5575,7 +5576,7 @@ function renderCommunity() {
           <div class="post-meta">
             <span class="post-uname">${p.name}</span>
             <span>·</span>
-            <span>${lv.icon} ${lv.name}</span>
+            <span><span class="post-lv-icon">${lv.icon}</span> ${lv.name}</span>
             <span>·</span>
             <span>${p.time}</span>
           </div>
