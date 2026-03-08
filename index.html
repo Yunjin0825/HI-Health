@@ -3757,7 +3757,8 @@ function myLeagueRank() {
   const tab = S.leagueTab;
   if (tab === 'level') {
     const myLv = getLevel(S.user.totalPoints || S.user.points).lv;
-    return MOCK_USERS.filter(u => u.lv > myLv || (u.lv === myLv && u.pts > (S.user.totalPoints || S.user.points))).length + 1;
+    const myPtsVal = S.user.totalPoints || S.user.points;
+    return MOCK_USERS.filter(u => u.lv === myLv && u.pts > myPtsVal).length + 1;
   }
   const myPts = tab === 'weekly' ? weekData().reduce((s,d) => s+Math.round(d.mins*0.8),0)
                : (S.user.totalPoints || S.user.points);
@@ -5387,14 +5388,15 @@ function renderLeague() {
   const myLvObj = getLevel(S.user.totalPoints || S.user.points);
   const myRank = myLeagueRank();
   const myLv   = getLevel(S.user.points);
-  const total  = MOCK_USERS.length + 1;
+  const myLvNumCard = getLevel(S.user.totalPoints || S.user.points).lv;
+  const total  = tab === 'level' ? MOCK_USERS.filter(u => u.lv === myLvNumCard).length + 1 : MOCK_USERS.length + 1;
   const pct    = Math.round((myRank / total) * 100);
 
   document.getElementById('my-rank-card').innerHTML = `
     <div class="mrc-stat">
       <div class="mrc-label">내 순위</div>
       <div class="mrc-value">${myRank}위</div>
-      <div class="mrc-sub">상위 ${pct}%</div>
+      <div class="mrc-sub">${tab === 'level' ? '같은 레벨 ' + total + '명' : '상위 ' + pct + '%'}</div>
     </div>
     <div class="mrc-stat">
       <div class="mrc-label">${tab === 'weekly' ? '주간 획득 포인트' : tab === 'level' ? '레벨별 포인트' : '누적 포인트'}</div>
@@ -5413,10 +5415,13 @@ function renderLeague() {
     lv: getLevel(S.user.totalPoints || S.user.points).lv, pts: S.user.totalPoints || S.user.points,
     wPts: myWeekPts(), change:0, isMe: true, tags: S.user.tags || [],
   };
+  const myLvNum = getLevel(S.user.totalPoints || S.user.points).lv;
   const list = [
-    ...MOCK_USERS.map(u => ({ ...u, isMe: false })),
+    ...MOCK_USERS
+      .filter(u => tab === 'level' ? u.lv === myLvNum : true)
+      .map(u => ({ ...u, isMe: false })),
     me
-  ].sort((a,b) => tab === 'weekly' ? b.wPts - a.wPts : tab === 'level' ? (b.lv - a.lv || b.pts - a.pts) : b.pts - a.pts)
+  ].sort((a,b) => tab === 'weekly' ? b.wPts - a.wPts : b.pts - a.pts)
    .map((u,i) => ({ ...u, rank: i+1 }));
 
   document.getElementById('podium').className = 'podium';
