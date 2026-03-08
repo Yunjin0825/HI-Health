@@ -2165,7 +2165,11 @@
       </div>
       <textarea class="form-textarea" id="ex-memo" rows="2" placeholder="메모를 남겨보세요" style="display:none" oninput="updateMemoPlaceholder(); if(_shareOn) updateSharePreview()"></textarea>
 
-      <div class="share-section">
+
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden;margin-bottom:13px">
+      <div class="share-section" style="margin-bottom:0">
         <div class="share-toggle-card" id="share-toggle-btn" onclick="toggleShare()" style="background:var(--primary);border-color:var(--primary)">
           <div class="share-toggle-icon-wrap"><img src="icons/HI_icon_13.png" class="share-icon-img" alt="공유"></div>
           <div class="share-toggle-text">
@@ -2176,7 +2180,7 @@
             <div class="share-switch-thumb"></div>
           </div>
         </div>
-        <div class="share-expand" id="share-expand">
+        <div class="share-expand" id="share-expand" style="padding:0 14px 14px">
           <div class="share-expand-inner">
             <textarea class="share-msg-input" id="share-msg" rows="5" placeholder="공유할 메시지를 입력하세요..." oninput="_shareMsgAuto=false"></textarea>
             <div class="share-hint">💡 내가 기록한 항목들이 자동으로 태그됩니다. 메모는 자유롭게 편집하실 수 있습니다.</div>
@@ -2184,7 +2188,6 @@
           </div>
         </div>
       </div>
-
     </div>
 
 
