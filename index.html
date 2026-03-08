@@ -3428,16 +3428,16 @@ async function shareLevelCard() {
   card.innerHTML = `
     <!-- ① 히어로 섹션 -->
     <div style="flex-shrink:0;background:linear-gradient(to bottom,rgba(0,0,0,0.22) 0%,rgba(0,0,0,0) 80px),linear-gradient(145deg,#1E1A6E 0%,#3730A3 35%,#4F46E5 68%,#6366F1 100%),linear-gradient(to bottom right,rgba(255,255,255,0.07) 0%,transparent 55%);padding:20px 20px 26px;border-radius:0 0 28px 28px;position:relative;overflow:hidden;color:#fff">
-      <!-- 고급 광택 오버레이 -->
+      <!-- 광택 오버레이 -->
       <div style="position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,0.06) 0%,transparent 100%);pointer-events:none"></div>
-      <!-- 우측 상단 블러 원 (축소) -->
-      <div style="position:absolute;top:-40px;right:-30px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,0.09);filter:blur(18px);pointer-events:none"></div>
-      <!-- 우측 하단 블러 원 (축소) -->
-      <div style="position:absolute;bottom:-30px;right:35px;width:85px;height:85px;border-radius:50%;background:rgba(255,255,255,0.07);filter:blur(8px);pointer-events:none"></div>
-      <!-- 좌측 상단 블러 원 (축소) -->
-      <div style="position:absolute;top:-35px;left:-35px;width:105px;height:105px;border-radius:50%;background:rgba(255,255,255,0.07);filter:blur(10px);pointer-events:none"></div>
-      <!-- 좌측 소 블러 원 (축소) -->
-      <div style="position:absolute;top:28px;left:38px;width:55px;height:55px;border-radius:50%;background:rgba(255,255,255,0.05);filter:blur(5px);pointer-events:none"></div>
+      <!-- ::before 상당: 우측 상단, 200px, blur(14px), 상단→하단 페이드 (mask-image 근사) -->
+      <div style="position:absolute;top:-56px;right:-50px;width:200px;height:200px;border-radius:50%;background:linear-gradient(to bottom,transparent 0%,rgba(255,255,255,0.08) 55%);filter:blur(14px);pointer-events:none"></div>
+      <!-- ::after 상당: 우측 하단, 120px, blur(4px) -->
+      <div style="position:absolute;bottom:-40px;right:40px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.06);filter:blur(4px);pointer-events:none"></div>
+      <!-- hc-circle 좌측 대: 150px, blur 없음 -->
+      <div style="position:absolute;top:-6px;left:-50px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,0.07);pointer-events:none"></div>
+      <!-- hc-circle 좌측 소: 80px, blur 없음 -->
+      <div style="position:absolute;top:74px;left:40px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.05);pointer-events:none"></div>
 
       <!-- 헤더: 로고 + 나의 건강 기록 (좌) | 아바타 (우) -->
       <div style="display:flex;align-items:center;justify-content:space-between;position:relative">
