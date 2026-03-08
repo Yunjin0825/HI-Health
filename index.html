@@ -1843,7 +1843,7 @@
             <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
           </svg>
         </div>
-        <div><div class="qi-title">보상</div><div class="qi-sub" id="pts-quick">보유 0p · 총 0p</div></div>
+        <div><div class="qi-title">보상</div><div class="qi-sub" id="pts-quick">보유 0p</div></div>
       </button>
     </div>
 
@@ -3559,7 +3559,8 @@ function renderHome() {
 
   // Quick action subtitles
   document.getElementById('my-rank-quick').textContent = myLeagueRank() + '위';
-  document.getElementById('pts-quick').textContent = '보유 ' + S.user.points + 'p · 총 ' + (S.user.totalPoints || S.user.points) + 'p';
+  const canRedeem = REWARDS_DATA.some(r => !S.redeemedRewards.includes(r.id) && !S.pendingRewards.includes(r.id) && S.user.points >= r.cost);
+  document.getElementById('pts-quick').textContent = '보유 ' + S.user.points + 'p' + (canRedeem ? ' · 교환 가능' : '');
 
   // Weekly chart
   const wd = weekData();
