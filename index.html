@@ -3485,13 +3485,13 @@ async function shareLevelCard() {
       </div>
     </div>
 
-    <!-- ③ 하단 섹션: happy-play 이미지 (홈화면 동일 crop·효과) -->
-    <div style="flex:1;position:relative;overflow:hidden;margin-top:8px">
-      ${bgPngUrl ? `<img src="${bgPngUrl}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center center;opacity:0.28">` : ''}
-      <!-- 상단 흰색 페이드 -->
-      <div style="position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,#ffffff 0%,rgba(255,255,255,0) 100%);pointer-events:none"></div>
-      <!-- URL (중앙 하단) -->
-      <div style="position:absolute;bottom:10px;left:0;right:0;display:flex;align-items:center;justify-content:center;gap:8px">
+    <!-- ③ 하단 섹션: happy-play 이미지 (홈탭 illus-banner 완전 동일) -->
+    <div style="flex:1;min-height:50px;position:relative;overflow:hidden;margin-top:8px">
+      ${bgPngUrl ? `<img src="${bgPngUrl}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center bottom;opacity:0.75;display:block">` : ''}
+      <!-- 상하 + 좌우 4방향 그라디언트 (illus-banner::before 동일) -->
+      <div style="position:absolute;inset:0;background:linear-gradient(to right,rgba(255,255,255,0.7) 0%,rgba(255,255,255,0) 12%,rgba(255,255,255,0) 88%,rgba(255,255,255,0.7) 100%),linear-gradient(to bottom,rgba(255,255,255,1) 0%,rgba(255,255,255,0) 30%,rgba(255,255,255,0) 70%,rgba(255,255,255,0.55) 100%);pointer-events:none;z-index:1"></div>
+      <!-- URL -->
+      <div style="position:absolute;bottom:8px;left:0;right:0;display:flex;align-items:center;justify-content:center;gap:8px;z-index:2">
         <div style="flex:1;max-width:50px;height:1px;background:linear-gradient(90deg,transparent,rgba(124,58,237,0.3))"></div>
         <span style="font-size:8px;color:#7C3AED;opacity:0.55;font-weight:500;letter-spacing:0.4px">yunjin0825.github.io/HI-Health</span>
         <div style="flex:1;max-width:50px;height:1px;background:linear-gradient(90deg,rgba(124,58,237,0.3),transparent)"></div>
