@@ -15535,7 +15535,9 @@ async function fetchLeagueData(opts = {}) {
     console.error('League fetch error:', e);
   } finally {
     _leagueFetching = false;
-    if (document.getElementById('comm-league-panel')?.style.display !== 'none') renderLeague();
+    if (document.getElementById('comm-league-panel')?.style.display !== 'none') {
+      try { renderLeague(); } catch(e) { console.error('[renderLeague]', e); }
+    }
     if (document.getElementById('page-home')?.classList.contains('active')) renderHome();
   }
 }
@@ -15797,8 +15799,14 @@ function setCommunityTab(tab) {
     refreshUserPointsFromServer();
     fetchCommunityPosts();
     if (!wasLeagueVisible) {
-      renderLeagueLoadingState();
+      if (Array.isArray(_realLeagueUsers) && _realLeagueUsers.length) {
+        renderLeague();
+      } else {
+        renderLeagueLoadingState();
+      }
       fetchLeagueData({ force: true, needWeekly: S.leagueTab === 'weekly' });
+      // fetchLeagueData가 조기 반환된 경우(db 미준비 or 중복 호출) 직접 렌더
+      if (!_leagueFetching) renderLeague();
       return;
     }
     renderLeague();

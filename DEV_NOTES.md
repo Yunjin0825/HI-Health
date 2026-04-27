@@ -7,6 +7,14 @@
 
 ## 🐛 오류 / 이슈
 
+### [2026-04-27] 리그 탭 "불러오는 중이에요" 고착
+**증상**: 커뮤니티 > 리그 탭을 열면 "불러오는 중이에요" 메시지가 사라지지 않고 유지됨
+**원인**: `setCommunityTab('league')` 호출 시 `fetchLeagueData`가 이미 진행 중이거나 db 미준비로 조기 반환될 때 `renderLeague()`가 한 번도 호출되지 않음. 또한 `finally` 블록 내 `renderLeague()` 오류가 조용히 삼켜지면 로딩 상태가 영구 유지됨
+**해결**:
+1. `setCommunityTab('league')` — `_realLeagueUsers` 캐시가 있으면 즉시 렌더. `fetchLeagueData` 조기 반환 감지(`!_leagueFetching`) 시 직접 `renderLeague()` 호출
+2. `fetchLeagueData` `finally` 블록 — `renderLeague()` try-catch 래핑으로 오류 노출 및 상태 회복 보장
+**관련 파일**: `index.html:15799-15812, 15536-15540`
+
 ### [2026-04-27] Stored XSS — 커뮤니티 게시글/댓글/관리자 패널
 **증상**: 보안 검토에서 발견. 실제 악용 전 수정
 **원인**: Supabase에서 가져온 사용자 데이터(게시글 본문·이름·태그, 댓글 본문·이름, 관리자 exTag)가 `innerHTML`에 이스케이프 없이 삽입됨. `escHtmlComm()` / `escHtml()` 함수가 이미 존재했지만 커뮤니티 피드/댓글 렌더링 코드에 미적용 상태였음
