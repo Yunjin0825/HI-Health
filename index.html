@@ -5577,7 +5577,7 @@
           <div class="qi-sub" id="rec-quick">오늘을 기록해보세요</div>
         </div>
       </button>
-      <button class="quick-btn" onclick="quickNav(this,()=>{navigate('community');setCommunityTab('league');if(hasActiveChallengeRegistration()){S.leagueTab='challenger';const ct=document.getElementById('league-tab-challenger');if(ct){document.querySelectorAll('.league-tab').forEach(t=>t.classList.remove('active'));ct.classList.add('active');renderLeague();}}})">
+      <button class="quick-btn" onclick="quickNav(this,()=>{S.leagueTab='alltime';navigate('community');setCommunityTab('league');const at=document.querySelector('.league-tab[data-tab=alltime]');if(at){document.querySelectorAll('.league-tab').forEach(t=>t.classList.remove('active'));at.classList.add('active');renderLeague();}})">
         <div class="qi-icon">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
             <path d="M8 6h8v8a4 4 0 0 1-8 0V6Z"/><path d="M8 9H5a2 2 0 0 0 0 4h3"/><path d="M16 9h3a2 2 0 0 1 0 4h-3"/>
@@ -6073,10 +6073,9 @@
 
     <div id="comm-league-panel" style="display:none">
       <div class="league-tabs">
-        <button class="league-tab active" data-tab="weekly"     onclick="setTab(this,'weekly')">이번주</button>
+        <button class="league-tab"        data-tab="weekly"     onclick="setTab(this,'weekly')">이번주</button>
         <button class="league-tab"        data-tab="level"      onclick="setTab(this,'level')">레벨별</button>
-        <button class="league-tab"        data-tab="alltime"    onclick="setTab(this,'alltime')">전체기록</button>
-        <button class="league-tab" id="league-tab-challenger" data-tab="challenger" onclick="setTab(this,'challenger')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><path d="M6 9H3V5h3M18 9h3V5h-3M6 9c0 3.31 2.69 6 6 6s6-2.69 6-6V5H6v4z"/><line x1="12" y1="15" x2="12" y2="19"/><line x1="8" y1="19" x2="16" y2="19"/></svg> 챌린지</button>
+        <button class="league-tab active" data-tab="alltime"    onclick="setTab(this,'alltime')">전체기록</button>
       </div>
       <div class="league-guide" id="league-guide"></div>
 
@@ -6744,7 +6743,51 @@ function getCommunityContentIdFromHash(rawHash = location.hash || '') {
 function getRequestedEntryPage(defaultPage = IS_RUN_MODE ? 'challenge' : 'home') {
   const route = parseAppHashRoute();
   if (route.page === 'community') return 'community';
+  const tabParam = String(new URLSearchParams(location.search).get('tab') || '').trim();
+  if (['home', 'exercise', 'community', 'rewards', 'challenge'].includes(tabParam)) return tabParam;
   return defaultPage;
+}
+
+function getAccountRepairRequest() {
+  const params = new URLSearchParams(location.search);
+  const rawRepair = String(params.get('repair') || params.get('restore') || '').trim();
+  const rawEmpId = rawRepair && rawRepair !== '1' ? rawRepair : params.get('empId');
+  const empId = normalizeEmpIdValue(rawEmpId || '');
+  if (!empId) return null;
+  return {
+    empId,
+    name: String(params.get('name') || '').trim(),
+  };
+}
+
+function prepareAccountRepairLogin() {
+  const request = getAccountRepairRequest();
+  if (!request) return null;
+  const deviceId = buildAccountDeviceId(request.empId);
+  const storedDeviceId = localStorage.getItem(getDeviceStorageKey(request.empId));
+  cleanupLocalUserKeys({
+    empIds: [request.empId],
+    deviceIds: [storedDeviceId, deviceId].filter(Boolean),
+    storageKeys: [
+      'hi_health_v2_' + request.empId,
+      'hi_health_shop_orders_' + request.empId,
+      'hi_health_cart_' + request.empId,
+    ],
+    preserveFamilyCertRewardSeen: true,
+  });
+  localStorage.setItem(getDeviceStorageKey(request.empId), deviceId);
+  localStorage.setItem('hi_keep_login_id', request.empId);
+  if (request.name) localStorage.setItem('hi_keep_login_name', request.name);
+  sessionStorage.setItem('hi_session_empid', request.empId);
+  localStorage.setItem('hi_saved_empid', request.empId);
+  return request;
+}
+
+function clearAccountRepairParams() {
+  if (!history.replaceState) return;
+  const url = new URL(location.href);
+  ['repair', 'restore', 'empId', 'name'].forEach(key => url.searchParams.delete(key));
+  history.replaceState({}, document.title, url.pathname + url.search + url.hash);
 }
 
 function queueOpenCommunityPostFromHash(rawHash = location.hash || '') {
@@ -8042,7 +8085,7 @@ let S = {
   selectedEx: null,
   durationTouched: false,
   duration: 30,
-  leagueTab: 'weekly',
+  leagueTab: 'alltime',
   myReactions: {},   // postId -> [stickerId,...]
   glucoseRecords: [], // { id, value, timing, userTime?, memo?, ts }
   adminPosts: [],    // admin-written column content
@@ -9406,7 +9449,7 @@ async function shareLevelCard() {
     try { return c.toDataURL('image/png'); } catch(e) { return ''; }
   };
 
-  const allTags = [...(hasActiveChallengeRegistration() ? ['챌린지 참여중'] : []), ...(S.user.tags || [])];
+  const allTags = [...(S.user.tags || [])];
   const userTags = allTags.slice(0, 3);
   const extraTagCount = Math.max(0, allTags.length - 3);
 
@@ -10220,9 +10263,8 @@ function hasLeagueUsersLoaded() {
   return Number.isFinite(Number(_leagueCache.usersFetchedAt)) && Number(_leagueCache.usersFetchedAt) > 0;
 }
 
-function myLeagueRank() {
+function myLeagueRank(tab = S.leagueTab) {
   if (!canJoinLeagueRanking()) return null;
-  const tab = S.leagueTab;
   const base = Array.isArray(_realLeagueUsers) ? _realLeagueUsers : [];
   const myPtsVal = tab === 'weekly'
     ? myWeekPts()
@@ -11670,8 +11712,7 @@ function renderHome() {
   document.getElementById('hero-name').textContent = displayName + '님';
   const tagsEl = document.getElementById('hero-tags');
   if (tagsEl) {
-    const challengeTag = hasActiveChallengeRegistration() ? `<span class="hero-tag" style="background:var(--purple);color:#fff">${renderNamedSvgIcon('medal', { size:'11px', color:'#fff' })}<span>챌린지 참여중</span></span>` : '';
-    tagsEl.innerHTML = challengeTag + (S.user.tags || []).map(t => `<span class="hero-tag">${t}</span>`).join('');
+    tagsEl.innerHTML = (S.user.tags || []).map(t => `<span class="hero-tag">${t}</span>`).join('');
   }
   document.getElementById('today-cnt').textContent = tw.length;
   document.getElementById('today-min').textContent = todayMins;
@@ -11718,13 +11759,8 @@ function renderHome() {
   } else if (!_leagueReady) {
     document.getElementById('rank-quick-label').textContent = '';
     document.getElementById('my-rank-quick').textContent = '확인 중…';
-  } else if (hasActiveChallengeRegistration()) {
-    const chTotal = _base.filter(u => u.isChallenger).length + 1;
-    const chRank  = _base.filter(u => u.isChallenger && (Number(u.chPts) || 0) > getCurrentChallengeLeaguePoints()).length + 1;
-    document.getElementById('rank-quick-label').textContent = '(챌린지)';
-    document.getElementById('my-rank-quick').innerHTML = formatRankSummary(chRank, chTotal);
   } else {
-    const lgRank = myLeagueRank();
+    const lgRank = myLeagueRank('alltime');
     const lgTotal = _base.length + 1;
     document.getElementById('rank-quick-label').textContent = '';
     document.getElementById('my-rank-quick').innerHTML = formatRankSummary(lgRank, lgTotal);
@@ -14579,8 +14615,8 @@ function openProfileModal(onboarding = false) {
   if (chEl) { chEl.innerHTML = ''; chEl.style.display = 'none'; }
   const pmChallengeTag = document.getElementById('pm-challenge-tag');
   if (pmChallengeTag) {
-    pmChallengeTag.style.display = hasActiveChallengeRegistration() ? 'inline-flex' : 'none';
-    pmChallengeTag.innerHTML = `${renderNamedSvgIcon('medal', { size:'11px', color:'#fff' })}<span>챌린지 참여중</span>`;
+    pmChallengeTag.style.display = 'none';
+    pmChallengeTag.innerHTML = '';
   }
   refreshPushPreferenceUI();
 
@@ -15549,12 +15585,12 @@ function renderLeague() {
   }
   const tab = S.leagueTab;
   const canJoinLeague = canJoinLeagueRanking();
-  if (tab === 'challenger' && !hasActiveChallengeRegistration()) {
-    S.leagueTab = 'weekly';
-    const weeklyTab = document.querySelector('.league-tab[data-tab="weekly"]');
-    if (weeklyTab) {
+  if (tab === 'challenger') {
+    S.leagueTab = 'alltime';
+    const alltimeTab = document.querySelector('.league-tab[data-tab="alltime"]');
+    if (alltimeTab) {
       document.querySelectorAll('.league-tab').forEach(t => t.classList.remove('active'));
-      weeklyTab.classList.add('active');
+      alltimeTab.classList.add('active');
     }
   }
   const currentTab = S.leagueTab;
@@ -15768,6 +15804,10 @@ function renderLeague() {
 }
 
 function setTab(el, tab) {
+  if (tab === 'challenger') {
+    tab = 'alltime';
+    el = document.querySelector('.league-tab[data-tab="alltime"]') || el;
+  }
   document.querySelectorAll('.league-tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
   S.leagueTab = tab;
@@ -15783,16 +15823,15 @@ function setCommunityTab(tab) {
   if (leaguePanel) leaguePanel.style.display = tab === 'league' ? '' : 'none';
   document.getElementById('comm-tab-feed').classList.toggle('active', tab === 'feed');
   document.getElementById('comm-tab-league').classList.toggle('active', tab === 'league');
-  // 챌린지 신청 완료 시에만 리그의 챌린지 탭 표시
+  // 리그의 챌린지 탭은 노출하지 않는다.
   const challengerTab = document.getElementById('league-tab-challenger');
-  const hasChallenge = hasActiveChallengeRegistration();
-  if (challengerTab) challengerTab.style.display = hasChallenge ? '' : 'none';
-  if (!hasChallenge && S.leagueTab === 'challenger') {
-    S.leagueTab = 'weekly';
-    const weeklyTab = document.querySelector('.league-tab[data-tab="weekly"]');
-    if (weeklyTab) {
+  if (challengerTab) challengerTab.style.display = 'none';
+  if (S.leagueTab === 'challenger') {
+    S.leagueTab = 'alltime';
+    const alltimeTab = document.querySelector('.league-tab[data-tab="alltime"]');
+    if (alltimeTab) {
       document.querySelectorAll('.league-tab').forEach(t => t.classList.remove('active'));
-      weeklyTab.classList.add('active');
+      alltimeTab.classList.add('active');
     }
   }
   if (tab === 'league') {
@@ -21042,6 +21081,7 @@ function appLogout() {
 async function init() {
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
   window.scrollTo(0, 0);
+  const accountRepairRequest = prepareAccountRepairLogin();
   const dateEl = document.getElementById('daily-log-date');
   if (dateEl) {
     const now = new Date();
@@ -21120,6 +21160,11 @@ async function init() {
     save();
     renderHeader();
     renderHome();
+    if (accountRepairRequest) {
+      navigate(getRequestedEntryPage('exercise'));
+      showToast('복구된 기록을 다시 불러왔어요');
+      clearAccountRepairParams();
+    }
     window.dispatchEvent(new Event('hi:loggedin'));
     postToRunday({
       type: 'LOGIN',
@@ -21161,7 +21206,7 @@ async function init() {
         <div class="pm-summary-avatar-caption">크게보기</div>
       </div>
       <div class="pm-summary-main">
-        <div class="pm-summary-label">My Profile<span id="pm-challenge-tag">챌린지 참여중</span></div>
+        <div class="pm-summary-label">My Profile</div>
         <div class="pm-summary-name" id="pm-preview-name">-</div>
         <div class="pm-summary-meta">
           <span class="pm-meta-chip"><strong>등록번호</strong><span id="pm-empid">-</span></span>
