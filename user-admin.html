@@ -1646,6 +1646,8 @@ function getRegRequestSummaryText(r) {
 ══════════════════════════════════════════════ */
 const ADMIN_EMPIDS = ['A1803'];
 const USER_LIST_EXCLUDE_EMPIDS = ['A1803']; // 이용자 목록에서 제외할 관리자 전용 계정
+const ADMIN_PASSWORD_HASH_CONFIG_KEY = 'admin_password_hash';
+const ADMIN_PASSWORD_LEGACY_CONFIG_KEY = 'admin_password';
 const ADMIN_LEAGUE_LEVELS = [
   { lv: 1, name: '새싹', min: 0 },
   { lv: 2, name: '햇살', min: 200 },
@@ -1670,6 +1672,7 @@ let _loadSafetyTimer = null;
 let _queuedLoadOpts = null;
 let _lastDataSignature = '';
 let _adminVisibilityBound = false;
+let _adminLoginBusy = false;
 const ADMIN_LOAD_QUERY_TIMEOUT_MS = 8000;
 const ADMIN_LOAD_SAFETY_TIMEOUT_MS = 12000;
 const ADMIN_POLL_INTERVAL_MS = 30000;
@@ -1686,23 +1689,99 @@ function withAdminLoadTimeout(promise, label, ms = ADMIN_LOAD_QUERY_TIMEOUT_MS) 
 /* ══════════════════════════════════════════════
    AUTH
 ══════════════════════════════════════════════ */
-function doLogin() {
+function getSupabaseCreateClient() {
+  return (typeof window !== 'undefined' && window.supabase && typeof window.supabase.createClient === 'function')
+    ? window.supabase.createClient
+    : (typeof supabase !== 'undefined' && typeof supabase.createClient === 'function' ? supabase.createClient : null);
+}
+
+function getAdminDbClient() {
+  if (db) return db;
+  const createClient = getSupabaseCreateClient();
+  if (!createClient) throw new Error('Supabase 연결 스크립트 로드 실패');
+  db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  return db;
+}
+
+async function hashAdminPassword(raw) {
+  const text = String(raw || '');
+  if (!text || !window.crypto?.subtle || typeof TextEncoder === 'undefined') return '';
+  const bytes = new TextEncoder().encode(text);
+  const digest = await window.crypto.subtle.digest('SHA-256', bytes);
+  return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function matchesSharedAdminPassword(raw) {
+  if (!raw) return false;
+  let client;
+  try {
+    client = getAdminDbClient();
+  } catch (error) {
+    console.warn('[admin-login/client]', error);
+    return false;
+  }
+  const { data, error } = await client
+    .from('app_config')
+    .select('key,value')
+    .in('key', [ADMIN_PASSWORD_HASH_CONFIG_KEY, ADMIN_PASSWORD_LEGACY_CONFIG_KEY]);
+  if (error) {
+    console.warn('[admin-login/config]', error);
+    return false;
+  }
+  const rows = Array.isArray(data) ? data : [];
+  const passwordHash = await hashAdminPassword(raw);
+  return rows.some(row => {
+    const key = String(row?.key || '');
+    const value = String(row?.value || '');
+    if (key === ADMIN_PASSWORD_HASH_CONFIG_KEY) return !!passwordHash && value === passwordHash;
+    if (key === ADMIN_PASSWORD_LEGACY_CONFIG_KEY) return value === raw;
+    return false;
+  });
+}
+
+function unlockAdmin(matchesAdminEmpId, normalized, raw) {
+  ADMIN_AUTH_KEY = matchesAdminEmpId ? normalized : (ADMIN_EMPIDS[0] || raw);
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('admin').style.display = 'flex';
+  initSupabase();
+}
+
+async function doLogin() {
+  if (_adminLoginBusy) return;
   const inp = document.getElementById('pw-input');
   const err = document.getElementById('login-err');
+  const btn = document.querySelector('.login-btn');
   const raw = String(inp.value || '').trim();
   const normalized = raw.toUpperCase();
   const matchesAdminEmpId = ADMIN_EMPIDS.includes(normalized);
   const matchesAdminPw = !!raw && raw === String(ADMIN_PW || '');
-  if (matchesAdminEmpId || matchesAdminPw) {
-    ADMIN_AUTH_KEY = matchesAdminEmpId ? normalized : (ADMIN_EMPIDS[0] || raw);
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('admin').style.display = 'flex';
-    initSupabase();
-  } else {
+  if (!raw) {
     inp.classList.add('err');
     inp.value = '';
-    err.textContent = raw ? '비밀번호가 올바르지 않습니다' : '비밀번호를 입력해주세요';
+    err.textContent = '비밀번호를 입력해주세요';
     setTimeout(() => { inp.classList.remove('err'); err.textContent = ''; }, 2500);
+    return;
+  }
+  if (matchesAdminEmpId || matchesAdminPw) {
+    unlockAdmin(matchesAdminEmpId, normalized, raw);
+    return;
+  }
+
+  _adminLoginBusy = true;
+  if (btn) { btn.disabled = true; btn.textContent = '확인 중...'; }
+  try {
+    const matchesSharedPw = await matchesSharedAdminPassword(raw);
+    if (matchesSharedPw) {
+      unlockAdmin(false, normalized, raw);
+      return;
+    }
+    inp.classList.add('err');
+    inp.value = '';
+    err.textContent = '비밀번호가 올바르지 않습니다';
+    setTimeout(() => { inp.classList.remove('err'); err.textContent = ''; }, 2500);
+  } finally {
+    _adminLoginBusy = false;
+    if (btn) { btn.disabled = false; btn.textContent = '로그인'; }
   }
 }
 
@@ -1736,13 +1815,28 @@ function showLoginError(message) {
 }
 
 function openPwModal() { document.getElementById('pw-modal').classList.add('open'); }
-function changePw() {
+async function changePw() {
   const np = document.getElementById('pw-new').value;
   const nc = document.getElementById('pw-confirm').value;
   if (!np) { toast('새 비밀번호를 입력해주세요'); return; }
   if (np !== nc) { toast('비밀번호가 일치하지 않습니다'); return; }
+  const passwordHash = await hashAdminPassword(np);
+  if (!passwordHash) { toast('이 브라우저에서는 비밀번호를 저장할 수 없습니다'); return; }
+  try {
+    getAdminDbClient();
+  } catch (error) {
+    toast('서버 연결 실패: ' + (error?.message || '다시 시도해주세요'));
+    return;
+  }
+  const { error } = await saveAdminAppConfigValue(ADMIN_PASSWORD_HASH_CONFIG_KEY, passwordHash);
+  if (error) {
+    toast('비밀번호 저장 실패: ' + formatAppConfigError(error));
+    return;
+  }
   ADMIN_PW = np;
   localStorage.setItem('hi_admin_pw', np);
+  document.getElementById('pw-new').value = '';
+  document.getElementById('pw-confirm').value = '';
   closeModal('pw-modal');
   toast('비밀번호 변경 완료 ✓');
 }
@@ -1757,20 +1851,11 @@ function handleAdminVisibilityChange() {
 }
 
 function initSupabase() {
-  const createClient =
-    (typeof window !== 'undefined' && window.supabase && typeof window.supabase.createClient === 'function')
-      ? window.supabase.createClient
-      : (typeof supabase !== 'undefined' && typeof supabase.createClient === 'function' ? supabase.createClient : null);
-  if (!createClient) {
-    setStatus('Supabase 연결 스크립트 로드 실패', false);
-    showLoginError('서버 연결을 준비하지 못했습니다. 잠시 후 다시 시도해주세요');
-    return;
-  }
   try {
-    db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    getAdminDbClient();
   } catch (e) {
     console.error('[initSupabase]', e);
-    setStatus('Supabase 연결 실패', false);
+    setStatus('Supabase 연결 스크립트 로드 실패', false);
     showLoginError('서버 연결 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요');
     return;
   }
