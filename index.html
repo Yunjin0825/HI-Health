@@ -2932,6 +2932,8 @@
     .fc-upload-meta.uploading { color:#1535c4; font-weight:700; }
     .fc-upload-meta.success { color:#047857; }
     .fc-upload-meta.warn { color:#b45309; }
+    .fc-upload-hint { font-size:12px; color:var(--text-secondary); line-height:1.5; margin:0 0 12px; padding:8px 10px; background:#f8f7ff; border-radius:8px; border-left:3px solid #7c3aed; }
+    .fc-pay-note { font-size:12px; font-weight:600; color:#047857; background:#ecfdf5; border-radius:8px; padding:8px 10px; margin:0 0 10px; text-align:center; }
     .fc-file-label { display:none; }
     .fc-btn-row { display:grid; grid-template-columns:1fr; gap:8px; margin-bottom:0; }
     .fc-submit-btn,
@@ -21394,6 +21396,7 @@ async function init() {
         <input type="file" id="fc-file-input" accept="image/*,video/*" style="display:none" onchange="handleFcFileSelect(this)">
       </div>
       <div id="fc-upload-meta" class="fc-upload-meta"></div>
+      <div class="fc-upload-hint">타임스탬프가 들어간 사진이나 결제 영수증 이미지도 같이 첨부해주세요.</div>
       <textarea class="fc-memo" id="fc-memo" rows="2" placeholder="한 줄 메모 (선택사항)"></textarea>
       <div class="fc-consent">
         <div class="fc-consent-copy">제출한 사진 및 영상은 병원 홍보 영상 또는 관련 홍보 콘텐츠에 활용될 수 있습니다.</div>
@@ -21402,6 +21405,7 @@ async function init() {
           <span>사진 및 영상이 병원 홍보영상에 사용될 수 있음에 동의합니다 <span style="color:var(--accent)">*</span></span>
         </label>
       </div>
+      <div class="fc-pay-note">운동 지원금은 매월 초에 지급됩니다.</div>
       <div class="fc-btn-row">
         <button type="button" class="fc-submit-btn" id="fc-submit-btn" onclick="submitFamilyCertFromIndex()" disabled>인증 제출하기</button>
       </div>
