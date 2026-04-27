@@ -315,7 +315,7 @@
       <button class="sb-item" id="tab-btn-glucose" data-tab="glucose" onclick="switchTab('glucose',this)"><span class="sb-icon">🩸</span>혈당기록</button>
       <button class="sb-item" id="tab-btn-posts" data-tab="posts" onclick="switchTab('posts',this)"><span class="sb-icon">💬</span>커뮤니티</button>
       <button class="sb-item" id="tab-btn-challenge" data-tab="challenge" onclick="switchTab('challenge',this)"><span class="sb-icon">🏆</span>챌린지</button>
-      <button class="sb-item" id="tab-btn-famcert" data-tab="famcert" onclick="switchTab('famcert',this)"><span class="sb-icon">📸</span>가족인증<span class="sb-badge" id="famcert-badge" style="display:none"></span></button>
+      <button class="sb-item" id="tab-btn-famcert" data-tab="famcert" onclick="switchTab('famcert',this)"><span class="sb-icon">📸</span>운동인증<span class="sb-badge" id="famcert-badge" style="display:none"></span></button>
       <div class="sb-section" style="margin-top:4px">운영</div>
       <button class="sb-item" id="tab-btn-commstar" data-tab="commstar" onclick="switchTab('commstar',this)"><span class="sb-icon">🏅</span>배지<span class="sb-badge" id="commstar-badge" style="display:none"></span></button>
       <button class="sb-item" id="tab-btn-orders" data-tab="orders" onclick="switchTab('orders',this)"><span class="sb-icon">🛒</span>구매<span class="sb-badge" id="orders-badge" style="display:none"></span></button>
@@ -1121,7 +1121,7 @@
 <!-- TOAST -->
 <div class="toast-wrap" id="toast-wrap"></div>
 
-<!-- 가족인증 포인트 지급 팝업 -->
+<!-- 운동인증 승인 팝업 -->
 <div class="modal-bg" id="famcert-reward-modal">
   <div class="modal" style="max-width:340px;text-align:center">
     <div style="font-size:36px;margin-bottom:12px">🎉</div>
@@ -5654,7 +5654,7 @@ async function deleteAdminPost(id) {
 const TAB_TITLES = {
   users: '이용자 관리', workouts: '운동 기록', glucose: '혈당 기록', posts: '커뮤니티',
   league: '리그', challenge: '챌린지', orders: '구매 관리',
-  content: '콘텐츠 작성', settings: '설정', famcert: '가족인증',
+  content: '콘텐츠 작성', settings: '설정', famcert: '운동인증',
   commstar: '배지 현황',
 };
 function switchTab(name, btn) {
@@ -5956,8 +5956,6 @@ function renderBadgeUsers() {
    FAMILY CERTIFICATION
 ══════════════════════════════════════════════ */
 let GD_famcert = [];
-const FAMILY_CERT_REWARD_POINTS = 100;
-const FAMILY_CERT_REWARD_LIMIT = 3;
 
 function getAdminFamCertStorageObjectPath(row) {
   const rawUrl = String(row?.media_url || row?.mediaUrl || '').trim();
@@ -5976,7 +5974,7 @@ async function cleanupAdminFamCertStorageObject(row) {
     headers: { 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY },
   });
   if (!deleteRes.ok && deleteRes.status !== 404) {
-    throw new Error(await deleteRes.text().catch(() => '가족인증 파일 삭제 실패'));
+    throw new Error(await deleteRes.text().catch(() => '운동인증 파일 삭제 실패'));
   }
 }
 
@@ -5987,7 +5985,7 @@ function isFamCertRewardColumnMissingError(error) {
 
 function formatFamCertReviewError(error) {
   if (isFamCertRewardColumnMissingError(error)) {
-    return '가족인증 보상 컬럼이 없습니다. Supabase migration 적용이 먼저 필요합니다';
+    return '운동인증 보상 컬럼이 없습니다. Supabase migration 적용이 먼저 필요합니다';
   }
   return error?.message || String(error || '알 수 없는 오류');
 }
@@ -6149,7 +6147,7 @@ async function loadFamCerts() {
     .from('family_certifications')
     .select('*')
     .order('submitted_at', { ascending: false });
-  if (error) { toast('가족인증 로드 실패: ' + error.message); return; }
+  if (error) { toast('운동인증 로드 실패: ' + error.message); return; }
   GD_famcert = (data || []).filter(row => String(row?.status || '').trim().toLowerCase() !== 'deleted');
   renderFamCert();
 }
@@ -6209,80 +6207,15 @@ function renderFamCert() {
 
 async function reviewFamCert(id, status) {
   const certRow = GD_famcert.find(r => String(r.id) === String(id));
-  if (!certRow) { toast('가족인증 정보를 찾을 수 없습니다'); return; }
+  if (!certRow) { toast('운동인증 정보를 찾을 수 없습니다'); return; }
   const label = status === 'approved' ? '승인' : '반려';
   if (!confirm(`이 인증을 ${label} 처리할까요?`)) return;
   showLoading(true);
   const reviewedAt = new Date().toISOString();
-  let rewardMeta = null;
-  let rewardTarget = null;
-  let rewardLimitReached = false;
-  let rewardBlockedMessage = '';
-
-  if (status === 'approved' && !certRow.rewarded_at) {
-    const targetRes = await resolveFamCertRewardTarget(certRow);
-    rewardTarget = targetRes;
-    if (targetRes.error) {
-      showLoading(false);
-      toast('대상 이용자 조회 실패: ' + formatFamCertReviewError(targetRes.error));
-      return;
-    }
-    const isUserMissing = !targetRes.user?.deviceId || !!targetRes.user?.__derived;
-    if (isUserMissing) {
-      // 앱 로그인 이력이 없는 신청자 — 승인은 진행하되 포인트 자동 지급 불가
-      rewardLimitReached = true;
-      rewardBlockedMessage = '앱 계정을 찾지 못해 포인트가 자동 지급되지 않았습니다. 관리자가 수동으로 포인트를 조정해주세요.';
-    }
-
-    if (!isUserMissing) {
-    const rewardCountRes = await countGrantedFamilyCertRewards(certRow, targetRes);
-    if (rewardCountRes.error) {
-      showLoading(false);
-      toast('기존 보상 횟수 조회 실패: ' + formatFamCertReviewError(rewardCountRes.error));
-      return;
-    }
-
-    if ((rewardCountRes.count || 0) >= FAMILY_CERT_REWARD_LIMIT) {
-      rewardLimitReached = true;
-      rewardBlockedMessage = `가족 운동 인증 보상은 최대 ${FAMILY_CERT_REWARD_LIMIT}회까지 지급되어 이번 승인 건은 포인트가 지급되지 않았습니다.`;
-    } else {
-      const pointMaps = getAdminPointBreakdownMaps();
-      const targetUser = GD.users.find(u => String(u?.deviceId || '').trim() === String(targetRes.user?.deviceId || '').trim()) || targetRes.user;
-      const prevPoints = getAdminBalancePoints(targetUser, pointMaps);
-      const nextPoints = prevPoints + FAMILY_CERT_REWARD_POINTS;
-      const prevTotalPoints = prevPoints;
-      const nextTotalPoints = prevTotalPoints + FAMILY_CERT_REWARD_POINTS;
-      const userRes = await updateUserPointsFields(targetRes.user.deviceId, nextPoints, nextTotalPoints, reviewedAt, {
-        empId: targetRes.empId,
-      });
-      if (userRes.error) {
-        showLoading(false);
-        toast('포인트 지급 실패: ' + formatFamCertReviewError(userRes.error));
-        return;
-      }
-      rewardMeta = {
-        userDeviceId: String(userRes.deviceId || targetRes.user.deviceId || '').trim(),
-        prevPoints,
-        nextPoints: Number(userRes.points) || nextPoints,
-        prevTotalPoints,
-        nextTotalPoints: Number(userRes.totalPoints) || nextTotalPoints,
-        appliedTotalPoints: userRes.appliedTotalPoints,
-        rewardedAt: reviewedAt,
-        rewardPoints: FAMILY_CERT_REWARD_POINTS,
-        rewardMessage: `가족 운동 인증이 승인되어 ${FAMILY_CERT_REWARD_POINTS}포인트가 지급되었습니다!`,
-      };
-    }
-    } // end !isUserMissing
-  }
-
   const updatePayload = { status, reviewed_at: reviewedAt };
-  if (status === 'approved' && rewardMeta) {
-    updatePayload.rewarded_at = rewardMeta.rewardedAt;
-    updatePayload.reward_points = rewardMeta.rewardPoints;
-    updatePayload.reward_message = rewardMeta.rewardMessage;
-  } else if (status === 'approved' && rewardLimitReached) {
+  if (status === 'approved') {
     updatePayload.reward_points = 0;
-    updatePayload.reward_message = rewardBlockedMessage;
+    updatePayload.reward_message = '운동 인증이 승인되었습니다.';
   }
   let updateError = null;
   let reviewRes = await db
@@ -6297,61 +6230,34 @@ async function reviewFamCert(id, status) {
   }
   updateError = reviewRes.error || null;
   if (updateError) {
-    if (rewardMeta?.userDeviceId) {
-      await updateUserPointsFields(
-        rewardMeta.userDeviceId,
-        rewardMeta.prevPoints,
-        rewardMeta.prevTotalPoints,
-        reviewedAt,
-        { empId: rewardTarget?.empId },
-      );
-    }
     showLoading(false);
     toast('처리 실패: ' + formatFamCertReviewError(updateError));
     return;
   }
 
-  if (rewardMeta?.userDeviceId) {
-    const linkedUser = GD.users.find(u => String(u?.deviceId || '').trim() === rewardMeta.userDeviceId);
-    if (linkedUser) {
-      linkedUser.points = rewardMeta.nextPoints;
-      linkedUser.totalPoints = rewardMeta.nextTotalPoints;
-    }
-  }
   if (certRow) {
     certRow.status = status;
     certRow.reviewed_at = reviewedAt;
-    if (rewardMeta) {
-      certRow.rewarded_at = rewardMeta.rewardedAt;
-      certRow.reward_points = rewardMeta.rewardPoints;
-      certRow.reward_message = rewardMeta.rewardMessage;
-    } else if (rewardLimitReached) {
+    if (status === 'approved') {
       certRow.reward_points = 0;
-      certRow.reward_message = rewardBlockedMessage;
+      certRow.reward_message = '운동 인증이 승인되었습니다.';
     }
   }
   showLoading(false);
   await loadAll({ silent: true });
-  if (status === 'approved' && rewardMeta) {
-    const recipientUser = GD.users.find(u => String(u?.deviceId || '').trim() === rewardMeta.userDeviceId);
-    showFamCertRewardModal(recipientUser?.name || '해당 이용자', FAMILY_CERT_REWARD_POINTS);
-  } else if (status === 'approved' && rewardLimitReached) {
-    toast(`인증 승인 완료 ✓ 포인트는 최대 ${FAMILY_CERT_REWARD_LIMIT}회까지만 지급됩니다`);
-  } else {
-    toast(`인증 ${label} 완료 ✓`);
-  }
+  toast(`인증 ${label} 완료 ✓`);
 }
 
 async function deleteFamCert(id) {
   const certRow = GD_famcert.find(r => String(r.id) === String(id));
-  if (!certRow) { toast('가족인증 정보를 찾을 수 없습니다'); return; }
+  if (!certRow) { toast('운동인증 정보를 찾을 수 없습니다'); return; }
   const status = String(certRow.status || '').trim().toLowerCase();
   const approvedWarning = status === 'approved'
     ? (String(certRow?.rewarded_at || '').trim() || Number(certRow?.reward_points) > 0)
-      ? '\n승인 처리된 항목입니다. 이미 포인트가 지급됐다면 자동 회수되지 않습니다.'
+      ? '\n승인 처리된 항목입니다.'
       : '\n승인 처리된 항목입니다. 현재는 미지급 승인 건으로 보고 삭제합니다.'
     : '';
-  if (!confirm(`이 가족인증 항목을 완전히 삭제할까요?\n삭제 후에는 복구할 수 없습니다.${approvedWarning}`)) return;
+  if (!confirm(`이 운동인증 항목을 완전히 삭제할까요?\n삭제 후에는 복구할 수 없습니다.${approvedWarning}`)) return;
   showLoading(true);
   let removed = false;
   const deleteRes = await db.from('family_certifications').delete().eq('id', id).select('id');
@@ -6397,7 +6303,7 @@ async function deleteFamCert(id) {
   GD_famcert = GD_famcert.filter(r => String(r.id) !== String(id));
   showLoading(false);
   renderFamCert();
-  toast('가족인증 항목을 삭제했습니다');
+  toast('운동인증 항목을 삭제했습니다');
 }
 
 /* ── 구매 기능 설정 ── */
@@ -6883,8 +6789,8 @@ let _famCertRewardModalShown = false;
 function showFamCertRewardModal(name, points) {
   if (_famCertRewardModalShown) return;
   _famCertRewardModalShown = true;
-  document.getElementById('famcert-reward-modal-title').textContent = '포인트 지급 완료!';
-  document.getElementById('famcert-reward-modal-body').textContent = `${name}님께 ${points}포인트가 지급되었습니다.`;
+  document.getElementById('famcert-reward-modal-title').textContent = '인증 승인 완료!';
+  document.getElementById('famcert-reward-modal-body').textContent = `${name}님의 운동 인증이 승인되었습니다.`;
   document.getElementById('famcert-reward-modal').classList.add('open');
 }
 function closeFamCertRewardModal() {

@@ -1853,7 +1853,7 @@
 <!-- ─── FAMILY MISSION ────────────────────── -->
 <div class="people-wrap">
   <div class="family-mission-wrap" id="family-mission-wrap">
-    <div class="section-title family-mission-section-title">가족과 함께 운동해요</div>
+    <div class="section-title family-mission-section-title">운동 인증하기</div>
     <div class="family-mission-card" id="family-mission-card"></div>
   </div>
 </div>
@@ -1987,7 +1987,7 @@
 
     <div class="fcard">
       <div class="fcard-label">가족 함께 참여</div>
-      <div class="fam-note">가족과 함께 운동하면 티셔츠 증정 + 인증 시 추가 포인트 지급 · 런데이 행사는 직원만 참여</div>
+      <div class="fam-note">가족과 함께 참여하면 티셔츠 증정 · 런데이 행사는 직원만 참여</div>
       <div class="rg">
         <label class="rl"><input type="radio" name="fam" value="no"  onchange="toggleFam(this)">본인만</label>
         <label class="rl"><input type="radio" name="fam" value="yes" onchange="toggleFam(this)">가족함께</label>
@@ -2625,16 +2625,12 @@
     if (!card) return;
     const row = getParentFamilyCertRow();
     const certCount = getParentFamilyCertAllCount() || (row ? 1 : 0);
-    const buttonLabel = certCount > 0
-      ? `운동 인증 사진 · 영상 추가로 올리기 (${certCount}회)`
-      : '운동 인증 사진 · 영상 올리기';
+    const buttonLabel = certCount > 0 ? '운동 인증 추가하기' : '운동 인증하기';
     card.innerHTML = `
       <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:${certCount > 0 ? '8px' : '10px'}">
         <div style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:0">
-          <span class="family-mission-sub" style="margin:0">혼자 참여하셔도 괜찮아요. 가족, 반려동물 또는 자연과 함께한 운동 사진·영상도 인증할 수 있어요.</span>
-          <span class="family-mission-sub" style="margin:0">챌린지 기간 중 최대 3회까지 참여할 수 있어요.</span>
+          <span class="family-mission-sub" style="margin:0">매월 1회 이상 운동하는 모습을 사진 또는 영상으로 인증해주세요.</span>
         </div>
-        <span class="family-mission-reward">${certCount > 0 ? '+100P 완료' : '+100P'}</span>
       </div>
       <div class="family-mission-actions">
         <button type="button" class="family-mission-btn primary" onclick="openFamilyMissionUpload()">${buttonLabel}</button>
@@ -4509,7 +4505,7 @@
     const familyRows = normalizeFamilyMembers(reg.familyMembers || []).filter(m => m.gender || m.tshirtSize || m.memo);
     lastSuccessRenderKey = renderKey;
     successContent.innerHTML = `
-      <div class="succ-sub" style="margin-bottom:10px">신청은 완료되었어요. 가족 인증은 위 카드에서 바로 이어서 참여할 수 있어요.</div>
+      <div class="succ-sub" style="margin-bottom:10px">신청은 완료되었어요. 운동 인증은 위 카드에서 바로 이어서 참여할 수 있어요.</div>
       <div class="family-mission-note" style="margin-bottom:12px">
         <strong style="color:#1e1047">${esc(reg.name)}</strong> · ${esc(reg.empId)}${reg.dept ? ` · ${esc(reg.dept)}` : ''}<br>
         ${manageNotice}
