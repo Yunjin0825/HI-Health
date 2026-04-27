@@ -11589,7 +11589,7 @@ function renderHeader() {
   const phase = getChPhase();
   const challengeNavBtn = document.querySelector('.nav-btn[data-page="challenge"]');
   if (challengeNavBtn) {
-    challengeNavBtn.style.display = phase === 'ended' ? 'none' : '';
+    challengeNavBtn.style.display = '';
   }
 }
 
@@ -19911,18 +19911,7 @@ function renderChallenge() {
   const familyCertButtonLabel = familyCertCount > 0
     ? `운동 인증 사진 · 영상 추가로 올리기 (${familyCertCount}회)`
     : '운동 인증 사진 · 영상 올리기';
-  const familyCertActionHtml = `
-    <div class="card-header" style="margin-top:14px;margin-bottom:10px">
-      <span class="card-title">가족과 함께 운동해요</span>
-    </div>
-    <div class="ch-family-spotlight-card" style="margin-bottom:14px">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:${familyCertCount > 0 ? '8px' : '10px'}">
-        <span class="ch-family-spotlight-sub" style="margin:0;flex:1">혼자 참여하셔도 괜찮아요. 가족, 반려동물 또는 자연과 함께한 운동 사진·영상도 인증할 수 있어요. 챌린지 기간 중 최대 3회까지 참여할 수 있어요.</span>
-        <div class="ch-family-spotlight-reward">${familyCertCount > 0 ? '+100P 완료' : '+100P'}</div>
-      </div>
-      <button type="button" class="ch-family-spotlight-btn primary" onclick="goToFamilyCert()">${familyCertButtonLabel}</button>
-    </div>
-  `;
+  const familyCertActionHtml = ``;
 
   const formChanged = setChallengeSectionHtml(formEl, formHtml, formRenderKey);
   setChallengeSectionHtml(doneEl, doneHtml, doneRenderKey);
