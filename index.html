@@ -917,49 +917,6 @@
     .nav-btn.active { color: #5F0080; }
     .nav-btn.active .nav-label { font-weight: 500; }
     .nav-btn.active svg { stroke-width: 2.2; }
-    @keyframes navChipFloat {
-      0%, 100% { transform: translate(-50%, 0) scale(1); }
-      50% { transform: translate(-50%, -2px) scale(1.03); }
-    }
-    @keyframes navChipGlow {
-      0%, 100% { box-shadow: 0 5px 14px rgba(14,165,233,0.18); }
-      50% { box-shadow: 0 9px 18px rgba(14,165,233,0.28); }
-    }
-    .nav-top-chip {
-      position: absolute;
-      top: -5px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 3px 8px 4px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, #06B6D4 0%, #2563EB 100%);
-      border: 1px solid rgba(255,255,255,0.22);
-      color: #fff;
-      font-size: 8px;
-      font-weight: 800;
-      letter-spacing: 0.15px;
-      line-height: 1.15;
-      white-space: nowrap;
-      pointer-events: none;
-      animation: navChipFloat 1.9s ease-in-out infinite, navChipGlow 1.9s ease-in-out infinite;
-    }
-    .nav-top-chip::after {
-      content: '';
-      position: absolute;
-      left: 50%;
-      bottom: -3px;
-      transform: translateX(-50%);
-      width: 6px;
-      height: 3px;
-      background: #2563EB;
-      clip-path: polygon(50% 100%, 0 0, 100% 0);
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .nav-top-chip { animation: none; }
-    }
     @media (max-width: 390px), (max-height: 760px) {
       :root { --nav-height: 74px; }
       .app-nav {
@@ -974,16 +931,6 @@
       }
       .nav-btn::before {
         height: calc(100% - env(safe-area-inset-bottom) - 8px);
-      }
-      .nav-top-chip {
-        top: -3px;
-        padding: 3px 7px 4px;
-        font-size: 7px;
-      }
-      .nav-top-chip::after {
-        bottom: -2px;
-        width: 5px;
-        height: 2px;
       }
     }
     .nav-icon-img { width: 30px; height: 30px; object-fit: contain; display: block; }
@@ -6388,15 +6335,6 @@
     </svg>
     <span class="nav-label">보상</span>
   </button>
-  <button class="nav-btn" onclick="navigate('challenge')" data-page="challenge" style="position:relative">
-    <span class="nav-top-chip">HI RUN DAY</span>
-    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M6 9H3V5h3M18 9h3V5h-3M6 9c0 3.31 2.69 6 6 6s6-2.69 6-6V5H6v4z"/>
-      <line x1="12" y1="15" x2="12" y2="19"/>
-      <line x1="8" y1="19" x2="16" y2="19"/>
-    </svg>
-    <span class="nav-label">챌린지</span>
-  </button>
 </nav>
 
 <script>
@@ -11627,12 +11565,6 @@ function renderHeader() {
   renderHeaderAvatar(S.user.avatar);
   const activePage = document.querySelector('.page.active')?.id?.replace('page-', '') || 'home';
   placeGuestBanner(activePage);
-  // 챌린지 탭은 종료 전까지 노출하고, 내부 화면에서 단계별 안내를 보여준다.
-  const phase = getChPhase();
-  const challengeNavBtn = document.querySelector('.nav-btn[data-page="challenge"]');
-  if (challengeNavBtn) {
-    challengeNavBtn.style.display = '';
-  }
 }
 
 function refreshVisiblePointUi() {
