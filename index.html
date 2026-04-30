@@ -1105,15 +1105,14 @@
       margin-left: -10px; box-shadow: 0 1px 4px rgba(0,0,0,0.15);
     }
     .together-popup-sub { padding: 0 16px 14px; font-size: 11px; color: #6b7280; line-height: 1.5; }
-    #comm-league-panel { padding-bottom: 132px; }
+    #comm-league-panel { padding-bottom: 24px; }
     .league-together-card {
-      position: fixed;
-      left: 50%;
-      bottom: calc(var(--nav-height) + env(safe-area-inset-bottom) + 10px);
-      width: min(444px, calc(100vw - 32px));
-      transform: translateX(-50%);
+      position: sticky;
+      top: 58px;
       z-index: 90;
-      pointer-events: auto;
+      margin: 0 -18px;
+      padding: 0 18px 12px;
+      background: #fff;
     }
     .league-together-inner {
       overflow: hidden;
@@ -6095,6 +6094,7 @@
     </div>
 
     <div id="comm-league-panel" style="display:none">
+      <div id="league-together-card" class="league-together-card" aria-live="polite"></div>
       <div class="league-tabs">
         <button class="league-tab"        data-tab="weekly"     onclick="setTab(this,'weekly')">이번주</button>
         <button class="league-tab"        data-tab="level"      onclick="setTab(this,'level')">레벨별</button>
@@ -6105,7 +6105,6 @@
 	      <div class="my-rank-card" id="my-rank-card"></div>
 	      <div class="league-alert-card" id="league-alert-card" hidden></div>
 	      <div id="lb-list"></div>
-	      <div id="league-together-card" class="league-together-card" aria-live="polite"></div>
 	    </div>
 
   </section>
