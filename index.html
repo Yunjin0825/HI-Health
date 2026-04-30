@@ -1105,6 +1105,48 @@
       margin-left: -10px; box-shadow: 0 1px 4px rgba(0,0,0,0.15);
     }
     .together-popup-sub { padding: 0 16px 14px; font-size: 11px; color: #6b7280; line-height: 1.5; }
+    #comm-league-panel { padding-bottom: 132px; }
+    .league-together-card {
+      position: fixed;
+      left: 50%;
+      bottom: calc(var(--nav-height) + env(safe-area-inset-bottom) + 10px);
+      width: min(444px, calc(100vw - 32px));
+      transform: translateX(-50%);
+      z-index: 90;
+      pointer-events: auto;
+    }
+    .league-together-inner {
+      overflow: hidden;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.92);
+      -webkit-backdrop-filter: blur(18px) saturate(170%);
+      backdrop-filter: blur(18px) saturate(170%);
+      border: 1px solid rgba(255,255,255,0.62);
+      box-shadow: 0 10px 30px rgba(15,23,42,0.13), 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .league-together-head {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:13px 16px 10px;
+      border-bottom:1px solid #f3f4f6;
+    }
+    .league-together-title {
+      font-size:14px;
+      font-weight:800;
+      color:#1e1047;
+      letter-spacing:0;
+    }
+    .league-together-card .together-popup-avs {
+      padding:11px 16px 13px;
+    }
+    .league-together-empty {
+      padding:12px 16px 14px;
+      font-size:12px;
+      line-height:1.5;
+      color:#6b7280;
+    }
     @keyframes livepulse {
       0%   { box-shadow: 0 0 0 0 rgba(30,16,71,0.4); }
       70%  { box-shadow: 0 0 0 7px rgba(30,16,71,0); }
@@ -4508,6 +4550,37 @@
       color:#b91c1c;
       box-shadow:inset 0 0 0 1px rgba(248,113,113,0.22);
     }
+    .exercise-family-cert-wrap {
+      margin-top:16px;
+      margin-bottom:8px;
+    }
+    .exercise-family-cert-card {
+      margin:0;
+    }
+    .exercise-family-cert-status {
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:22px;
+      padding:0 10px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:800;
+      background:#fff7ed;
+      color:#b45309;
+      border:1px solid rgba(245,158,11,0.24);
+    }
+    .exercise-family-cert-status.approved {
+      background:#ecfdf5;
+      color:#047857;
+      border-color:rgba(16,185,129,0.18);
+    }
+    .exercise-family-cert-status.rejected,
+    .exercise-family-cert-status.cancelled {
+      background:#fff1f2;
+      color:#be123c;
+      border-color:rgba(244,63,94,0.18);
+    }
     .ch-family-cert-preview {
       margin-bottom:12px;
       border-radius:14px;
@@ -5990,6 +6063,7 @@
       </div>
     </div>
 
+    <div id="exercise-family-cert-wrap" class="exercise-family-cert-wrap"></div>
 
   </section>
 
@@ -6031,6 +6105,7 @@
 	      <div class="my-rank-card" id="my-rank-card"></div>
 	      <div class="league-alert-card" id="league-alert-card" hidden></div>
 	      <div id="lb-list"></div>
+	      <div id="league-together-card" class="league-together-card" aria-live="polite"></div>
 	    </div>
 
   </section>
@@ -10007,6 +10082,50 @@ function closeTogetherPopup(hideToday = false) {
   }
 }
 
+function renderTogetherAvatarStripHtml(avatars = [], maxShow = 8) {
+  if (!Array.isArray(avatars) || !avatars.length) return '';
+  const now = Date.now();
+  const shown = avatars.length > maxShow ? avatars.slice(avatars.length - maxShow) : avatars;
+  const rest = avatars.length - shown.length;
+  return shown.map(({ src, latestTs }) => {
+    const isNew = latestTs && (now - latestTs) <= TOGETHER_NEW_MS;
+    return `<div class="together-popup-av">${isNew ? '<span class="together-popup-av-new">NEW</span>' : ''}<img src="${src}" alt="" onerror="if(this.dataset.err)return;this.dataset.err=1;this.src='images/avatars/av1.png'"></div>`;
+  }).join('') + (rest > 0 ? `<div class="together-popup-av-more">+${rest}</div>` : '');
+}
+
+function renderLeagueTogetherCardData(data) {
+  const card = document.getElementById('league-together-card');
+  if (!card) return false;
+  const activeCount = Math.max(0, Number(data?.activeCount) || 0);
+  const totalMinutes = Math.max(0, Number(data?.totalMinutes) || 0);
+  const avatarsHtml = renderTogetherAvatarStripHtml(data?.avatars || []);
+  card.innerHTML = `
+    <div class="league-together-inner">
+      <div class="league-together-head">
+        <span class="league-together-title">같이 운동한 시간</span>
+        <div class="together-popup-badge"><span>${activeCount.toLocaleString()}</span>명 기록중</div>
+        <div class="together-popup-total">총 운동시간 <strong>${totalMinutes ? totalMinutes.toLocaleString() + '분' : '-'}</strong></div>
+      </div>
+      ${avatarsHtml ? `<div class="together-popup-avs">${avatarsHtml}</div>` : `<div class="league-together-empty">아직 집계된 운동 기록이 없어요.</div>`}
+    </div>
+  `;
+  return true;
+}
+
+function refreshLeagueTogetherCard(opts = {}) {
+  const card = document.getElementById('league-together-card');
+  const leagueVisible = document.getElementById('comm-league-panel')?.style.display !== 'none';
+  if (!card || !leagueVisible) return;
+  if (!card.innerHTML.trim()) {
+    renderLeagueTogetherCardData({ activeCount: 0, totalMinutes: 0, avatars: [] });
+  }
+  fetchTogetherTimeSummary().then(data => {
+    renderLeagueTogetherCardData(data || { activeCount: 0, totalMinutes: 0, avatars: [] });
+  }).catch(() => {
+    if (opts.force) renderLeagueTogetherCardData({ activeCount: 0, totalMinutes: 0, avatars: [] });
+  });
+}
+
 function renderTogetherPopupData(data) {
   const popup = document.getElementById('together-popup');
   if (!popup) return false;
@@ -10016,17 +10135,11 @@ function renderTogetherPopupData(data) {
   }
   document.getElementById('together-popup-count').textContent = data.activeCount;
   document.getElementById('together-popup-mins').textContent = data.totalMinutes.toLocaleString() + '분';
-  document.getElementById('together-popup-sub').textContent = '챌린지 기간, 같이 운동한 시간만큼 기부금액에 추가됩니다.';
+  const subEl = document.getElementById('together-popup-sub');
+  if (subEl) { subEl.textContent = ''; subEl.style.display = 'none'; }
   const avsEl = document.getElementById('together-popup-avs');
   if (avsEl && Array.isArray(data.avatars) && data.avatars.length > 0) {
-    const now = Date.now();
-    const MAX_SHOW = 8;
-    const shown = data.avatars.length > MAX_SHOW ? data.avatars.slice(data.avatars.length - MAX_SHOW) : data.avatars;
-    const rest = data.avatars.length - shown.length;
-    avsEl.innerHTML = shown.map(({ src, latestTs }) => {
-      const isNew = latestTs && (now - latestTs) <= TOGETHER_NEW_MS;
-      return `<div class="together-popup-av">${isNew ? '<span class="together-popup-av-new">NEW</span>' : ''}<img src="${src}" alt="" onerror="if(this.dataset.err)return;this.dataset.err=1;this.src='images/avatars/av1.png'"></div>`;
-    }).join('') + (rest > 0 ? `<div class="together-popup-av-more">+${rest}</div>` : '');
+    avsEl.innerHTML = renderTogetherAvatarStripHtml(data.avatars);
     avsEl.style.display = '';
   }
   popup.classList.add('show');
@@ -10045,12 +10158,8 @@ function showTogetherPopup() {
 
 function refreshTogetherPopupAfterWorkoutChange(opts = {}) {
   invalidateTogetherPopupCache();
-  const popup = document.getElementById('together-popup');
-  const shouldShow = opts.show === true;
-  if (!shouldShow && !popup?.classList.contains('show')) return;
-  fetchTogetherTimeSummary().then(data => {
-    if (!renderTogetherPopupData(data) && shouldShow) closeTogetherPopup(false);
-  });
+  closeTogetherPopup(false);
+  refreshLeagueTogetherCard({ force: true, ...opts });
 }
 
 // 팝업 스와이프 업으로 닫기 (위에서 내려오므로 위로 스와이프)
@@ -11019,7 +11128,7 @@ function canJoinLeagueRanking() {
    NAVIGATION
 ════════════════════════════════════════ */
 const _isTouch = () => window.matchMedia('(hover: none)').matches;
-const RUNDAY_IFRAME_SRC = 'runday.html?v=20260405-209';
+const RUNDAY_IFRAME_SRC = 'runday.html?v=20260430-1';
 let _rundayIframeReady = false;
 let _rundayIframeLoadStarted = false;
 const _rundayIframeQueue = [];
@@ -11509,7 +11618,10 @@ function navigate(page) {
   }
   // Render the page
   if (page === 'home')      { renderHome(); fetchLeagueData({ needWeekly: false }); }
-  if (page === 'exercise')  { renderExercise(); setTimeout(showTogetherPopup, 600); }
+  if (page === 'exercise')  {
+    renderExercise();
+    refreshCurrentFamilyCertLatest({ silent: true }).then(() => renderExerciseFamilyCertCard()).catch(err => console.warn('[family-cert/exercise-sync]', err));
+  }
   if (page === 'community') { setCommunityTab('feed'); renderCommunity(); _adminPostsFetched = false; fetchAdminPosts(); fetchCommunityPosts(); markCommunityAsSeen(); fetchLeagueData({ needWeekly: false }); }
   if (page === 'rewards')   {
     setRewardsTab('rewards');
@@ -12152,6 +12264,65 @@ function renderExercise() {
   renderMyDaySave();
   renderTodayTabDots();
   renderRecordTabDots();
+  renderExerciseFamilyCertCard();
+}
+
+function renderExerciseFamilyCertCard() {
+  const wrap = document.getElementById('exercise-family-cert-wrap');
+  if (!wrap) return;
+  const row = getCurrentFamilyCertLatestRow();
+  const monthCount = getCurrentMonthFamilyCertCount();
+  const buttonLabel = `${monthCount > 0 ? '운동 인증 추가하기' : '운동 인증하기'} (월 ${monthCount}회)`;
+  const statusHtml = row
+    ? (() => {
+        const status = getFamilyCertStatusMeta(row.status);
+        const submittedText = getFamilyCertSubmittedText(row);
+        const statusClass = String(row.status || '').trim().toLowerCase();
+        return `<div class="ch-family-spotlight-meta">
+          <span class="exercise-family-cert-status ${escHtmlComm(statusClass)}">${escHtmlComm(status.label)}</span>
+          ${submittedText ? `<span class="ch-family-spotlight-sub" style="margin:0">${escHtmlComm(submittedText)} 제출</span>` : ''}
+        </div>`;
+      })()
+    : '';
+  wrap.innerHTML = `
+    <div class="ch-family-spotlight-card exercise-family-cert-card">
+      <div class="ch-family-spotlight-top">
+        <div style="flex:1;min-width:0">
+          <div class="ch-family-spotlight-label">MONTHLY MISSION</div>
+          <div class="ch-family-spotlight-title">운동 인증하기</div>
+          <div class="ch-family-spotlight-sub">매월 1회 이상 운동하는 모습을 사진 또는 영상으로 인증해주세요.</div>
+        </div>
+      </div>
+      ${statusHtml}
+      <div class="ch-family-spotlight-actions">
+        <button type="button" class="ch-family-spotlight-btn primary" onclick="goToFamilyCert()">${buttonLabel}</button>
+      </div>
+    </div>
+  `;
+}
+
+function getCurrentMonthFamilyCertCount(baseDate = new Date()) {
+  const rows = [];
+  const seen = new Set();
+  const addRow = rawRow => {
+    const row = normalizeFamilyCertRow(rawRow);
+    if (!row || !isCurrentFamilyCertRow(row) || !isActiveFamilyCertRow(row)) return;
+    const key = row.id || row.media_url || row.submitted_at;
+    if (key && seen.has(key)) return;
+    if (key) seen.add(key);
+    rows.push(row);
+  };
+  (_familyCertAllRows || []).forEach(addRow);
+  addRow(getCurrentFamilyCertLatestRow());
+
+  const year = baseDate.getFullYear();
+  const month = baseDate.getMonth();
+  return rows.filter(row => {
+    const ts = Date.parse(String(row.submitted_at || row.updated_at || row.reviewed_at || 0));
+    if (!ts) return false;
+    const d = new Date(ts);
+    return d.getFullYear() === year && d.getMonth() === month;
+  }).length;
 }
 
 function updateMemoPlaceholder() {
@@ -15617,6 +15788,7 @@ function renderLeague() {
       `;
     }).join('');
     animateLeagueListReorder(previousListPositions);
+    refreshLeagueTogetherCard();
     return;
   }
 
@@ -15741,6 +15913,7 @@ function renderLeague() {
     `;
   }).join('');
   animateLeagueListReorder(previousListPositions);
+  refreshLeagueTogetherCard();
 }
 
 function setTab(el, tab) {
@@ -15990,6 +16163,71 @@ async function fetchAdminPosts() {
 let _communityReactionCache = { stickerMap: {}, myReactionMap: {}, commentMap: {}, ts: 0 };
 const COMMUNITY_CACHE_TTL = 2 * 60 * 1000; // 2분
 
+function normalizeCommunityDeviceId(deviceId = '') {
+  return String(deviceId || '').trim();
+}
+
+function buildCommunityAuthorMeta(row = {}) {
+  const deviceId = normalizeCommunityDeviceId(row.deviceId ?? row.deviceid);
+  if (!deviceId) return null;
+  const points = Math.max(0, Number(row.points) || 0);
+  return {
+    deviceId,
+    points,
+    lv: getLevel(points).lv,
+  };
+}
+
+async function fetchCommunityAuthorMetaMap(deviceIds = []) {
+  const ids = [...new Set((deviceIds || [])
+    .map(normalizeCommunityDeviceId)
+    .filter(deviceId => deviceId && !isBotDeviceId(deviceId)))];
+  if (!ids.length) return {};
+
+  const wanted = new Set(ids);
+  const metaMap = {};
+  const putMeta = row => {
+    const meta = buildCommunityAuthorMeta(row);
+    if (meta && wanted.has(meta.deviceId)) metaMap[meta.deviceId] = meta;
+  };
+
+  const currentDeviceId = normalizeCommunityDeviceId(S.deviceId);
+  if (currentDeviceId && wanted.has(currentDeviceId)) {
+    putMeta({ deviceId: currentDeviceId, points: getCurrentLeagueAlltimePoints() });
+  }
+  if (Array.isArray(_leagueCache.users) && isLeagueCacheFresh(Number(_leagueCache.usersFetchedAt) || 0)) {
+    _leagueCache.users.forEach(putMeta);
+  }
+
+  const missingIds = ids.filter(deviceId => !metaMap[deviceId]);
+  if (missingIds.length && _db) {
+    try {
+      const { data, error } = await _db
+        .from('users')
+        .select('deviceId,points')
+        .in('deviceId', missingIds);
+      if (error) throw error;
+      (data || []).forEach(putMeta);
+    } catch (e) {
+      console.warn('[fetchCommunityAuthorMetaMap]', e);
+    }
+  }
+
+  return metaMap;
+}
+
+function getCommunityAuthorLevel(deviceId = '', authorMetaMap = {}, fallbackLv = 1) {
+  const normalizedDeviceId = normalizeCommunityDeviceId(deviceId);
+  if (!normalizedDeviceId || isBotDeviceId(normalizedDeviceId)) return Number(fallbackLv) || 1;
+  const directMeta = authorMetaMap?.[normalizedDeviceId];
+  if (directMeta) return Number(directMeta.lv) || 1;
+  if (S.deviceId && normalizedDeviceId === S.deviceId) {
+    return getLevel(getCurrentLeagueAlltimePoints()).lv;
+  }
+  const fallback = Number(fallbackLv);
+  return Number.isFinite(fallback) && fallback > 0 ? fallback : 1;
+}
+
 // 커뮤니티 스타(최다 게시자) / 공감왕(최다 스티커 발신자) 동적 계산
 // - remotePosts: 서버에서 받은 posts 배열 (없으면 S.posts 사용)
 // - allReactions: 서버에서 받은 reactions 배열 (없으면 스킵)
@@ -16037,6 +16275,7 @@ async function fetchCommunityPosts() {
     const remotePosts = postsData || [];
     const targetPostIds = remotePosts.map(p => String(Number(p?.id) || p?.id)).filter(Boolean);
     const targetPostIdSet = new Set(targetPostIds);
+    let authorMetaMap = await fetchCommunityAuthorMetaMap(remotePosts.map(p => p.deviceId));
 
     // 커뮤니티 스타 → 게시글만으로 즉시 계산
     _calcCommunityRankBadges(remotePosts, null);
@@ -16045,6 +16284,14 @@ async function fetchCommunityPosts() {
     if (cacheAge < COMMUNITY_CACHE_TTL && _communityReactionCache.ts > 0) {
       // 캐시 유효 → 캐시된 반응·댓글로 바로 렌더
       const { stickerMap, myReactionMap, commentMap, allReactions: cachedRx } = _communityReactionCache;
+      const cachedCommentDeviceIds = Object.values(commentMap || {}).reduce((ids, comments) => {
+        (comments || []).forEach(c => ids.push(c.deviceId));
+        return ids;
+      }, []);
+      authorMetaMap = {
+        ...authorMetaMap,
+        ...await fetchCommunityAuthorMetaMap(cachedCommentDeviceIds),
+      };
       if (cachedRx) {
         _calcCommunityRankBadges(remotePosts, cachedRx);
         if (document.getElementById('comm-league-panel')?.style.display !== 'none') renderLeague();
@@ -16053,10 +16300,10 @@ async function fetchCommunityPosts() {
         if (myReactionMap[pid]?.length) S.myReactions[pid] = [...myReactionMap[pid]];
         else delete S.myReactions[pid];
       });
-      _applyRemotePostsToState(remotePosts, stickerMap, commentMap, targetPostIdSet);
+      _applyRemotePostsToState(remotePosts, stickerMap, commentMap, targetPostIdSet, authorMetaMap);
     } else {
       // 캐시 없거나 만료 → posts 먼저 즉시 렌더 후 백그라운드 fetch
-      _applyRemotePostsToState(remotePosts, {}, {}, targetPostIdSet);
+      _applyRemotePostsToState(remotePosts, {}, {}, targetPostIdSet, authorMetaMap);
       renderCommunity();
       updateCommunityDot();
 
@@ -16066,6 +16313,11 @@ async function fetchCommunityPosts() {
         _db.from('post_comments').select('postId,id,userName,avatar,body,ts,deviceId').in('postId', targetPostIds).order('ts', { ascending: true }),
       ]);
       const allReactions = rp.data || [];
+      const commentRows = cmp.data || [];
+      authorMetaMap = {
+        ...authorMetaMap,
+        ...await fetchCommunityAuthorMetaMap(commentRows.map(c => c.deviceId)),
+      };
       const stickerMap = {}, myReactionMap = {}, commentMap = {};
       allReactions.forEach(r => {
         const pid = String(r.postId);
@@ -16073,10 +16325,10 @@ async function fetchCommunityPosts() {
         if (r.stickerId in stickerMap[pid]) stickerMap[pid][r.stickerId]++;
         if (r.deviceId === S.deviceId) { if (!myReactionMap[pid]) myReactionMap[pid] = []; myReactionMap[pid].push(r.stickerId); }
       });
-      (cmp.data || []).forEach(c => {
+      commentRows.forEach(c => {
         const pid = String(c.postId);
         if (!commentMap[pid]) commentMap[pid] = [];
-        commentMap[pid].push({ id: c.id, name: c.userName || '익명', avatar: botAvatar(c.deviceId) || c.avatar || AVATARS[0], lv: 1, body: c.body || '', time: c.ts ? new Date(Number(c.ts)).toLocaleDateString('ko-KR') : '', ts: c.ts ? Number(c.ts) : Date.now(), deviceId: c.deviceId || '' });
+        commentMap[pid].push({ id: c.id, name: c.userName || '익명', avatar: botAvatar(c.deviceId) || c.avatar || AVATARS[0], lv: getCommunityAuthorLevel(c.deviceId, authorMetaMap, 1), body: c.body || '', time: c.ts ? new Date(Number(c.ts)).toLocaleDateString('ko-KR') : '', ts: c.ts ? Number(c.ts) : Date.now(), deviceId: c.deviceId || '' });
       });
       targetPostIds.forEach(pid => {
         if (myReactionMap[pid]?.length) S.myReactions[pid] = [...myReactionMap[pid]];
@@ -16085,7 +16337,7 @@ async function fetchCommunityPosts() {
       // 공감왕 → 반응 데이터 들어온 뒤 재계산
       _calcCommunityRankBadges(remotePosts, allReactions);
       _communityReactionCache = { stickerMap, myReactionMap, commentMap, allReactions, ts: Date.now() };
-      _applyRemotePostsToState(remotePosts, stickerMap, commentMap, targetPostIdSet);
+      _applyRemotePostsToState(remotePosts, stickerMap, commentMap, targetPostIdSet, authorMetaMap);
       // 리그 패널이 열려있으면 공감왕 배지 반영을 위해 재렌더
       if (document.getElementById('comm-league-panel')?.style.display !== 'none') renderLeague();
     }
@@ -16097,7 +16349,7 @@ async function fetchCommunityPosts() {
 
 // posts 데이터를 S.posts / S.communityPosts 에 병합한다.
 // stickerMap / commentMap 이 비어있으면 기존 값 유지.
-function _applyRemotePostsToState(remotePosts, stickerMap, commentMap, targetPostIdSet) {
+function _applyRemotePostsToState(remotePosts, stickerMap, commentMap, targetPostIdSet, authorMetaMap = {}) {
   const emptyStickers = () => ({ cheer:0, love:0, congrats:0, cool:0, together:0 });
   const noReactions = Object.keys(stickerMap).length === 0;
 
@@ -16108,6 +16360,7 @@ function _applyRemotePostsToState(remotePosts, stickerMap, commentMap, targetPos
 
   // 서버에 없는 내 글 제거
   const remoteIds = new Set(remotePosts.map(p => String(p.id)));
+  const remoteById = new Map(remotePosts.map(p => [String(Number(p.id) || p.id), p]));
   S.posts = S.posts.filter(p => remoteIds.has(String(p.id)));
 
   // 내 deviceId 글 복원
@@ -16120,9 +16373,10 @@ function _applyRemotePostsToState(remotePosts, stickerMap, commentMap, targetPos
         S.posts.unshift({
           id: Number(rp.id) || rp.id,
           userId: 0,
+          deviceId: rp.deviceId || S.deviceId,
           name: rp.userName || myDisplayName(),
           avatar: S.user.avatar,
-          lv: (getLevel(S.user.points) || {}).lv || 1,
+          lv: getCommunityAuthorLevel(rp.deviceId || S.deviceId, authorMetaMap, (getLevel(S.user.points) || {}).lv || 1),
           body: rp.body || '',
           exTag: rp.exTag || null,
           userTags: Array.isArray(rp.userTags) ? rp.userTags : typeof rp.userTags === 'string' ? rp.userTags.split(',').filter(Boolean) : [],
@@ -16134,6 +16388,20 @@ function _applyRemotePostsToState(remotePosts, stickerMap, commentMap, targetPos
         });
       });
   }
+
+  S.posts.forEach(p => {
+    const pid = String(Number(p.id) || p.id);
+    const rp = remoteById.get(pid);
+    if (!rp) return;
+    const deviceId = rp.deviceId || p.deviceId || (p.userId === 0 ? S.deviceId : '');
+    p.deviceId = deviceId || p.deviceId || '';
+    p.name = rp.userName || p.name || myDisplayName();
+    p.avatar = p.userId === 0 ? S.user.avatar : (botAvatar(deviceId) || rp.avatar || p.avatar || AVATARS[0]);
+    p.lv = getCommunityAuthorLevel(deviceId, authorMetaMap, p.lv || 1);
+    p.exTag = rp.exTag || null;
+    p.userTags = Array.isArray(rp.userTags) ? rp.userTags : typeof rp.userTags === 'string' ? rp.userTags.split(',').filter(Boolean) : (p.userTags || []);
+    p.time = rp.ts ? new Date(Number(rp.ts)).toLocaleDateString('ko-KR') : p.time || '';
+  });
 
   // S.posts 스티커·댓글 업데이트 (반응 데이터 있을 때만)
   if (!noReactions) {
@@ -16158,7 +16426,7 @@ function _applyRemotePostsToState(remotePosts, stickerMap, commentMap, targetPos
         deviceId: p.deviceId || '',
         name: p.userName || '익명',
         avatar: botAvatar(p.deviceId) || p.avatar || AVATARS[0],
-        lv: 1,
+        lv: getCommunityAuthorLevel(p.deviceId, authorMetaMap, 1),
         body: p.body || '',
         exTag: p.exTag || null,
         userTags: Array.isArray(p.userTags) ? p.userTags : typeof p.userTags === 'string' ? p.userTags.split(',').filter(Boolean) : [],
@@ -16292,13 +16560,15 @@ async function openComments(postId) {
     ]);
     const post = S.posts.find(p => String(p.id) === pid) || (S.communityPosts || []).find(p => String(p.id) === pid);
     if (!post) return;
+    const commentRows = cmp.data || [];
+    const authorMetaMap = await fetchCommunityAuthorMetaMap(commentRows.map(c => c.deviceId));
 
     // 댓글 업데이트
-    post.commentList = (cmp.data || []).map(c => ({
+    post.commentList = commentRows.map(c => ({
       id: c.id,
       name: c.userName || '익명',
       avatar: botAvatar(c.deviceId) || AVATARS[0],
-      lv: 1,
+      lv: getCommunityAuthorLevel(c.deviceId, authorMetaMap, 1),
       body: c.body || '',
       time: c.ts ? new Date(Number(c.ts)).toLocaleDateString('ko-KR') : '',
       ts: c.ts ? Number(c.ts) : Date.now(),
@@ -16346,10 +16616,11 @@ async function openComments(postId) {
       const post = S.posts.find(p => String(p.id) === pid) || (S.communityPosts || []).find(p => String(p.id) === pid);
       if (!post || !data || post.isSample) return; // 샘플 글 데이터는 덮어쓰지 않음
       if (data.length === (post.commentList || []).length) return; // 변화 없으면 패스
+      const authorMetaMap = await fetchCommunityAuthorMetaMap(data.map(c => c.deviceId));
       post.commentList = data.map(c => ({
         id: c.id, name: c.userName || '익명',
         avatar: botAvatar(c.deviceId) || AVATARS[0],
-        lv: 1, body: c.body || '',
+        lv: getCommunityAuthorLevel(c.deviceId, authorMetaMap, 1), body: c.body || '',
         time: c.ts ? new Date(Number(c.ts)).toLocaleDateString('ko-KR') : '',
         ts: c.ts ? Number(c.ts) : Date.now(), deviceId: c.deviceId || '',
       }));
@@ -18618,6 +18889,7 @@ async function refreshCurrentFamilyCertLatest(opts = {}) {
     const changed = setFamilyCertLatestRow(matched[0] || null, identity.empId);
     syncFamilyCertStateToRunday();
     if (changed && document.getElementById('page-challenge')?.classList.contains('active')) renderChallenge();
+    if (changed) renderExerciseFamilyCertCard();
     return _familyCertLatestRow;
   })();
 
@@ -18701,6 +18973,7 @@ function renderCurrentUserPointSurfaces() {
     else renderRewards();
   }
   if (document.getElementById('page-challenge')?.classList.contains('active')) renderChallenge();
+  renderExerciseFamilyCertCard();
 }
 
 async function updateCurrentUserPointFieldsRemote(touchedAt = new Date().toISOString()) {
@@ -18823,6 +19096,7 @@ async function refreshCurrentUserPointsFromRemote() {
   renderHeader();
   if (document.getElementById('page-home')?.classList.contains('active')) renderHome();
   if (document.getElementById('page-challenge')?.classList.contains('active')) renderChallenge();
+  renderExerciseFamilyCertCard();
   if (document.getElementById('page-league')?.classList.contains('active')) {
     resetLeagueCache();
     fetchLeagueData({ force: true, needWeekly: S.leagueTab === 'weekly' });
@@ -18900,6 +19174,7 @@ function openFamilyCertModal() {
   document.getElementById('fc-overlay').classList.remove('pm-hidden');
   refreshCurrentFamilyCertLatest({ force: true, silent: true }).then(() => {
     renderFamilyCertList();
+    renderExerciseFamilyCertCard();
   }).catch(() => {});
 }
 
@@ -19164,6 +19439,7 @@ function applyFamilyCertRowsAfterDelete(deletedId) {
   _familyCertLatestFetchedAt = 0;
   renderFamilyCertList();
   renderChallenge();
+  renderExerciseFamilyCertCard();
   syncFamilyCertStateToRunday();
 }
 
@@ -19186,6 +19462,7 @@ function applyFamilyCertRowsAfterCancel(updatedRow) {
   _familyCertLatestFetchedAt = 0;
   renderFamilyCertList();
   renderChallenge();
+  renderExerciseFamilyCertCard();
   syncFamilyCertStateToRunday();
 }
 
@@ -19533,8 +19810,10 @@ async function submitFamilyCertFromIndex() {
     );
     document.getElementById('fc-done').style.display = 'block';
     renderChallenge();
+    renderExerciseFamilyCertCard();
     refreshCurrentFamilyCertLatest({ force: true, silent: true }).then(() => {
       renderFamilyCertList();
+      renderExerciseFamilyCertCard();
       setTimeout(() => {
         document.getElementById('fc-done').style.display = 'none';
         showFcUploadForm();

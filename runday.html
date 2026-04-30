@@ -1850,14 +1850,6 @@
 
 
 
-<!-- ─── FAMILY MISSION ────────────────────── -->
-<div class="people-wrap">
-  <div class="family-mission-wrap" id="family-mission-wrap">
-    <div class="section-title family-mission-section-title">운동 인증하기</div>
-    <div class="family-mission-card" id="family-mission-card"></div>
-  </div>
-</div>
-
 <!-- ─── FORM ──────────────────────────────── -->
 <div class="form-wrap">
 
@@ -4505,7 +4497,7 @@
     const familyRows = normalizeFamilyMembers(reg.familyMembers || []).filter(m => m.gender || m.tshirtSize || m.memo);
     lastSuccessRenderKey = renderKey;
     successContent.innerHTML = `
-      <div class="succ-sub" style="margin-bottom:10px">신청은 완료되었어요. 운동 인증은 위 카드에서 바로 이어서 참여할 수 있어요.</div>
+      <div class="succ-sub" style="margin-bottom:10px">신청은 완료되었어요. 운동 인증은 운동 탭 하단에서 이어서 참여할 수 있어요.</div>
       <div class="family-mission-note" style="margin-bottom:12px">
         <strong style="color:#1e1047">${esc(reg.name)}</strong> · ${esc(reg.empId)}${reg.dept ? ` · ${esc(reg.dept)}` : ''}<br>
         ${manageNotice}
