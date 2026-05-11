@@ -243,6 +243,13 @@
     .ch-s-pill.wide{min-width:120px;}
     .ch-s-val{font-size:20px;font-weight:700;line-height:1;}
     .ch-s-lbl{font-size:11px;color:var(--t3);margin-top:3px;}
+    .fcm-nav{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:16px;}
+    .fcm-nav-btn{background:none;border:1.5px solid var(--border);border-radius:8px;width:32px;height:32px;font-size:20px;cursor:pointer;color:var(--t1);line-height:1;display:flex;align-items:center;justify-content:center;}
+    .fcm-nav-btn:hover{background:var(--card);}
+    .fcm-nav-label{font-size:15px;font-weight:700;min-width:100px;text-align:center;}
+    .fcm-badge-sub{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;}
+    .fcm-badge-sub.yes{background:#ecfdf5;color:#059669;}
+    .fcm-badge-sub.no{background:#fef2f2;color:#dc2626;}
 
     /* ── ACTIVE DOT ── */
     .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;flex-shrink:0;}
@@ -1078,36 +1085,86 @@
 
     <!-- ── PANEL: FAMILY CERT ── -->
     <div class="panel" id="panel-famcert">
-      <div class="ch-status-bar">
-        <div class="ch-s-pill"><div class="ch-s-val" id="fc-total">-</div><div class="ch-s-lbl">전체</div></div>
-        <div class="ch-s-pill"><div class="ch-s-val" id="fc-pend">-</div><div class="ch-s-lbl">대기</div></div>
-        <div class="ch-s-pill"><div class="ch-s-val" id="fc-ok">-</div><div class="ch-s-lbl">승인</div></div>
-        <div class="ch-s-pill"><div class="ch-s-val" id="fc-rej">-</div><div class="ch-s-lbl">취소</div></div>
+      <!-- 서브탭 -->
+      <div class="sub-tab-bar">
+        <button class="sub-tab active" id="fctab-list" onclick="switchFamCertTab('list',this)">인증 목록</button>
+        <button class="sub-tab" id="fctab-monthly" onclick="switchFamCertTab('monthly',this)">월별 현황</button>
       </div>
-      <div class="ctrl-bar">
-        <input class="ctrl-inp" id="fc-search" placeholder="이름·사번 검색" oninput="renderFamCert()">
-        <select class="ctrl-sel" id="fc-sfilter" onchange="renderFamCert()">
-          <option value="">전체 상태</option>
-          <option value="pending">대기</option>
-          <option value="approved">승인</option>
-          <option value="cancelled">취소</option>
-        </select>
-        <span class="ctrl-count" id="fc-count">0건</span>
+
+      <!-- ── 인증 목록 패널 ── -->
+      <div id="fc-panel-list">
+        <div class="ch-status-bar">
+          <div class="ch-s-pill"><div class="ch-s-val" id="fc-total">-</div><div class="ch-s-lbl">전체</div></div>
+          <div class="ch-s-pill"><div class="ch-s-val" id="fc-pend">-</div><div class="ch-s-lbl">대기</div></div>
+          <div class="ch-s-pill"><div class="ch-s-val" id="fc-ok">-</div><div class="ch-s-lbl">승인</div></div>
+          <div class="ch-s-pill"><div class="ch-s-val" id="fc-rej">-</div><div class="ch-s-lbl">취소</div></div>
+        </div>
+        <div class="ctrl-bar">
+          <input class="ctrl-inp" id="fc-search" placeholder="이름·사번 검색" oninput="renderFamCert()">
+          <select class="ctrl-sel" id="fc-sfilter" onchange="renderFamCert()">
+            <option value="">전체 상태</option>
+            <option value="pending">대기</option>
+            <option value="approved">승인</option>
+            <option value="cancelled">취소</option>
+          </select>
+          <span class="ctrl-count" id="fc-count">0건</span>
+        </div>
+        <div class="tbl-wrap">
+          <div class="tbl-scroll">
+            <table>
+              <thead><tr>
+                <th>제출일</th>
+                <th>이름</th>
+                <th>사번</th>
+                <th>메모</th>
+                <th>미디어</th>
+                <th>상태</th>
+                <th>관리</th>
+              </tr></thead>
+              <tbody id="fc-tbody"></tbody>
+            </table>
+          </div>
+        </div>
       </div>
-      <div class="tbl-wrap">
-        <div class="tbl-scroll">
-          <table>
-            <thead><tr>
-              <th>제출일</th>
-              <th>이름</th>
-              <th>사번</th>
-              <th>메모</th>
-              <th>미디어</th>
-              <th>상태</th>
-              <th>관리</th>
-            </tr></thead>
-            <tbody id="fc-tbody"></tbody>
-          </table>
+
+      <!-- ── 월별 현황 패널 ── -->
+      <div id="fc-panel-monthly" style="display:none">
+        <!-- 월 네비게이터 -->
+        <div class="fcm-nav">
+          <button class="fcm-nav-btn" onclick="fcMonthShift(-1)">&#8249;</button>
+          <span class="fcm-nav-label" id="fcm-nav-label">-</span>
+          <button class="fcm-nav-btn" onclick="fcMonthShift(1)">&#8250;</button>
+        </div>
+        <!-- 통계 -->
+        <div class="ch-status-bar" style="margin-bottom:14px">
+          <div class="ch-s-pill"><div class="ch-s-val" id="fcm-total">-</div><div class="ch-s-lbl">전체 인원</div></div>
+          <div class="ch-s-pill" style="background:#ecfdf5"><div class="ch-s-val" style="color:#059669" id="fcm-submitted">-</div><div class="ch-s-lbl">제출자</div></div>
+          <div class="ch-s-pill" style="background:#fef2f2"><div class="ch-s-val" style="color:#dc2626" id="fcm-missing">-</div><div class="ch-s-lbl">미제출자</div></div>
+        </div>
+        <!-- 검색 + 필터 -->
+        <div class="ctrl-bar">
+          <input class="ctrl-inp" id="fcm-search" placeholder="이름·사번 검색" oninput="renderFamCertMonthly()">
+          <select class="ctrl-sel" id="fcm-filter" onchange="renderFamCertMonthly()">
+            <option value="">전체</option>
+            <option value="submitted">제출자만</option>
+            <option value="missing">미제출자만</option>
+          </select>
+          <span class="ctrl-count" id="fcm-count">0명</span>
+        </div>
+        <!-- 테이블 -->
+        <div class="tbl-wrap">
+          <div class="tbl-scroll">
+            <table>
+              <thead><tr>
+                <th>이름</th>
+                <th>사번</th>
+                <th>제출 횟수</th>
+                <th>최근 제출일</th>
+                <th>상태</th>
+              </tr></thead>
+              <tbody id="fcm-tbody"></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -6227,6 +6284,133 @@ async function countGrantedFamilyCertRewards(certRow, targetRes = {}) {
   return { count, error: null };
 }
 
+/* ── famcert 서브탭 ── */
+let _fcTab = 'list';
+function switchFamCertTab(tab, btn) {
+  _fcTab = tab;
+  document.querySelectorAll('#panel-famcert .sub-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('fc-panel-list').style.display = tab === 'list' ? '' : 'none';
+  document.getElementById('fc-panel-monthly').style.display = tab === 'monthly' ? '' : 'none';
+  if (tab === 'monthly') renderFamCertMonthly();
+}
+
+/* ── 월별 현황 ── */
+let _fcmYear = new Date().getFullYear();
+let _fcmMonth = new Date().getMonth() + 1; // 1-12
+
+function fcMonthShift(delta) {
+  _fcmMonth += delta;
+  if (_fcmMonth > 12) { _fcmMonth = 1; _fcmYear++; }
+  if (_fcmMonth < 1)  { _fcmMonth = 12; _fcmYear--; }
+  renderFamCertMonthly();
+}
+
+function renderFamCertMonthly() {
+  const label = document.getElementById('fcm-nav-label');
+  if (label) label.textContent = `${_fcmYear}년 ${_fcmMonth}월`;
+
+  const search = (document.getElementById('fcm-search')?.value || '').trim().toLowerCase();
+  const filter = document.getElementById('fcm-filter')?.value || '';
+
+  // 해당 월 인증 (deleted/cancelled 제외)
+  const monthCerts = GD_famcert.filter(r => {
+    const st = String(r.status || '').toLowerCase();
+    if (st === 'deleted' || st === 'cancelled') return false;
+    const d = new Date(r.submitted_at || '');
+    return d.getFullYear() === _fcmYear && (d.getMonth() + 1) === _fcmMonth;
+  });
+
+  // emp_id → cert 목록 맵
+  const certByEmp = {};
+  monthCerts.forEach(r => {
+    const key = String(r.emp_id || r.name || '').toUpperCase();
+    if (!certByEmp[key]) certByEmp[key] = [];
+    certByEmp[key].push(r);
+  });
+
+  // GD.users 에서 전체 사용자 목록 구성
+  const allUsers = (GD.users || []).map(u => ({
+    name: u.name || u.userName || '',
+    empId: String(u.empId || u.emp_id || '').toUpperCase(),
+  })).filter(u => u.name || u.empId);
+
+  // 중복 제거 (empId 기준)
+  const seen = new Set();
+  const uniqueUsers = [];
+  allUsers.forEach(u => {
+    const key = u.empId || u.name;
+    if (!seen.has(key)) { seen.add(key); uniqueUsers.push(u); }
+  });
+
+  // 인증 제출자 중 users에 없는 사람도 포함
+  monthCerts.forEach(r => {
+    const empId = String(r.emp_id || '').toUpperCase();
+    const key = empId || r.name || '';
+    if (key && !seen.has(key)) {
+      seen.add(key);
+      uniqueUsers.push({ name: r.name || '', empId });
+    }
+  });
+
+  uniqueUsers.sort((a, b) => (a.name || a.empId).localeCompare(b.name || b.empId, 'ko'));
+
+  // 통계
+  const submittedSet = new Set(Object.keys(certByEmp));
+  const totalCount = uniqueUsers.length;
+  const submittedCount = uniqueUsers.filter(u => {
+    const key = u.empId || u.name.toUpperCase();
+    return submittedSet.has(key);
+  }).length;
+  document.getElementById('fcm-total').textContent = totalCount;
+  document.getElementById('fcm-submitted').textContent = submittedCount;
+  document.getElementById('fcm-missing').textContent = totalCount - submittedCount;
+
+  // 필터 + 검색
+  const rows = uniqueUsers.filter(u => {
+    const key = u.empId || u.name.toUpperCase();
+    const hasCert = submittedSet.has(key);
+    if (filter === 'submitted' && !hasCert) return false;
+    if (filter === 'missing' && hasCert) return false;
+    if (search) {
+      const hay = (u.name + ' ' + u.empId).toLowerCase();
+      if (!hay.includes(search)) return false;
+    }
+    return true;
+  });
+
+  document.getElementById('fcm-count').textContent = rows.length + '명';
+  const tbody = document.getElementById('fcm-tbody');
+  if (!tbody) return;
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--t3);padding:32px">해당하는 인원이 없습니다.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map(u => {
+    const key = u.empId || u.name.toUpperCase();
+    const certs = certByEmp[key] || [];
+    const hasCert = certs.length > 0;
+    const latestDate = hasCert
+      ? new Date(Math.max(...certs.map(c => new Date(c.submitted_at || 0)))).toLocaleDateString('ko')
+      : '-';
+    const badge = hasCert
+      ? `<span class="fcm-badge-sub yes">제출 ${certs.length}건</span>`
+      : `<span class="fcm-badge-sub no">미제출</span>`;
+    const mediaLinks = hasCert
+      ? certs.map(c => c.media_url
+          ? `<a href="${escHtml(c.media_url)}" target="_blank" style="color:var(--p);text-decoration:underline;font-size:12px">${c.media_type === 'video' ? '🎬' : '🖼️'}</a>`
+          : '').filter(Boolean).join(' ')
+      : '';
+    return `<tr>
+      <td style="font-weight:700">${escHtml(u.name || '-')}</td>
+      <td style="font-size:12px;color:var(--t3)">${escHtml(u.empId || '-')}</td>
+      <td style="text-align:center">${hasCert ? certs.length : '-'}</td>
+      <td style="font-size:12px;white-space:nowrap">${latestDate}${mediaLinks ? ' ' + mediaLinks : ''}</td>
+      <td>${badge}</td>
+    </tr>`;
+  }).join('');
+}
+
 async function loadFamCerts() {
   const { data, error } = await db
     .from('family_certifications')
@@ -6235,6 +6419,7 @@ async function loadFamCerts() {
   if (error) { toast('운동인증 로드 실패: ' + error.message); return; }
   GD_famcert = (data || []).filter(row => String(row?.status || '').trim().toLowerCase() !== 'deleted');
   renderFamCert();
+  if (_fcTab === 'monthly') renderFamCertMonthly();
 }
 
 function renderFamCert() {
