@@ -3511,9 +3511,11 @@ function collectAdminUserDeleteIdentity(userOrDeviceId, fallbackName = '') {
       const userDeviceId = normRegIdValue(u?.deviceId);
       const userEmpId = normRegEmpId(u?.empId);
       const userRegId = normRegIdValue(u?.registrationId || u?.registrationid);
+      // empId 체인: empId가 세트에 있더라도 다른 사람의 registrationId→empId 경로로 들어온 경우 확장 금지
+      // deviceId 또는 registrationId 직접 매칭만 체인 허용
       const matched = (userDeviceId && deviceIds.has(userDeviceId))
-        || (userEmpId && empIds.has(userEmpId))
-        || (userRegId && registrationIds.has(userRegId));
+        || (userRegId && registrationIds.has(userRegId))
+        || (userEmpId && empIds.has(userEmpId) && (deviceIds.has(userDeviceId) || registrationIds.has(userRegId)));
       if (!matched) return;
       const before = deviceIds.size + empIds.size + registrationIds.size;
       addDeviceId(userDeviceId);
@@ -3525,14 +3527,15 @@ function collectAdminUserDeleteIdentity(userOrDeviceId, fallbackName = '') {
       const regId = normRegIdValue(r?.id);
       const regDeviceId = normRegIdValue(r?.deviceId);
       const regEmpId = normRegEmpId(r?.empId);
-      const matched = (regId && registrationIds.has(regId))
-        || (regDeviceId && deviceIds.has(regDeviceId))
-        || (regEmpId && empIds.has(regEmpId));
-      if (!matched) return;
+      // 등록→유저 empId 체인: deviceId 또는 regId 직접 매칭이 있을 때만 empId 확장
+      const matchedById = (regId && registrationIds.has(regId)) || (regDeviceId && deviceIds.has(regDeviceId));
+      const matchedByEmpId = regEmpId && empIds.has(regEmpId);
+      if (!matchedById && !matchedByEmpId) return;
       const before = deviceIds.size + empIds.size + registrationIds.size;
       addRegistrationId(regId);
       addDeviceId(regDeviceId);
-      addEmpId(regEmpId);
+      // empId는 직접 ID 매칭이 있을 때만 체인에 추가 (empId만 일치해서 엉뚱한 사람 연루 방지)
+      if (matchedById) addEmpId(regEmpId);
       if (deviceIds.size + empIds.size + registrationIds.size !== before) changed = true;
     });
   }
@@ -3704,7 +3707,19 @@ async function deleteDuplicates() {
   const toDelete = [];
   dupIds.forEach(empId => {
     const group = GD.users.filter(u => (u.empId||'').trim() === empId)
-      .sort((a,b) => getAdminEffectivePoints(b, pointMaps) - getAdminEffectivePoints(a, pointMaps));
+      .sort((a, b) => {
+        // 1순위: 실제 users 행 우선 (derived=임시 계정은 삭제 대상)
+        const aReal = a.__derived ? 0 : 1;
+        const bReal = b.__derived ? 0 : 1;
+        if (bReal !== aReal) return bReal - aReal;
+        // 2순위: 포인트 많은 순
+        const pDiff = getAdminEffectivePoints(b, pointMaps) - getAdminEffectivePoints(a, pointMaps);
+        if (pDiff !== 0) return pDiff;
+        // 3순위: 최근 활동 순 (동점 시 안정적인 기준)
+        const aTs = Date.parse(a.lastActiveAt || a.lastactiveat || 0) || 0;
+        const bTs = Date.parse(b.lastActiveAt || b.lastactiveat || 0) || 0;
+        return bTs - aTs;
+      });
     group.slice(1).forEach(u => toDelete.push(u));
   });
   if (!confirm(`중복 계정 ID 이용자 ${toDelete.length}명 삭제\n(각 계정 ID별 포인트 최고 계정 유지)\n\n${toDelete.map(u => `• ${u.name||'(없음)'} (${u.empId})`).join('\n')}\n\n계속하시겠습니까?`)) return;
