@@ -2973,6 +2973,10 @@
     .fc-upload-meta.uploading { color:#1535c4; font-weight:700; }
     .fc-upload-meta.success { color:#047857; }
     .fc-upload-meta.warn { color:#b45309; }
+    .fc-multi-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; border-radius:10px; overflow:hidden; }
+    .fc-thumb { aspect-ratio:1; overflow:hidden; position:relative; background:#f3f4f6; }
+    .fc-thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+    .fc-thumb-more { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.5); color:#fff; font-size:20px; font-weight:900; }
     .fc-upload-hint { font-size:12px; color:var(--text-secondary); line-height:1.5; margin:0 0 12px; padding:8px 10px; background:#f8f7ff; border-radius:8px; border-left:3px solid #7c3aed; }
     .fc-pay-note { font-size:12px; font-weight:600; color:#047857; background:#ecfdf5; border-radius:8px; padding:8px 10px; margin:0 0 10px; text-align:center; }
     .fc-file-label { display:none; }
@@ -19282,7 +19286,7 @@ function updateFcSubmitButtonState() {
   const btn = document.getElementById('fc-submit-btn');
   const fileInput = document.getElementById('fc-file-input');
   if (!btn || !fileInput) return;
-  const hasFile = !!fileInput.files?.[0];
+  const hasFile = (fileInput.files?.length ?? 0) > 0;
   btn.disabled = !hasFile;
   if (!hasFile) btn.textContent = '인증 제출하기';
 }
@@ -19299,6 +19303,8 @@ function showFcUploadForm() {
   vidEl.pause?.();
   vidEl.style.display = 'none';
   vidEl.removeAttribute('src');
+  const multiGrid = document.getElementById('fc-multi-grid');
+  if (multiGrid) { multiGrid.innerHTML = ''; multiGrid.style.display = 'none'; }
   document.getElementById('fc-preview-wrap').style.display = 'none';
   document.getElementById('fc-done').style.display = 'none';
   const formEl = document.getElementById('fc-upload-form');
@@ -19678,8 +19684,8 @@ async function deleteCurrentFamilyCertSubmission() {
 }
 
 function handleFcFileSelect(input) {
-  const file = input.files[0];
-  if (!file) {
+  const files = Array.from(input.files || []);
+  if (!files.length) {
     clearFamilyCertPreviewObjectUrl();
     setFamilyCertUploadMeta('');
     updateFcSubmitButtonState();
@@ -19687,20 +19693,49 @@ function handleFcFileSelect(input) {
   }
   const imgEl = document.getElementById('fc-img');
   const vidEl = document.getElementById('fc-vid');
+  const multiGrid = document.getElementById('fc-multi-grid');
   const wrapEl = document.getElementById('fc-preview-wrap');
   const placeholder = document.getElementById('fc-upload-placeholder');
   const box = document.getElementById('fc-upload-box');
   clearFamilyCertPreviewObjectUrl();
-  const objUrl = URL.createObjectURL(file);
-  _familyCertPreviewObjectUrl = objUrl;
-  if (file.type.startsWith('image/')) {
-    imgEl.src = objUrl; imgEl.style.display = 'block';
-    vidEl.style.display = 'none';
-    setFamilyCertUploadMeta(`사진 ${formatFamilyCertBytes(file.size)} 선택됨 · 업로드 전에 자동으로 가볍게 줄여서 전송해요.`, 'uploading');
-  } else {
+
+  const isSingleVideo = files.length === 1 && files[0].type.startsWith('video/');
+  if (isSingleVideo) {
+    const objUrl = URL.createObjectURL(files[0]);
+    _familyCertPreviewObjectUrl = objUrl;
     vidEl.src = objUrl; vidEl.style.display = 'block';
     imgEl.style.display = 'none';
-    setFamilyCertUploadMeta(`영상 ${formatFamilyCertBytes(file.size)} 선택됨 · 용량이 클수록 업로드 시간이 길어질 수 있어요.`, 'warn');
+    if (multiGrid) { multiGrid.innerHTML = ''; multiGrid.style.display = 'none'; }
+    setFamilyCertUploadMeta(`영상 ${formatFamilyCertBytes(files[0].size)} 선택됨 · 용량이 클수록 업로드 시간이 길어질 수 있어요.`, 'warn');
+  } else {
+    const imageFiles = files.filter(f => f.type.startsWith('image/'));
+    const skipped = files.length - imageFiles.length;
+    if (!imageFiles.length) {
+      setFamilyCertUploadMeta('이미지 파일을 선택해주세요.', 'warn');
+      updateFcSubmitButtonState();
+      return;
+    }
+    vidEl.style.display = 'none';
+    imgEl.style.display = 'none';
+    if (multiGrid) {
+      const MAX_SHOW = 6;
+      const showFiles = imageFiles.slice(0, MAX_SHOW);
+      const remaining = imageFiles.length - MAX_SHOW;
+      multiGrid.innerHTML = showFiles.map((f, i) => {
+        const url = URL.createObjectURL(f);
+        const isLastSlot = i === MAX_SHOW - 1 && remaining > 0;
+        return `<div class="fc-thumb"><img src="${url}" alt="사진${i + 1}">${isLastSlot ? `<div class="fc-thumb-more">+${remaining + 1}</div>` : ''}</div>`;
+      }).join('');
+      multiGrid.style.display = 'grid';
+    }
+    const totalSize = imageFiles.reduce((s, f) => s + f.size, 0);
+    const skippedMsg = skipped > 0 ? ` (동영상 ${skipped}개 제외)` : '';
+    setFamilyCertUploadMeta(
+      imageFiles.length === 1
+        ? `사진 ${formatFamilyCertBytes(totalSize)} 선택됨 · 업로드 전에 자동으로 가볍게 줄여서 전송해요.`
+        : `사진 ${imageFiles.length}장 선택됨 · 총 ${formatFamilyCertBytes(totalSize)}${skippedMsg}`,
+      'uploading'
+    );
   }
   wrapEl.style.display = 'block';
   if (placeholder) placeholder.style.display = 'none';
@@ -19726,99 +19761,103 @@ async function submitFamilyCertFromIndex() {
   const fileInput = document.getElementById('fc-file-input');
   const memoInput = document.getElementById('fc-memo');
   const btn = document.getElementById('fc-submit-btn');
-  const file = fileInput?.files?.[0];
-  if (!file) { showToast('사진 또는 영상을 먼저 선택해주세요.'); return; }
   const memo = memoInput?.value?.trim() || '';
-  const isImageFile = file.type.startsWith('image/');
+
+  const allFiles = Array.from(fileInput?.files || []);
+  if (!allFiles.length) { showToast('사진 또는 영상을 먼저 선택해주세요.'); return; }
+
+  const isSingleVideo = allFiles.length === 1 && allFiles[0].type.startsWith('video/');
+  const filesToUpload = isSingleVideo ? allFiles : allFiles.filter(f => f.type.startsWith('image/'));
+  if (!filesToUpload.length) { showToast('사진 또는 영상을 먼저 선택해주세요.'); return; }
+
   btn.disabled = true;
-  btn.textContent = isImageFile ? '사진 최적화 중...' : '업로드 준비 중...';
-  setFamilyCertUploadMeta(
-    isImageFile
-      ? `사진 ${formatFamilyCertBytes(file.size)}를 업로드에 맞게 정리하고 있어요.`
-      : `영상 ${formatFamilyCertBytes(file.size)} 업로드를 준비하고 있어요.`,
-    'uploading'
-  );
-  try {
-    const optimized = await optimizeFamilyCertUploadFile(file);
-    const uploadFile = optimized?.file || file;
-    const fileName = buildFamilyCertUploadFileName(uploadFile, empId, regId);
-    const submittedAt = new Date().toISOString();
-    if (optimized.optimized) {
-      setFamilyCertUploadMeta(
-        `사진 용량을 ${formatFamilyCertBytes(optimized.originalSize)}에서 ${formatFamilyCertBytes(optimized.optimizedSize)}로 줄였어요. 이제 업로드해요.`,
-        'uploading'
-      );
-    } else {
-      setFamilyCertUploadMeta(
-        isImageFile
-          ? `사진 ${formatFamilyCertBytes(uploadFile.size)} 업로드를 시작해요.`
-          : `영상 ${formatFamilyCertBytes(uploadFile.size)} 업로드를 시작해요.`,
-        'uploading'
-      );
-    }
-    btn.textContent = '업로드 중...';
-    const uploadRes = await uploadFamilyCertFileToStorage(uploadFile, fileName, (loaded, total) => {
-      const safeTotal = total || uploadFile.size || 0;
-      const percent = safeTotal ? Math.min(100, Math.max(1, Math.round((loaded / safeTotal) * 100))) : 0;
-      btn.textContent = percent ? `업로드 중... ${percent}%` : '업로드 중...';
-      if (safeTotal) {
+  const total = filesToUpload.length;
+  let lastCertRow = null;
+  let lastOptimized = null;
+
+  for (let i = 0; i < total; i++) {
+    const file = filesToUpload[i];
+    const isImageFile = file.type.startsWith('image/');
+    const prefix = total > 1 ? `(${i + 1}/${total}) ` : '';
+
+    btn.textContent = total > 1 ? `${i + 1}/${total} 처리 중...` : (isImageFile ? '사진 최적화 중...' : '업로드 준비 중...');
+    setFamilyCertUploadMeta(
+      `${prefix}${isImageFile ? `사진 ${formatFamilyCertBytes(file.size)}를 업로드에 맞게 정리하고 있어요.` : `영상 ${formatFamilyCertBytes(file.size)} 업로드를 준비하고 있어요.`}`,
+      'uploading'
+    );
+
+    try {
+      const optimized = await optimizeFamilyCertUploadFile(file);
+      const uploadFile = optimized?.file || file;
+      const fileName = buildFamilyCertUploadFileName(uploadFile, empId, regId);
+      const submittedAt = new Date().toISOString();
+      lastOptimized = optimized;
+
+      if (optimized.optimized) {
         setFamilyCertUploadMeta(
-          `${formatFamilyCertBytes(loaded)} / ${formatFamilyCertBytes(safeTotal)} 업로드 중`,
+          `${prefix}사진 용량을 ${formatFamilyCertBytes(optimized.originalSize)}에서 ${formatFamilyCertBytes(optimized.optimizedSize)}로 줄였어요. 이제 업로드해요.`,
           'uploading'
         );
       }
-    });
-    if (!uploadRes.ok) throw new Error((uploadRes.text || '').trim() || 'Storage 업로드 실패 (' + uploadRes.status + ')');
-    const mediaUrl = `${SUPABASE_URL}/storage/v1/object/public/family-certifications/${encodeURIComponent(fileName)}`;
-    const certId = 'cert_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
-    btn.textContent = '제출 저장 중...';
-    setFamilyCertUploadMeta('업로드가 끝나서 제출 내용을 저장하고 있어요.', 'uploading');
-    const dbRes = await fetch(SUPABASE_URL + '/rest/v1/family_certifications', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY, 'Prefer': 'return=minimal' },
-      body: JSON.stringify({ id: certId, reg_id: regId, emp_id: empId || null, name: name || null, media_url: mediaUrl, media_type: uploadFile.type.startsWith('image/') ? 'image' : 'video', memo: memo, submitted_at: submittedAt, status: 'pending' }),
-    });
-    if (!dbRes.ok) throw new Error((await dbRes.text().catch(() => '')) || 'DB 저장 실패 (' + dbRes.status + ')');
-    setFamilyCertLatestRow({
-      id: certId,
-      reg_id: regId,
-      emp_id: empId || null,
-      name: name || null,
-      media_url: mediaUrl,
-      media_type: uploadFile.type.startsWith('image/') ? 'image' : 'video',
-      memo,
-      submitted_at: submittedAt,
-      status: 'pending',
-    }, empId);
-    syncFamilyCertStateToRunday();
-    setFamilyCertUploadMeta(
-      optimized.optimized
-        ? `사진을 ${formatFamilyCertBytes(optimized.originalSize)}에서 ${formatFamilyCertBytes(optimized.optimizedSize)}로 줄여 빠르게 업로드했어요.`
-        : '',
-      optimized.optimized ? 'success' : ''
-    );
-    document.getElementById('fc-done').style.display = 'block';
-    renderChallenge();
-    renderExerciseFamilyCertCard();
-    refreshCurrentFamilyCertLatest({ force: true, silent: true }).then(() => {
-      renderFamilyCertList();
-      renderExerciseFamilyCertCard();
-      setTimeout(() => {
-        document.getElementById('fc-done').style.display = 'none';
-        showFcUploadForm();
-      }, 2000);
-    }).catch(err => console.warn('[family-cert/post-submit-sync]', err));
-  } catch (err) {
-    console.error('[submitFamilyCertFromIndex]', err);
-    btn.disabled = false; btn.textContent = '인증 제출하기';
-    setFamilyCertUploadMeta(
-      isImageFile
-        ? '업로드 중 문제가 생겼어요. 잠시 후 다시 시도해주세요.'
-        : '영상 업로드 중 문제가 생겼어요. 파일 용량이 큰 경우 시간이 더 걸릴 수 있어요.',
-      'warn'
-    );
-    showToast('제출 실패: ' + (err.message || String(err)));
+
+      btn.textContent = total > 1 ? `${i + 1}/${total} 업로드 중...` : '업로드 중...';
+      const uploadRes = await uploadFamilyCertFileToStorage(uploadFile, fileName, (loaded, tot) => {
+        const safeTotal = tot || uploadFile.size || 0;
+        const percent = safeTotal ? Math.min(100, Math.max(1, Math.round((loaded / safeTotal) * 100))) : 0;
+        btn.textContent = total > 1
+          ? `${i + 1}/${total} 업로드 중... ${percent}%`
+          : (percent ? `업로드 중... ${percent}%` : '업로드 중...');
+        if (safeTotal) setFamilyCertUploadMeta(`${prefix}${formatFamilyCertBytes(loaded)} / ${formatFamilyCertBytes(safeTotal)} 업로드 중`, 'uploading');
+      });
+      if (!uploadRes.ok) throw new Error((uploadRes.text || '').trim() || 'Storage 업로드 실패 (' + uploadRes.status + ')');
+
+      const mediaUrl = `${SUPABASE_URL}/storage/v1/object/public/family-certifications/${encodeURIComponent(fileName)}`;
+      const certId = 'cert_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+      btn.textContent = total > 1 ? `${i + 1}/${total} 저장 중...` : '제출 저장 중...';
+      setFamilyCertUploadMeta(`${prefix}업로드가 끝나서 제출 내용을 저장하고 있어요.`, 'uploading');
+
+      const dbRes = await fetch(SUPABASE_URL + '/rest/v1/family_certifications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY, 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ id: certId, reg_id: regId, emp_id: empId || null, name: name || null, media_url: mediaUrl, media_type: isImageFile ? 'image' : 'video', memo: memo, submitted_at: submittedAt, status: 'pending' }),
+      });
+      if (!dbRes.ok) throw new Error((await dbRes.text().catch(() => '')) || 'DB 저장 실패 (' + dbRes.status + ')');
+
+      lastCertRow = { id: certId, reg_id: regId, emp_id: empId || null, name: name || null, media_url: mediaUrl, media_type: isImageFile ? 'image' : 'video', memo, submitted_at: submittedAt, status: 'pending' };
+    } catch (err) {
+      console.error('[submitFamilyCertFromIndex]', err);
+      btn.disabled = false;
+      btn.textContent = '인증 제출하기';
+      setFamilyCertUploadMeta(
+        total > 1
+          ? `${prefix}업로드 중 문제가 생겼어요. 잠시 후 다시 시도해주세요.`
+          : (file.type.startsWith('image/') ? '업로드 중 문제가 생겼어요. 잠시 후 다시 시도해주세요.' : '영상 업로드 중 문제가 생겼어요. 파일 용량이 큰 경우 시간이 더 걸릴 수 있어요.'),
+        'warn'
+      );
+      showToast('제출 실패: ' + (err.message || String(err)));
+      return;
+    }
   }
+
+  if (lastCertRow) setFamilyCertLatestRow(lastCertRow, empId);
+  syncFamilyCertStateToRunday();
+  setFamilyCertUploadMeta(
+    total > 1
+      ? `사진 ${total}장을 모두 제출했어요.`
+      : (lastOptimized?.optimized ? `사진을 ${formatFamilyCertBytes(lastOptimized.originalSize)}에서 ${formatFamilyCertBytes(lastOptimized.optimizedSize)}로 줄여 빠르게 업로드했어요.` : ''),
+    total > 1 || lastOptimized?.optimized ? 'success' : ''
+  );
+  document.getElementById('fc-done').style.display = 'block';
+  renderChallenge();
+  renderExerciseFamilyCertCard();
+  refreshCurrentFamilyCertLatest({ force: true, silent: true }).then(() => {
+    renderFamilyCertList();
+    renderExerciseFamilyCertCard();
+    setTimeout(() => {
+      document.getElementById('fc-done').style.display = 'none';
+      showFcUploadForm();
+    }, 2000);
+  }).catch(err => console.warn('[family-cert/post-submit-sync]', err));
 }
 
 function setChallengeSectionHtml(el, html, renderKey = html) {
@@ -21660,8 +21699,9 @@ async function init() {
         <div id="fc-preview-wrap" class="fc-preview-wrap">
           <img id="fc-img" class="fc-media-preview" style="display:none" alt="인증 미리보기">
           <video id="fc-vid" class="fc-media-preview" controls style="display:none"></video>
+          <div id="fc-multi-grid" class="fc-multi-grid" style="display:none"></div>
         </div>
-        <input type="file" id="fc-file-input" accept="image/*,video/*" style="display:none" onchange="handleFcFileSelect(this)">
+        <input type="file" id="fc-file-input" accept="image/*,video/*" multiple style="display:none" onchange="handleFcFileSelect(this)">
       </div>
       <div id="fc-upload-meta" class="fc-upload-meta"></div>
       <div class="fc-upload-hint">타임스탬프가 들어간 사진이나 결제 영수증 이미지도 같이 첨부해주세요.</div>
