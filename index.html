@@ -3010,10 +3010,6 @@
     .fc-divider { border:none; border-top:1px solid var(--border); margin:16px 0 14px; }
     .fc-memo { width:100%; padding:9px 12px; border:1.5px solid var(--border); border-radius:10px; font-family:inherit; font-size:13px; outline:none; resize:none; margin-bottom:12px; background:var(--card); color:var(--text); box-sizing:border-box; }
     .fc-memo:focus { border-color:#7c3aed; }
-    .fc-consent { margin-bottom:12px; padding:12px; border-radius:12px; background:#fff; border:1px solid var(--border); }
-    .fc-consent-copy { font-size:11px; color:var(--text-secondary); line-height:1.6; margin-bottom:8px; }
-    .fc-consent-check { display:flex; align-items:flex-start; gap:8px; cursor:pointer; font-size:12px; font-weight:600; line-height:1.5; color:var(--text); }
-    .fc-consent-check input { width:16px; height:16px; margin-top:1px; accent-color:var(--primary); flex-shrink:0; }
     .fc-submit-btn { width:100%; padding:13px; border-radius:12px; border:none; background:linear-gradient(135deg,#6d28d9,#5b21b6); color:#fff; font-family:inherit; font-size:14px; font-weight:800; cursor:pointer; }
     .fc-submit-btn:disabled { background:#d1d5db; cursor:not-allowed; }
     .fc-list { display:flex; flex-direction:column; gap:10px; margin-bottom:4px; }
@@ -19294,7 +19290,6 @@ function updateFcSubmitButtonState() {
 function showFcUploadForm() {
   document.getElementById('fc-file-input').value = '';
   document.getElementById('fc-memo').value = '';
-  document.getElementById('fc-consent').checked = false;
   clearFamilyCertPreviewObjectUrl();
   setFamilyCertUploadMeta('');
   const imgEl = document.getElementById('fc-img');
@@ -19730,15 +19725,10 @@ async function submitFamilyCertFromIndex() {
   const name = S.user.name || '';
   const fileInput = document.getElementById('fc-file-input');
   const memoInput = document.getElementById('fc-memo');
-  const consentInput = document.getElementById('fc-consent');
   const btn = document.getElementById('fc-submit-btn');
   const file = fileInput?.files?.[0];
   if (!file) { showToast('사진 또는 영상을 먼저 선택해주세요.'); return; }
-  if (!consentInput?.checked) { showToast('홍보영상 활용 동의가 필요합니다.'); return; }
-  const rawMemo = memoInput?.value?.trim() || '';
-  const memo = rawMemo
-    ? `${rawMemo}\n[홍보영상 활용 동의]`
-    : '[홍보영상 활용 동의]';
+  const memo = memoInput?.value?.trim() || '';
   const isImageFile = file.type.startsWith('image/');
   btn.disabled = true;
   btn.textContent = isImageFile ? '사진 최적화 중...' : '업로드 준비 중...';
@@ -21676,13 +21666,6 @@ async function init() {
       <div id="fc-upload-meta" class="fc-upload-meta"></div>
       <div class="fc-upload-hint">타임스탬프가 들어간 사진이나 결제 영수증 이미지도 같이 첨부해주세요.</div>
       <textarea class="fc-memo" id="fc-memo" rows="2" placeholder="한 줄 메모 (선택사항)"></textarea>
-      <div class="fc-consent">
-        <div class="fc-consent-copy">제출한 사진 및 영상은 병원 홍보 영상 또는 관련 홍보 콘텐츠에 활용될 수 있습니다.</div>
-        <label class="fc-consent-check">
-          <input type="checkbox" id="fc-consent">
-          <span>사진 및 영상이 병원 홍보영상에 사용될 수 있음에 동의합니다 <span style="color:var(--accent)">*</span></span>
-        </label>
-      </div>
       <div class="fc-pay-note">운동 지원금은 매월 초에 지급됩니다.</div>
       <div class="fc-btn-row">
         <button type="button" class="fc-submit-btn" id="fc-submit-btn" onclick="submitFamilyCertFromIndex()" disabled>인증 제출하기</button>
