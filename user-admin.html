@@ -250,6 +250,9 @@
     .fcm-badge-sub{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;}
     .fcm-badge-sub.yes{background:#ecfdf5;color:#059669;}
     .fcm-badge-sub.no{background:#fef2f2;color:#dc2626;}
+    .fcm-pill{transition:box-shadow .15s,outline .15s;}
+    .fcm-pill:hover{box-shadow:0 0 0 2px var(--p);}
+    .fcm-pill.active{outline:2.5px solid var(--p);}
 
     /* ── ACTIVE DOT ── */
     .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;flex-shrink:0;}
@@ -1137,9 +1140,9 @@
         </div>
         <!-- 통계 -->
         <div class="ch-status-bar" style="margin-bottom:14px">
-          <div class="ch-s-pill"><div class="ch-s-val" id="fcm-total">-</div><div class="ch-s-lbl">전체 인원</div></div>
-          <div class="ch-s-pill" style="background:#ecfdf5"><div class="ch-s-val" style="color:#059669" id="fcm-submitted">-</div><div class="ch-s-lbl">제출자</div></div>
-          <div class="ch-s-pill" style="background:#fef2f2"><div class="ch-s-val" style="color:#dc2626" id="fcm-missing">-</div><div class="ch-s-lbl">미제출자</div></div>
+          <div class="ch-s-pill fcm-pill" id="fcm-pill-all" onclick="fcmSetFilter('')" style="cursor:pointer"><div class="ch-s-val" id="fcm-total">-</div><div class="ch-s-lbl">전체 인원</div></div>
+          <div class="ch-s-pill fcm-pill" id="fcm-pill-sub" onclick="fcmSetFilter('submitted')" style="cursor:pointer;background:#ecfdf5"><div class="ch-s-val" style="color:#059669" id="fcm-submitted">-</div><div class="ch-s-lbl">제출자</div></div>
+          <div class="ch-s-pill fcm-pill" id="fcm-pill-mis" onclick="fcmSetFilter('missing')" style="cursor:pointer;background:#fef2f2"><div class="ch-s-val" style="color:#dc2626" id="fcm-missing">-</div><div class="ch-s-lbl">미제출자</div></div>
         </div>
         <!-- 검색 + 필터 -->
         <div class="ctrl-bar">
@@ -6306,12 +6309,23 @@ function fcMonthShift(delta) {
   renderFamCertMonthly();
 }
 
+function fcmSetFilter(val) {
+  const sel = document.getElementById('fcm-filter');
+  if (sel) sel.value = val;
+  renderFamCertMonthly();
+}
+
 function renderFamCertMonthly() {
   const label = document.getElementById('fcm-nav-label');
   if (label) label.textContent = `${_fcmYear}년 ${_fcmMonth}월`;
 
   const search = (document.getElementById('fcm-search')?.value || '').trim().toLowerCase();
   const filter = document.getElementById('fcm-filter')?.value || '';
+
+  // 활성 카드 강조
+  ['fcm-pill-all','fcm-pill-sub','fcm-pill-mis'].forEach(id => document.getElementById(id)?.classList.remove('active'));
+  const activePill = filter === 'submitted' ? 'fcm-pill-sub' : filter === 'missing' ? 'fcm-pill-mis' : 'fcm-pill-all';
+  document.getElementById(activePill)?.classList.add('active');
 
   // 해당 월 인증 (deleted/cancelled 제외)
   const monthCerts = GD_famcert.filter(r => {
