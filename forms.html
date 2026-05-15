@@ -1009,7 +1009,8 @@ async function saveForm() {
 
   const formLabel  = FORM_LABELS[currentForm] || currentForm;
   const nameParts  = [patientName || '(이름없음)', chartno].filter(Boolean);
-  const savedLabel = nameParts.join(' ') + ' · ' + formDate + ' · ' + formLabel;
+  const authorName = auGetCurrent();
+  const savedLabel = nameParts.join(' ') + ' · ' + formDate + ' · ' + formLabel + (authorName ? ' · ' + authorName : '');
 
   const payload = {
     form_type: currentForm,
@@ -1508,6 +1509,50 @@ function renderConsentCommonSections() {
   initSigPads();
 }
 
+/* ── 작성자 설정 ── */
+const AU_KEY = 'hi_authors';
+const AU_CUR = 'hi_current_author';
+
+function auGetAll() {
+  try { return JSON.parse(localStorage.getItem(AU_KEY) || '[{},{},{}]'); } catch { return [{},{},{}]; }
+}
+function auGetCurrent() {
+  const idx = parseInt(localStorage.getItem(AU_CUR) ?? '-1');
+  if (idx < 0) return null;
+  return auGetAll()[idx]?.name || null;
+}
+function auSetCurrent(idx) {
+  localStorage.setItem(AU_CUR, String(idx));
+  updateAuthorDisplay();
+  showToast('작성자 선택 완료 ✓');
+}
+function updateAuthorDisplay() {
+  const name = auGetCurrent();
+  const el = document.getElementById('current-author-display');
+  if (el) el.textContent = name ? `작성자: ${name}` : '작성자 미선택';
+}
+function saveAuthor(idx) {
+  const name = document.getElementById('au-name-' + idx)?.value.trim() || '';
+  const all = auGetAll();
+  all[idx] = { name };
+  localStorage.setItem(AU_KEY, JSON.stringify(all));
+  showToast('저장 완료 ✓');
+}
+function openAuthorModal() {
+  const modal = document.getElementById('author-modal');
+  modal.classList.add('open');
+  const authors = auGetAll();
+  const curIdx = parseInt(localStorage.getItem(AU_CUR) ?? '-1');
+  [0,1,2].forEach(i => {
+    const nameEl = document.getElementById('au-name-' + i);
+    if (nameEl) nameEl.value = authors[i]?.name || '';
+    const btn = document.getElementById('au-cur-' + i);
+    if (btn) btn.style.background = i === curIdx ? '#1e1047' : '';
+    if (btn) btn.style.color = i === curIdx ? '#fff' : '';
+  });
+  updateAuthorDisplay();
+}
+
 /* ── 하단 바 설정 팝업 ── */
 function toggleSettingsPopup() {
   const popup = document.getElementById('settings-popup');
@@ -1672,6 +1717,7 @@ updateDoctorDropdowns();
 const today = new Date().toISOString().slice(0, 10);
 ['p-date','rx-date','lab-examdate'].forEach(id => { const el = document.getElementById(id); if (el) el.value = today; });
 loadSavedList('progress');
+updateAuthorDisplay();
 
 /* ── 오프라인 임시 저장 → Supabase 동기화 ── */
 async function syncLocalToSupabase() {
@@ -1731,9 +1777,62 @@ window.addEventListener('online', syncLocalToSupabase);
 
 <!-- 설정 팝업 -->
 <div id="settings-popup" class="settings-popup no-print">
+  <div id="current-author-display" style="font-size:11px;color:#6b7280;padding:8px 14px 4px;font-weight:600">작성자 미선택</div>
+  <div style="height:1px;background:#f3f4f6;margin:4px 0"></div>
   <button class="settings-item" onclick="openDoctorModal();document.getElementById('settings-popup').classList.remove('open')">
     👨‍⚕️ 주치의 저장하기
   </button>
+  <button class="settings-item" onclick="openAuthorModal();document.getElementById('settings-popup').classList.remove('open')">
+    ✍️ 작성자 저장하기
+  </button>
+</div>
+
+<!-- 작성자 설정 모달 -->
+<div id="author-modal" class="dr-modal-backdrop no-print" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="dr-modal">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+      <div style="font-size:15px;font-weight:900;color:#1e1047">작성자 설정</div>
+      <button onclick="document.getElementById('author-modal').classList.remove('open')"
+              style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280;line-height:1">×</button>
+    </div>
+    <div style="font-size:11px;color:#6b7280;margin-bottom:16px">이름을 저장하고 현재 사용자를 선택하세요. 저장 기록에 작성자 이름이 포함됩니다.</div>
+
+    <div class="dr-slot">
+      <div class="dr-slot-title">작성자 1</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <span style="font-size:12px;white-space:nowrap">성명</span>
+        <input id="au-name-0" class="fi" style="border-bottom:1px solid #999;flex:1" placeholder="이름 입력">
+      </div>
+      <div style="display:flex;gap:8px">
+        <button onclick="saveAuthor(0)" style="flex:1;padding:8px;background:#e5e7eb;color:#1e1047;border:none;border-radius:7px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">저장</button>
+        <button id="au-cur-0" onclick="saveAuthor(0);auSetCurrent(0);openAuthorModal()" style="flex:1;padding:8px;background:#f3f4f6;color:#374151;border:none;border-radius:7px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">현재 선택</button>
+      </div>
+    </div>
+
+    <div class="dr-slot">
+      <div class="dr-slot-title">작성자 2</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <span style="font-size:12px;white-space:nowrap">성명</span>
+        <input id="au-name-1" class="fi" style="border-bottom:1px solid #999;flex:1" placeholder="이름 입력">
+      </div>
+      <div style="display:flex;gap:8px">
+        <button onclick="saveAuthor(1)" style="flex:1;padding:8px;background:#e5e7eb;color:#1e1047;border:none;border-radius:7px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">저장</button>
+        <button id="au-cur-1" onclick="saveAuthor(1);auSetCurrent(1);openAuthorModal()" style="flex:1;padding:8px;background:#f3f4f6;color:#374151;border:none;border-radius:7px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">현재 선택</button>
+      </div>
+    </div>
+
+    <div class="dr-slot">
+      <div class="dr-slot-title">작성자 3</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <span style="font-size:12px;white-space:nowrap">성명</span>
+        <input id="au-name-2" class="fi" style="border-bottom:1px solid #999;flex:1" placeholder="이름 입력">
+      </div>
+      <div style="display:flex;gap:8px">
+        <button onclick="saveAuthor(2)" style="flex:1;padding:8px;background:#e5e7eb;color:#1e1047;border:none;border-radius:7px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">저장</button>
+        <button id="au-cur-2" onclick="saveAuthor(2);auSetCurrent(2);openAuthorModal()" style="flex:1;padding:8px;background:#f3f4f6;color:#374151;border:none;border-radius:7px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">현재 선택</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- 주치의 설정 모달 -->
