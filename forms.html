@@ -128,15 +128,14 @@ input[type=checkbox]{width:13px;height:13px;cursor:pointer;accent-color:#1e1047}
   <button class="nav-tab" onclick="switchForm('prescription',this)">처방전</button>
   <button class="nav-tab" onclick="switchForm('labresult',this)">검사결과기록지</button>
   <div class="nav-divider"></div>
+  <button class="nav-tab" onclick="switchForm('consent-eggretrieval',this)">난자채취 동의서</button>
+  <button class="nav-tab" onclick="switchForm('consent-hysteroscopy',this)">자궁내시경 동의서</button>
+  <button class="nav-tab" onclick="switchForm('consent-laparoscopy',this)">복강경 수술 동의서</button>
+  <button class="nav-tab" onclick="switchForm('consent-prp-sedation',this)">마취 진정 동의서</button>
   <button class="nav-tab" onclick="switchForm('consent-cautery',this)">전기소작술 동의서</button>
   <button class="nav-tab" onclick="switchForm('consent-marsup',this)">조대술 동의서</button>
-  <button class="nav-tab" onclick="switchForm('consent-laparoscopy',this)">복강경 수술 동의서</button>
-  <div class="nav-divider"></div>
-  <button class="nav-tab" onclick="switchForm('consent-hysteroscopy',this)">자궁내시경 동의서</button>
-  <button class="nav-tab" onclick="switchForm('consent-curettage',this)">소파술 동의서</button>
-  <button class="nav-tab" onclick="switchForm('consent-eggretrieval',this)">난자채취 동의서</button>
   <button class="nav-tab" onclick="switchForm('consent-fetal-reduction',this)">선택적 유산 동의서</button>
-  <button class="nav-tab" onclick="switchForm('consent-prp-sedation',this)">마취 진정 동의서</button>
+  <button class="nav-tab" onclick="switchForm('consent-curettage',this)">소파술 동의서</button>
   <button class="nav-tab" onclick="switchForm('consent-general',this)">기타수술 동의서</button>
   <div class="nav-right">
     <button class="btn-save" onclick="switchForm('saved-list',this)" style="background:rgba(165,180,252,.18);border-color:rgba(165,180,252,.5);color:#c4b5fd">📋 기록</button>
@@ -163,15 +162,15 @@ input[type=checkbox]{width:13px;height:13px;cursor:pointer;accent-color:#1e1047}
         <option value="progress">경과기록지</option>
         <option value="prescription">처방전</option>
         <option value="labresult">검사결과기록지</option>
+        <option value="consent-eggretrieval">난자채취 동의서</option>
+        <option value="consent-hysteroscopy">자궁내시경 동의서</option>
+        <option value="consent-laparoscopy">복강경 수술 동의서</option>
+        <option value="consent-prp-sedation">마취 진정 동의서</option>
         <option value="consent-cautery">전기소작술 동의서</option>
         <option value="consent-marsup">조대술 동의서</option>
-        <option value="consent-laparoscopy">복강경 수술 동의서</option>
-        <option value="consent-hysteroscopy">자궁내시경 동의서</option>
-        <option value="consent-curettage">소파술 동의서</option>
-        <option value="consent-eggretrieval">난자채취 동의서</option>
         <option value="consent-fetal-reduction">선택적 유산 동의서</option>
-        <option value="consent-prp-sedation">마취 진정 동의서</option>
-        <option value="consent-general">수술 동의서</option>
+        <option value="consent-curettage">소파술 동의서</option>
+        <option value="consent-general">기타수술 동의서</option>
       </select>
     </div>
     <div id="sl-count" style="font-size:11px;color:#9ca3af;margin-top:8px"></div>
