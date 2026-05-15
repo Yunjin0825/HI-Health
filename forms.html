@@ -72,6 +72,31 @@ input[type=checkbox]{width:13px;height:13px;cursor:pointer;accent-color:#1e1047}
 .sbtn-del{background:#fee2e2;color:#b91c1c}
 .empty-saved{text-align:center;color:#9ca3af;font-size:12px;padding:20px}
 
+/* ── 동의서 ── */
+.consent-title{text-align:center;font-size:22px;font-weight:900;margin:10px 0 18px;letter-spacing:2px}
+.consent-diag{margin-bottom:14px}
+.consent-diag-label{font-size:12px;font-weight:700;margin-bottom:5px}
+.consent-section{margin-bottom:12px}
+.consent-section h3{font-size:12px;font-weight:800;margin-bottom:5px;padding:3px 0;border-bottom:1px solid #ddd}
+.consent-section p,.consent-section li{font-size:11.5px;line-height:1.7;color:#222}
+.consent-section ul,.consent-section ol{padding-left:18px;margin:4px 0}
+.consent-past{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:12px 14px;margin:14px 0}
+.consent-past-title{font-size:12px;font-weight:800;color:#92400e;margin-bottom:8px}
+.consent-past-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.consent-past-grid label{font-size:11px;display:flex;align-items:center;gap:4px;cursor:pointer}
+.consent-blood{font-size:12px;font-weight:700;margin:14px 0 8px;line-height:1.6}
+.consent-sign-area{margin-top:20px;border-top:2px solid #000;padding-top:16px}
+.consent-sign-date{text-align:right;font-size:13px;margin-bottom:16px}
+.consent-sign-date input[type=number]{width:48px;border:none;border-bottom:1.5px solid #000;text-align:center;font-size:13px;font-family:inherit;outline:none;background:transparent}
+.consent-signers{display:flex;flex-direction:column;gap:14px;align-items:flex-end}
+.signer-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.signer-label{font-size:12px;font-weight:700;white-space:nowrap;min-width:80px;text-align:right}
+.consent-logo{text-align:right;margin-top:20px;font-size:11px;color:#666;font-weight:700}
+.nav-divider{width:1px;height:24px;background:rgba(255,255,255,.2);margin:0 4px}
+.sig-pad-wrap{position:relative;border:1.5px solid #999;border-radius:6px;background:#fafafa;overflow:hidden;display:inline-block}
+.sig-pad{display:block;touch-action:none;cursor:crosshair}
+.sig-clear{position:absolute;top:3px;right:3px;background:rgba(0,0,0,.13);color:#333;border:none;border-radius:4px;font-size:10px;padding:2px 6px;cursor:pointer;font-family:inherit}
+
 /* ── PRINT ── */
 @media print{
   body{background:#fff}
@@ -101,6 +126,10 @@ input[type=checkbox]{width:13px;height:13px;cursor:pointer;accent-color:#1e1047}
   <button class="nav-tab active" onclick="switchForm('progress',this)">경과기록지</button>
   <button class="nav-tab" onclick="switchForm('prescription',this)">처방전</button>
   <button class="nav-tab" onclick="switchForm('labresult',this)">검사결과기록지</button>
+  <div class="nav-divider"></div>
+  <button class="nav-tab" onclick="switchForm('consent-cautery',this)">전기소작술 동의서</button>
+  <button class="nav-tab" onclick="switchForm('consent-marsup',this)">조대술 동의서</button>
+  <button class="nav-tab" onclick="switchForm('consent-laparoscopy',this)">복강경 수술 동의서</button>
   <div class="nav-right">
     <button class="btn-save" onclick="saveForm()">💾 저장</button>
     <button class="btn-print" onclick="window.print()">🖨 인쇄</button>
@@ -383,6 +412,145 @@ input[type=checkbox]{width:13px;height:13px;cursor:pointer;accent-color:#1e1047}
   </div>
 </div>
 
+<!-- ══════════════════════════════════════
+     전기소작술 동의서
+══════════════════════════════════════ -->
+<div class="form-section" id="form-consent-cautery">
+  <div class="sheet">
+    <div style="font-size:11px;font-weight:700;border-bottom:2px solid #000;padding-bottom:6px;margin-bottom:16px">수술(또는 시술) 및 마취동의서</div>
+    <div class="consent-title">전기소작술 (Cauterization)</div>
+
+    <div class="consent-diag">
+      <div class="consent-diag-label">진단명</div>
+      <div class="chk-row"><label><input type="checkbox"> 콘딜로마 (chondyloma)</label></div>
+      <div class="chk-row"><label><input type="checkbox"> 기타 : <input class="fi" style="width:160px;border-bottom:1px solid #999;display:inline-block" placeholder=""></label></div>
+    </div>
+
+    <div class="consent-section">
+      <h3>1. 수술(시술·검사)의 목적 및 효과, 성공가능성</h3>
+      <p>콘딜로마의 크기가 크고 광범위해서 약물로 인한 소작술로는 제거하기가 어려울 때, 수술적 방법으로 전기소작술을 사용합니다. 대부분의 병변을 제거할 수는 있으나 한번의 시술로 완벽히 제거하지 못할 수도 있습니다.</p>
+    </div>
+    <div class="consent-section">
+      <h3>2. 수술과정 및 방법, 수술(시술·검사)부위 및 추정소요시간</h3>
+      <p><strong>(1) 수술의 방법</strong></p>
+      <ol><li>정맥 마취/ 또는 마스크 마취 후 회음부를 소독 한 후 드래핑을 시행합니다.</li><li>전기소작기를 이용하여 외음부에 있는 콘딜로마를 소작합니다.</li></ol>
+      <p style="margin-top:6px"><strong>(2) 귀하가 알아야 할 치료경과는 다음과 같습니다.</strong></p>
+      <ol><li>수술 후 치유기간은 약 4주 정도이며, 약 6주 후부터 성생활도 가능합니다.</li><li>수술로 100% 치료가 되지 않은 경우 수술을 반복하거나 화학적 소작술/면역요법을 사용할 수 있습니다.</li></ol>
+      <p style="margin-top:4px">수술 부위는 외음부와 질 입구, 요도 주변 등, 콘딜로마가 발생 한 곳 입니다. 수술 시간은 병변의 크기나 개수에 따라 달라지고 대개는 10~20분 정도 소요됩니다.</p>
+    </div>
+    <div class="consent-section">
+      <h3>3. 발현가능한 합병증(후유증)의 내용, 정도 및 대처방법</h3>
+      <p>(1) 수술 부위 감염 (2) 통증 (3) 출혈 (4) 요도 또는 항문 주위 손상<br>수술 후 감염이나 통증을 예방하기 위해 약처방을 시행하며 출혈이 있는 경우 2차 시술이 시행될 수 있습니다.</p>
+    </div>
+    <div class="consent-section">
+      <h3>4. 수술 이외의 시행 가능한 다른 치료방법</h3>
+      <p>전기소작술 외 레이저 소작술 또는 수술용 메스를 이용한 제거술이 있습니다. 크기가 작은 경우 포도필린이나 TCA 같은 화학 약품으로 소작술을 시행하기도 합니다. Imiquimod 라는 면역요법제를 사용하여 치료할 수 있습니다.</p>
+    </div>
+    <div class="consent-section">
+      <h3>5. 수술(시술·검사)관련 주의 사항(수술 후 건강관리에 필요한 사항)</h3>
+      <ol><li>수술 후 치유기간은 약 4주 정도이며, 약 6주 후부터 성생활도 가능합니다.</li><li>수술 후 소독은 필요할 수 있으며, 바로 샤워가 가능합니다. 필요 시 좌욕을 시행하면 도움이 됩니다.</li></ol>
+    </div>
+    <div id="consent-anesthesia-cautery"></div><!-- 마취 공통 섹션 -->
+    <div id="consent-blood-cautery"></div><!-- 수혈 공통 섹션 -->
+    <div id="consent-history-cautery"></div><!-- 과거력 공통 섹션 -->
+    <div id="consent-sign-cautery"></div><!-- 서명 공통 섹션 -->
+    <div class="consent-logo">Hi 에이치아이여성의원</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     조대술 동의서
+══════════════════════════════════════ -->
+<div class="form-section" id="form-consent-marsup">
+  <div class="sheet">
+    <div style="font-size:11px;font-weight:700;border-bottom:2px solid #000;padding-bottom:6px;margin-bottom:16px">조대술 동의서</div>
+    <div class="consent-title">조대술 (Marsupialization)</div>
+
+    <div class="consent-diag">
+      <div class="consent-diag-label">진단명</div>
+      <div class="chk-row"><label><input type="checkbox"> 바톨린선 낭종</label></div>
+      <div class="chk-row"><label><input type="checkbox"> 바톨린선 낭종 농양</label></div>
+    </div>
+
+    <div class="consent-section">
+      <h3>1. 수술(시술·검사)의 목적 및 효과, 성공가능성</h3>
+      <p>바톨린선 낭종 또는 바톨린선 낭종에 발생한 농양을 제거할 목적으로 시술하며, 대부분 결과가 성공적입니다.</p>
+    </div>
+    <div class="consent-section">
+      <h3>2. 수술과정 및 방법, 수술(시술·검사)부위 및 추정소요시간</h3>
+      <p><strong>(1) 수술의 방법</strong></p>
+      <ol><li>정맥 마취/ 또는 마스크 마취 후 환부를 소독 한 후 드래핑을 시행합니다.</li><li>수술을 메스와 가위를 이용하여 낭종을 절개합니다.</li><li>낭종의 내용물을 배액하거나 배농한 후 낭종벽과 점막을 봉합합니다.</li></ol>
+      <p style="margin-top:6px"><strong>(2) 귀하가 알아야 할 치료경과는 다음과 같습니다.</strong></p>
+      <ol><li>수술 후 조직검사 결과에서 악성 종양으로 진단되는 경우에는 2차 수술이 필요할 수도 있습니다.</li></ol>
+      <p style="margin-top:4px">수술 부위는 외음부에 국한됩니다. 수술시간은 15~30분 정도 소요됩니다.</p>
+    </div>
+    <div class="consent-section">
+      <h3>3. 발현가능한 합병증(후유증)의 내용, 정도 및 대처방법</h3>
+      <p>(1) 수술 부위 감염, (2) 통증, (3) 출혈, 혈종<br>수술 후 감염을 예방하기 위해 항생제를 사용합니다. 출혈이나 혈종이 발생하는 경우는 매우 드물지만 경우에 따라 재수술을 시행할 수 있습니다.</p>
+    </div>
+    <div class="consent-section">
+      <h3>4. 수술(시술·검사)관련 주의 사항(수술 후 건강관리에 필요한 사항)</h3>
+      <ol><li>수술 후 1주일 정도 분비물이 지속될 수 있습니다.</li><li>소독은 필요 없으며, 좌욕을 시행하면 도움이 됩니다.</li></ol>
+    </div>
+    <div id="consent-anesthesia-marsup"></div>
+    <div id="consent-blood-marsup"></div>
+    <div id="consent-history-marsup"></div>
+    <div id="consent-sign-marsup"></div>
+    <div class="consent-logo">Hi 에이치아이여성의원</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     진단적 복강경 수술 동의서
+══════════════════════════════════════ -->
+<div class="form-section" id="form-consent-laparoscopy">
+  <div class="sheet">
+    <div style="font-size:11px;font-weight:700;border-bottom:2px solid #000;padding-bottom:6px;margin-bottom:16px">수술(또는 시술) 및 마취동의서</div>
+    <div class="consent-title">진단적 복강경 수술 동의서</div>
+
+    <div class="consent-diag">
+      <div class="consent-diag-label">진단명</div>
+      <div class="chk-row">
+        <label><input type="checkbox"> 난임</label>
+        <label><input type="checkbox"> 난소낭종/난관수종/난관폐색</label>
+        <label><input type="checkbox"> 혈복강</label>
+        <label><input type="checkbox"> 기타 : <input class="fi" style="width:120px;border-bottom:1px solid #999;display:inline-block" placeholder=""></label>
+      </div>
+    </div>
+
+    <div class="consent-section">
+      <h3>1. 수술과정 및 방법, 수술(시술·검사)부위 및 추정소요시간</h3>
+      <p><strong>(1) 수술의 방법</strong></p>
+      <ol><li>배꼽 부근에 직경 1cm 내외의 작은 절개를 가한 후 투관침을 삽입한 후 이산화탄소(CO₂) 가스를 복강 내로 주입하여 시술에 필요한 공간을 확보하고 5~10mm 직경의 내시경이 들어가게 됩니다.</li><li>양측 하복부에는 시술방법에 따라 직경 0.5~1cm 내외의 보조통로의 확보를 위한 2-3개의 투관침 삽입이 추가로 필요하며 이 통로를 통해 수술에 필요한 기구를 삽입하여 내시경과 연결된 TV 화면을 보면서 수술을 시행합니다.</li></ol>
+      <p style="margin-top:6px"><strong>(2) 발생 가능한 치료경과</strong></p>
+      <ol><li>수술 중 심한 출혈이 있을 경우, 악성 종양이 의심될 경우, 수술 부위의 심한 유착으로 해부학적 구조가 구분되지 않을 경우 등에서는 개복수술로 전환할 수 있습니다.</li><li>수술 후 조직검사 결과에서 악성 종양으로 진단되는 경우에는 2차 수술이 필요할 수도 있습니다.</li></ol>
+      <p style="margin-top:4px">수술시간은 대개 1~2시간 정도이며 환자분의 상태에 따라 시간은 달라질 수 있습니다.</p>
+    </div>
+    <div class="consent-section">
+      <h3>2. 발현가능한 합병증(후유증)의 내용, 정도 및 대처방법</h3>
+      <ol>
+        <li>최초의 투관침 삽입은 시야를 확보하지 못한 채 시행하기 때문에 복강내의 위장관, 복부 대동맥 또는 장간막의 주요 혈관, 방광 및 요관의 손상을 유발할 가능성이 있습니다.</li>
+        <li>체내 이산화탄소 가스의 흡수와 횡격막 압박으로 인한 심폐기능 장애와 복강내 이산화탄소 가스가 순환기계로 유입되어 발생하는 가스 색전증의 가능성이 있습니다.</li>
+        <li>경미한 합병증으로 견갑골 통증이 수술 중 횡격막 자극에 의해 발생될 수 있으나, 대부분 수술 후 24시간 이내에 호전됩니다.</li>
+        <li>그 외 투관침 삽입 부위의 혈종, 감염, 탈장, 자궁거상기 사용에 의한 자궁파열 등이 있을 수 있습니다.</li>
+        <li>수술 후 열이 오를 수 있으며, 열은 대개 2-3일 내에 없어지지만 환자의 건강 상태나 원인에 따라 그 기간은 오래 지속될 수 있습니다.</li>
+        <li>수술 중 복강 내 유착 정도에 따라 요로, 방광, 창자 등의 손상이 있을 수 있으며, 미세 손상의 경우 수술 후 회복기에 발견되므로 2차 수술이 불가피합니다.</li>
+        <li>수술 후에 장유착에 의한 장폐쇄 및 색전증이 일어날 수 있으므로 빠른 회복을 위하여 조기보행이 필요합니다.</li>
+        <li>수술 부위에 2차적 감염으로 인한 항생제 장기사용 및 부분 재수술을 시행할 수 있습니다.</li>
+      </ol>
+    </div>
+    <div class="consent-section">
+      <h3>3. 수술(시술·검사)관련 주의 사항(수술 후 건강관리에 필요한 사항)</h3>
+      <ol><li>수술 후 약 4주간의 회복기가 필요합니다.</li><li>수술 후 적극적인 운동을 해야 장운동의 회복 및 혈전증을 예방할 수 있습니다.</li><li>근막의 봉합이 되기 전 복압이 증가할 경우 탈장이 발생할 수 있으므로 4주간은 복압이 증가하는 운동이나 활동을 자제해야 합니다.</li></ol>
+    </div>
+    <div id="consent-anesthesia-laparoscopy"></div>
+    <div id="consent-blood-laparoscopy"></div>
+    <div id="consent-history-laparoscopy" data-extra="해당없음"></div>
+    <div id="consent-sign-laparoscopy"></div>
+    <div class="consent-logo">Hi 에이치아이여성의원</div>
+  </div>
+</div>
+
 </div><!-- /page-wrap -->
 
 <div class="toast" id="toast"></div>
@@ -609,10 +777,174 @@ function showToast(msg, isErr) {
   _toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
 }
 
+/* ── 동의서 공통 섹션 렌더링 ── */
+const CONSENT_FORMS = [
+  { suffix: 'cautery',     anesthesiaNo: 6, bloodNo: 7, historyNo: 8 },
+  { suffix: 'marsup',      anesthesiaNo: 5, bloodNo: 6, historyNo: 7 },
+  { suffix: 'laparoscopy', anesthesiaNo: 4, bloodNo: 5, historyNo: 6 },
+];
+
+function consentAnesthesiaHTML(n) {
+  return `
+  <div class="consent-section">
+    <h3>${n}. 마취 관련</h3>
+    <p><strong>마취의 목적 및 효과</strong><br>시술 중 통증 및 불안을 줄이고 시술을 원활하게 진행하기 위해 마취를 시행합니다.</p>
+    <p style="margin-top:8px"><strong>마취 방법</strong></p>
+    <div class="chk-row">
+      <label><input type="checkbox"> 정맥마취 (수면마취)</label>
+      <label><input type="checkbox"> 흡입마취 (전신마취)</label>
+      <label><input type="checkbox"> 국소마취</label>
+      <label><input type="checkbox"> 척추마취</label>
+    </div>
+    <p style="margin-top:8px"><strong>마취 관련 부작용 및 합병증</strong></p>
+    <ul>
+      <li>경미한 증상: 두통, 구역/구토, 인후통, 근육통, 졸림, 어지럼증</li>
+      <li>드물지만 심각한 합병증: 기도 폐쇄, 과민 반응(알레르기), 심혈관계 이상, 폐 합병증</li>
+      <li>극히 드물게 영구적 신경 손상 또는 사망에 이를 수 있습니다.</li>
+    </ul>
+    <p style="margin-top:8px"><strong>마취 전 주의사항</strong></p>
+    <ul>
+      <li>시술 6시간 전부터 금식(물 포함)하셔야 합니다.</li>
+      <li>귀중품, 틀니, 콘택트렌즈 등은 미리 제거해 주세요.</li>
+      <li>평소 복용 중인 약이 있으시면 반드시 담당의사에게 알려주세요.</li>
+    </ul>
+  </div>`;
+}
+
+function consentBloodHTML(n) {
+  return `
+  <div class="consent-section">
+    <h3>${n}. 수혈 관련 동의</h3>
+    <p>수술(시술) 중 또는 후 출혈이 많아 수혈이 필요한 경우, 수혈에 동의합니다.<br>수혈의 부작용(발열, 오한, 두드러기, 용혈 반응 등)에 대한 설명을 들었으며, 수혈 거부 시 생명에 지장이 있을 수 있음을 이해합니다.</p>
+    <div class="chk-row" style="margin-top:8px">
+      <label><input type="checkbox"> 수혈에 동의합니다</label>
+      <label><input type="checkbox"> 수혈을 거부합니다</label>
+    </div>
+    <p style="margin-top:8px"><strong>마약류 조치 기준</strong></p>
+    <p>마취 과정에서 마약성 진통제가 사용될 수 있으며, 관련 법령에 따라 투여 내역이 기록·보관됩니다.</p>
+  </div>`;
+}
+
+function consentHistoryHTML(n) {
+  return `
+  <div class="consent-past">
+    <div class="consent-past-title">${n}. 과거력 체크리스트</div>
+    <div class="consent-past-grid">
+      <label><input type="checkbox"> 고혈압</label>
+      <label><input type="checkbox"> 당뇨</label>
+      <label><input type="checkbox"> 심장질환</label>
+      <label><input type="checkbox"> 폐질환</label>
+      <label><input type="checkbox"> 신장질환</label>
+      <label><input type="checkbox"> 간질환</label>
+      <label><input type="checkbox"> 갑상선질환</label>
+      <label><input type="checkbox"> 혈액질환</label>
+      <label><input type="checkbox"> 뇌신경질환</label>
+      <label><input type="checkbox"> 정신질환</label>
+      <label><input type="checkbox"> 알레르기</label>
+      <label><input type="checkbox"> 천식</label>
+      <label><input type="checkbox"> 현재 복용약 있음</label>
+      <label><input type="checkbox"> 임신 가능성</label>
+      <label><input type="checkbox"> 흡연</label>
+      <label><input type="checkbox"> 음주</label>
+    </div>
+    <div style="margin-top:8px;font-size:11px">기타 / 복용약 :&nbsp;<input class="fi" style="border-bottom:1px solid #999;width:220px;display:inline-block" placeholder="기타 내용 기재"></div>
+  </div>`;
+}
+
+function sigRow(label, idSuffix) {
+  return `
+  <div class="signer-row">
+    <div class="signer-label">${label}</div>
+    <input class="fi" style="width:90px;border-bottom:1px solid #999;text-align:center;flex-shrink:0" placeholder="성명">
+    <div style="font-size:12px;font-weight:700;white-space:nowrap;margin:0 6px">(서명)</div>
+    <div class="sig-pad-wrap">
+      <canvas class="sig-pad" id="sig-${idSuffix}" width="180" height="60"></canvas>
+      <button class="sig-clear" onclick="clearSigPad(this)">지우기</button>
+    </div>
+  </div>`;
+}
+
+function consentSignHTML(suffix) {
+  const now = new Date();
+  return `
+  <div class="consent-sign-area">
+    <p style="font-size:11.5px;line-height:1.75;color:#222;margin-bottom:14px">
+      본인은 위의 시술(수술)에 대한 목적, 방법, 예상되는 위험성, 합병증 및 마취에 관하여 충분한 설명을 듣고 이해하였으며,
+      궁금한 점은 담당의사에게 질문하여 답변을 받았습니다.<br>
+      본인의 자유로운 의사에 따라 시술(수술) 및 마취에 동의합니다.
+    </p>
+    <div class="consent-sign-date">
+      <input type="number" id="sd-y-${suffix}" style="width:52px;border:none;border-bottom:1.5px solid #000;text-align:center;font-size:13px;font-family:inherit;outline:none;background:transparent" value="${now.getFullYear()}"> 년 &nbsp;
+      <input type="number" id="sd-m-${suffix}" style="width:36px;border:none;border-bottom:1.5px solid #000;text-align:center;font-size:13px;font-family:inherit;outline:none;background:transparent" value="${now.getMonth()+1}"> 월 &nbsp;
+      <input type="number" id="sd-d-${suffix}" style="width:36px;border:none;border-bottom:1.5px solid #000;text-align:center;font-size:13px;font-family:inherit;outline:none;background:transparent" value="${now.getDate()}"> 일
+    </div>
+    <div class="consent-signers">
+      ${sigRow('환 자', 'patient-'+suffix)}
+      ${sigRow('법정대리인<br><span style="font-size:10px;font-weight:400">(미성년자)</span>', 'guardian-'+suffix)}
+      ${sigRow('담당 의사', 'doctor-'+suffix)}
+    </div>
+  </div>`;
+}
+
+function renderConsentCommonSections() {
+  CONSENT_FORMS.forEach(({ suffix, anesthesiaNo, bloodNo, historyNo }) => {
+    const a = document.getElementById('consent-anesthesia-' + suffix);
+    const b = document.getElementById('consent-blood-' + suffix);
+    const h = document.getElementById('consent-history-' + suffix);
+    const s = document.getElementById('consent-sign-' + suffix);
+    if (a) a.innerHTML = consentAnesthesiaHTML(anesthesiaNo);
+    if (b) b.innerHTML = consentBloodHTML(bloodNo);
+    if (h) h.innerHTML = consentHistoryHTML(historyNo);
+    if (s) s.innerHTML = consentSignHTML(suffix);
+  });
+  initSigPads();
+}
+
+/* ── 서명 패드 ── */
+function initSigPads() {
+  document.querySelectorAll('canvas.sig-pad').forEach(canvas => {
+    const ctx = canvas.getContext('2d');
+    let drawing = false, lx = 0, ly = 0;
+
+    function pos(e) {
+      const r = canvas.getBoundingClientRect();
+      const src = e.touches ? e.touches[0] : e;
+      return {
+        x: (src.clientX - r.left) * (canvas.width / r.width),
+        y: (src.clientY - r.top)  * (canvas.height / r.height)
+      };
+    }
+    function down(e) { e.preventDefault(); drawing = true; const p = pos(e); lx = p.x; ly = p.y; }
+    function move(e) {
+      e.preventDefault();
+      if (!drawing) return;
+      const p = pos(e);
+      ctx.beginPath(); ctx.strokeStyle = '#000'; ctx.lineWidth = 1.8; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      ctx.moveTo(lx, ly); ctx.lineTo(p.x, p.y); ctx.stroke();
+      lx = p.x; ly = p.y;
+    }
+    function up() { drawing = false; }
+
+    canvas.addEventListener('mousedown',  down);
+    canvas.addEventListener('mousemove',  move);
+    canvas.addEventListener('mouseup',    up);
+    canvas.addEventListener('mouseleave', up);
+    canvas.addEventListener('touchstart', down, { passive: false });
+    canvas.addEventListener('touchmove',  move, { passive: false });
+    canvas.addEventListener('touchend',   up);
+  });
+}
+
+function clearSigPad(btn) {
+  const canvas = btn.closest('.sig-pad-wrap').querySelector('canvas');
+  if (canvas) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+}
+
 /* ── 초기화 ── */
 initProgressRows();
 initDrugRows();
 initLabRows();
+renderConsentCommonSections();
 // 오늘 날짜 기본값
 const today = new Date().toISOString().slice(0, 10);
 ['p-date','rx-date','lab-examdate'].forEach(id => { const el = document.getElementById(id); if (el) el.value = today; });
