@@ -23,7 +23,17 @@ body{font-family:'Malgun Gothic','맑은 고딕',AppleSDGothicNeo,sans-serif;fon
 .btn-print:active{opacity:.8}
 
 /* ── LAYOUT ── */
-.page-wrap{padding:20px 12px;display:flex;flex-direction:column;align-items:center;gap:20px}
+.page-wrap{padding:20px 12px 80px;display:flex;flex-direction:column;align-items:center;gap:20px}
+
+/* ── BOTTOM BAR ── */
+.bottom-bar{position:fixed;bottom:0;left:0;right:0;background:#1e1047;display:flex;align-items:stretch;z-index:300;height:58px;border-top:1px solid rgba(255,255,255,.12)}
+.bottom-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:none;border:none;color:rgba(255,255,255,.65);font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;padding:6px 2px;transition:color .15s,background .15s}
+.bottom-btn:hover,.bottom-btn.active{color:#fff;background:rgba(255,255,255,.1)}
+.bottom-btn-icon{font-size:19px;line-height:1}
+.settings-popup{position:fixed;bottom:66px;right:8px;background:#fff;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,.18);padding:6px;z-index:500;display:none;min-width:190px}
+.settings-popup.open{display:block}
+.settings-item{display:flex;align-items:center;gap:10px;width:100%;padding:11px 14px;background:none;border:none;border-radius:8px;font-family:inherit;font-size:13px;font-weight:600;color:#1e1047;cursor:pointer;text-align:left}
+.settings-item:hover{background:#f3f4f6}
 .form-section{display:none;width:100%;max-width:210mm;flex-direction:column;gap:20px}
 .form-section.active{display:flex}
 
@@ -149,12 +159,6 @@ input[type=checkbox]{width:13px;height:13px;cursor:pointer;accent-color:#1e1047}
   <button class="nav-tab" onclick="switchForm('consent-fetal-reduction',this)">선택적 유산 동의서</button>
   <button class="nav-tab" onclick="switchForm('consent-curettage',this)">소파술 동의서</button>
   <button class="nav-tab" onclick="switchForm('consent-general',this)">기타수술 동의서</button>
-  <div class="nav-right">
-    <button class="btn-save" onclick="switchForm('saved-list',this)" style="background:rgba(165,180,252,.18);border-color:rgba(165,180,252,.5);color:#c4b5fd">📋 기록</button>
-    <button class="btn-save" onclick="openDoctorModal()" style="background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.25);color:#fff">👨‍⚕️ 의사</button>
-    <button class="btn-save" onclick="saveForm()">💾 저장</button>
-    <button class="btn-print" onclick="window.print()">🖨 인쇄</button>
-  </div>
 </nav>
 
 <div class="page-wrap">
@@ -838,7 +842,7 @@ function switchForm(id, btn) {
   document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
   document.getElementById('form-' + id).classList.add('active');
-  btn.classList.add('active');
+  if (btn?.classList) btn.classList.add('active');
   if (id === 'saved-list') {
     loadAllSavedForms();
   } else {
@@ -1504,6 +1508,21 @@ function renderConsentCommonSections() {
   initSigPads();
 }
 
+/* ── 하단 바 설정 팝업 ── */
+function toggleSettingsPopup() {
+  const popup = document.getElementById('settings-popup');
+  const isOpen = popup.classList.toggle('open');
+  if (isOpen) {
+    setTimeout(() => document.addEventListener('click', closeSettingsOnOutside), 10);
+  }
+}
+function closeSettingsOnOutside(e) {
+  if (!document.getElementById('settings-popup').contains(e.target)) {
+    document.getElementById('settings-popup').classList.remove('open');
+    document.removeEventListener('click', closeSettingsOnOutside);
+  }
+}
+
 /* ── 주치의 설정 ── */
 const DR_KEY = 'hi_doctors';
 
@@ -1690,6 +1709,33 @@ async function syncLocalToSupabase() {
 syncLocalToSupabase();
 window.addEventListener('online', syncLocalToSupabase);
 </script>
+<!-- 하단 액션 바 -->
+<div class="bottom-bar no-print">
+  <button class="bottom-btn" onclick="switchForm('saved-list',null)">
+    <span class="bottom-btn-icon">📋</span>
+    <span>전체목록</span>
+  </button>
+  <button class="bottom-btn" onclick="saveForm()">
+    <span class="bottom-btn-icon">💾</span>
+    <span>저장</span>
+  </button>
+  <button class="bottom-btn" onclick="window.print()">
+    <span class="bottom-btn-icon">🖨️</span>
+    <span>인쇄</span>
+  </button>
+  <button class="bottom-btn" id="settings-btn" onclick="toggleSettingsPopup()">
+    <span class="bottom-btn-icon">⚙️</span>
+    <span>설정</span>
+  </button>
+</div>
+
+<!-- 설정 팝업 -->
+<div id="settings-popup" class="settings-popup no-print">
+  <button class="settings-item" onclick="openDoctorModal();document.getElementById('settings-popup').classList.remove('open')">
+    👨‍⚕️ 주치의 저장하기
+  </button>
+</div>
+
 <!-- 주치의 설정 모달 -->
 <div id="doctor-modal" class="dr-modal-backdrop no-print" onclick="closeDoctorModal(event)">
   <div class="dr-modal">
