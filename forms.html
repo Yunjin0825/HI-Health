@@ -1517,6 +1517,8 @@ function drSave(idx, data) {
 function openDoctorModal() {
   const modal = document.getElementById('doctor-modal');
   modal.classList.add('open');
+  // 모달 캔버스는 스크립트 실행 시점에 DOM에 없으므로 여기서 초기화
+  [0,1,2].forEach(i => { const c = document.getElementById('dr-sig-'+i); if(c) initSigPad(c); });
   const doctors = drGetAll();
   [0,1,2].forEach(i => {
     const nameEl = document.getElementById('dr-name-' + i);
@@ -1595,38 +1597,42 @@ function insertUterusDiagram() {
 }
 
 /* ── 서명 패드 ── */
+function initSigPad(canvas) {
+  if (canvas.dataset.sigInit) return; // 중복 초기화 방지
+  canvas.dataset.sigInit = '1';
+  const ctx = canvas.getContext('2d');
+  let drawing = false, lx = 0, ly = 0;
+
+  function pos(e) {
+    const r = canvas.getBoundingClientRect();
+    const src = e.touches ? e.touches[0] : e;
+    return {
+      x: (src.clientX - r.left) * (canvas.width / r.width),
+      y: (src.clientY - r.top)  * (canvas.height / r.height)
+    };
+  }
+  function down(e) { e.preventDefault(); drawing = true; const p = pos(e); lx = p.x; ly = p.y; }
+  function move(e) {
+    e.preventDefault();
+    if (!drawing) return;
+    const p = pos(e);
+    ctx.beginPath(); ctx.strokeStyle = '#000'; ctx.lineWidth = 1.8; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.moveTo(lx, ly); ctx.lineTo(p.x, p.y); ctx.stroke();
+    lx = p.x; ly = p.y;
+  }
+  function up() { drawing = false; }
+
+  canvas.addEventListener('mousedown',  down);
+  canvas.addEventListener('mousemove',  move);
+  canvas.addEventListener('mouseup',    up);
+  canvas.addEventListener('mouseleave', up);
+  canvas.addEventListener('touchstart', down, { passive: false });
+  canvas.addEventListener('touchmove',  move, { passive: false });
+  canvas.addEventListener('touchend',   up);
+}
+
 function initSigPads() {
-  document.querySelectorAll('canvas.sig-pad').forEach(canvas => {
-    const ctx = canvas.getContext('2d');
-    let drawing = false, lx = 0, ly = 0;
-
-    function pos(e) {
-      const r = canvas.getBoundingClientRect();
-      const src = e.touches ? e.touches[0] : e;
-      return {
-        x: (src.clientX - r.left) * (canvas.width / r.width),
-        y: (src.clientY - r.top)  * (canvas.height / r.height)
-      };
-    }
-    function down(e) { e.preventDefault(); drawing = true; const p = pos(e); lx = p.x; ly = p.y; }
-    function move(e) {
-      e.preventDefault();
-      if (!drawing) return;
-      const p = pos(e);
-      ctx.beginPath(); ctx.strokeStyle = '#000'; ctx.lineWidth = 1.8; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-      ctx.moveTo(lx, ly); ctx.lineTo(p.x, p.y); ctx.stroke();
-      lx = p.x; ly = p.y;
-    }
-    function up() { drawing = false; }
-
-    canvas.addEventListener('mousedown',  down);
-    canvas.addEventListener('mousemove',  move);
-    canvas.addEventListener('mouseup',    up);
-    canvas.addEventListener('mouseleave', up);
-    canvas.addEventListener('touchstart', down, { passive: false });
-    canvas.addEventListener('touchmove',  move, { passive: false });
-    canvas.addEventListener('touchend',   up);
-  });
+  document.querySelectorAll('canvas.sig-pad').forEach(initSigPad);
 }
 
 function clearSigPad(btn) {
