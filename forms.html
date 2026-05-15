@@ -1540,6 +1540,42 @@ insertUterusDiagram();
 const today = new Date().toISOString().slice(0, 10);
 ['p-date','rx-date','lab-examdate'].forEach(id => { const el = document.getElementById(id); if (el) el.value = today; });
 loadSavedList('progress');
+
+/* ── 오프라인 임시 저장 → Supabase 동기화 ── */
+async function syncLocalToSupabase() {
+  const pending = lsGetAll().filter(r => String(r.id).startsWith('local_'));
+  if (!pending.length) return;
+  let synced = 0;
+  for (const record of pending) {
+    try {
+      const payload = {
+        form_type:    record.form_type,
+        patient_name: record.patient_name,
+        form_date:    record.form_date,
+        form_data:    record.form_data,
+        created_at:   record.created_at,
+      };
+      const res = await fetch(SUPABASE_URL + '/rest/v1/medical_forms', {
+        method: 'POST',
+        headers: { ...SB_HEADERS, 'Prefer': 'return=representation' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) continue;
+      const saved = await res.json();
+      const newId = (Array.isArray(saved) ? saved[0] : saved)?.id;
+      if (newId) {
+        lsRemove(record.id);
+        lsUpsert({ ...record, id: String(newId) });
+        synced++;
+      }
+    } catch(e) { break; } // 오프라인이면 중단
+  }
+  if (synced > 0) showToast(`오프라인 기록 ${synced}건 동기화 완료 ✓`);
+}
+
+// 페이지 로드 시 + 온라인 복귀 시 동기화
+syncLocalToSupabase();
+window.addEventListener('online', syncLocalToSupabase);
 </script>
 </body>
 </html>
