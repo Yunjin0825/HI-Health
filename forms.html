@@ -32,6 +32,8 @@ body{font-family:'Malgun Gothic','맑은 고딕',AppleSDGothicNeo,sans-serif;fon
 .bottom-btn-icon{font-size:19px;line-height:1}
 .settings-popup{position:fixed;bottom:66px;right:8px;background:#fff;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,.18);padding:6px;z-index:500;display:none;min-width:190px}
 .settings-popup.open{display:block}
+.share-popup{position:fixed;bottom:66px;left:50%;transform:translateX(-50%);background:#fff;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,.18);padding:6px;z-index:500;display:none;min-width:200px}
+.share-popup.open{display:block}
 .settings-item{display:flex;align-items:center;gap:10px;width:100%;padding:11px 14px;background:none;border:none;border-radius:8px;font-family:inherit;font-size:13px;font-weight:600;color:#1e1047;cursor:pointer;text-align:left}
 .settings-item:hover{background:#f3f4f6}
 .form-section{display:none;width:100%;max-width:210mm;flex-direction:column;gap:20px}
@@ -1567,17 +1569,50 @@ function openAuthorModal() {
 }
 
 /* ── 하단 바 설정 팝업 ── */
-function toggleSettingsPopup() {
-  const popup = document.getElementById('settings-popup');
-  const isOpen = popup.classList.toggle('open');
-  if (isOpen) {
-    setTimeout(() => document.addEventListener('click', closeSettingsOnOutside), 10);
-  }
+function makePopupToggle(popupId) {
+  let outsideHandler = null;
+  return function toggle() {
+    const popup = document.getElementById(popupId);
+    // 다른 팝업 닫기
+    ['settings-popup','share-popup'].forEach(id => {
+      if (id !== popupId) document.getElementById(id)?.classList.remove('open');
+    });
+    const isOpen = popup.classList.toggle('open');
+    if (outsideHandler) document.removeEventListener('click', outsideHandler);
+    if (isOpen) {
+      outsideHandler = e => {
+        if (!popup.contains(e.target)) {
+          popup.classList.remove('open');
+          document.removeEventListener('click', outsideHandler);
+          outsideHandler = null;
+        }
+      };
+      setTimeout(() => document.addEventListener('click', outsideHandler), 10);
+    }
+  };
 }
-function closeSettingsOnOutside(e) {
-  if (!document.getElementById('settings-popup').contains(e.target)) {
-    document.getElementById('settings-popup').classList.remove('open');
-    document.removeEventListener('click', closeSettingsOnOutside);
+const toggleSettingsPopup = makePopupToggle('settings-popup');
+const toggleSharePopup    = makePopupToggle('share-popup');
+
+function downloadAsPDF() {
+  document.getElementById('share-popup').classList.remove('open');
+  window.print();
+}
+
+async function shareForm() {
+  document.getElementById('share-popup').classList.remove('open');
+  const title = '에이치아이 여성의원 — ' + (FORM_LABELS[currentForm] || '의무기록');
+  const url   = location.protocol === 'file:' ? 'https://hi-fertility-health.com/forms.html' : location.href;
+
+  if (navigator.share) {
+    try { await navigator.share({ title, url }); } catch(e) { /* 취소 */ }
+  } else {
+    try {
+      await navigator.clipboard.writeText(url);
+      showToast('링크 복사 완료 ✓');
+    } catch(e) {
+      showToast('공유가 지원되지 않는 환경입니다', true);
+    }
   }
 }
 
@@ -1778,6 +1813,10 @@ window.addEventListener('online', syncLocalToSupabase);
     <span class="bottom-btn-icon">💾</span>
     <span>저장</span>
   </button>
+  <button class="bottom-btn" onclick="toggleSharePopup()">
+    <span class="bottom-btn-icon">📤</span>
+    <span>공유</span>
+  </button>
   <button class="bottom-btn" onclick="window.print()">
     <span class="bottom-btn-icon">🖨️</span>
     <span>인쇄</span>
@@ -1785,6 +1824,16 @@ window.addEventListener('online', syncLocalToSupabase);
   <button class="bottom-btn" id="settings-btn" onclick="toggleSettingsPopup()">
     <span class="bottom-btn-icon">⚙️</span>
     <span>설정</span>
+  </button>
+</div>
+
+<!-- 공유 팝업 -->
+<div id="share-popup" class="share-popup no-print">
+  <button class="settings-item" onclick="downloadAsPDF()">
+    📥&nbsp; PDF로 저장
+  </button>
+  <button class="settings-item" onclick="shareForm()">
+    📤&nbsp; 공유하기
   </button>
 </div>
 
