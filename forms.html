@@ -1043,18 +1043,30 @@ async function saveForm() {
 }
 
 /* ── 저장 목록 로드 ── */
+function parseRecordName(patientName) {
+  const parts = (patientName || '').split(' · ');
+  // 형식: 환자명+진료번호 · 날짜 · 양식명 [· 작성자]
+  const author = parts.length > 3 ? parts[parts.length - 1] : null;
+  const main   = parts.length > 3 ? parts.slice(0, -1).join(' · ') : patientName;
+  return { main, author };
+}
+
 function renderSavedItems(rows, formId) {
-  return rows.map(r => `
+  return rows.map(r => {
+    const { main, author } = parseRecordName(r.patient_name);
+    const isLocal = String(r.id).startsWith('local_');
+    return `
     <div class="saved-item">
       <div class="saved-item-info">
-        <div class="saved-item-name">${esc(r.patient_name)}</div>
-        <div class="saved-item-meta">저장: ${new Date(r.created_at).toLocaleString('ko')}${String(r.id).startsWith('local_') ? ' · 로컬' : ''}</div>
+        <div class="saved-item-name">${esc(main || r.patient_name)}</div>
+        <div class="saved-item-meta">저장: ${new Date(r.created_at).toLocaleString('ko')}${isLocal ? ' · 로컬' : ''}${author ? `&nbsp;<span style="background:#ede9fe;color:#5b21b6;border-radius:4px;padding:1px 6px;font-size:10px;font-weight:700">${esc(author)}</span>` : ''}</div>
       </div>
       <div class="saved-item-btns">
         <button class="sbtn sbtn-load" onclick="loadRecord('${r.id}','${formId}')">불러오기</button>
         <button class="sbtn sbtn-del"  onclick="deleteRecord('${r.id}','${formId}')">삭제</button>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 async function loadSavedList(formId) {
@@ -1122,10 +1134,11 @@ function renderAllSavedItems(rows) {
     const label = FORM_LABELS[r.form_type] || r.form_type;
     const saved = new Date(r.created_at).toLocaleString('ko', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
     const isLocal = String(r.id).startsWith('local_');
+    const { main, author } = parseRecordName(r.patient_name);
     return `<div class="saved-item" style="background:#fff;border-radius:10px;box-shadow:0 1px 6px rgba(0,0,0,.08);border:none;margin-bottom:8px">
       <div class="saved-item-info" style="flex:1;min-width:0">
-        <div class="saved-item-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.patient_name || '(이름없음)')}</div>
-        <div class="saved-item-meta">${esc(label)} · ${saved}${isLocal ? ' · 로컬' : ''}</div>
+        <div class="saved-item-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(main || r.patient_name || '(이름없음)')}</div>
+        <div class="saved-item-meta">${esc(label)} · ${saved}${isLocal ? ' · 로컬' : ''}${author ? `&nbsp;<span style="background:#ede9fe;color:#5b21b6;border-radius:4px;padding:1px 6px;font-size:10px;font-weight:700">${esc(author)}</span>` : ''}</div>
       </div>
       <div class="saved-item-btns">
         <button class="sbtn sbtn-load" onclick="loadAndOpenRecord('${r.id}','${r.form_type}')">불러오기</button>
@@ -1780,10 +1793,10 @@ window.addEventListener('online', syncLocalToSupabase);
   <div id="current-author-display" style="font-size:11px;color:#6b7280;padding:8px 14px 4px;font-weight:600">작성자 미선택</div>
   <div style="height:1px;background:#f3f4f6;margin:4px 0"></div>
   <button class="settings-item" onclick="openDoctorModal();document.getElementById('settings-popup').classList.remove('open')">
-    👨‍⚕️ 주치의 저장하기
+    👩‍⚕️ 주치의 저장하기
   </button>
   <button class="settings-item" onclick="openAuthorModal();document.getElementById('settings-popup').classList.remove('open')">
-    ✍️ 작성자 저장하기
+    👩‍💼 작성자 저장하기
   </button>
 </div>
 
