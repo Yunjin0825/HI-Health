@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>에이치아이 여성의원 — 의무기록 양식</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:'Malgun Gothic','맑은 고딕',AppleSDGothicNeo,sans-serif;font-size:13px;background:#e8e8e8;color:#000}
+
+/* ── NAV ── */
+.app-nav{position:sticky;top:0;z-index:200;background:#1e1047;display:flex;align-items:center;padding:0 12px;gap:2px;min-height:52px}
+.app-title{color:#fff;font-size:13px;font-weight:800;white-space:nowrap;margin-right:10px;letter-spacing:-.3px}
+.nav-tab{padding:16px 12px;background:none;border:none;border-bottom:2.5px solid transparent;color:rgba(255,255,255,.55);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;margin-bottom:-1px;transition:color .15s}
+.nav-tab:hover{color:rgba(255,255,255,.85)}
+.nav-tab.active{color:#fff;border-bottom-color:#fff}
+.nav-right{margin-left:auto;display:flex;gap:8px;align-items:center}
+.btn-save{padding:8px 14px;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:6px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+.btn-save:hover{background:rgba(255,255,255,.25)}
+.btn-print{padding:8px 14px;background:#fff;color:#1e1047;border:none;border-radius:6px;font-family:inherit;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap}
+.btn-print:active{opacity:.8}
+
+/* ── LAYOUT ── */
+.page-wrap{padding:20px 12px;display:flex;flex-direction:column;align-items:center;gap:20px}
+.form-section{display:none;width:100%;max-width:210mm;flex-direction:column;gap:20px}
+.form-section.active{display:flex}
+
+/* ── SHEET ── */
+.sheet{background:#fff;width:100%;padding:14mm 14mm;box-shadow:0 3px 24px rgba(0,0,0,.18);position:relative}
+.sheet-corner{position:absolute;top:8px;right:10px;font-size:10px;color:#666}
+
+/* ── FORM TITLE ── */
+.form-title{text-align:center;font-size:20px;font-weight:900;letter-spacing:10px;margin-bottom:14px}
+.form-subtitle{font-size:10px;color:#444;text-align:center;margin-bottom:10px}
+
+/* ── TABLES ── */
+table{width:100%;border-collapse:collapse}
+td,th{border:1px solid #000;padding:3px 6px;vertical-align:middle;font-size:11.5px}
+th{background:#f0f0f0;font-weight:700;text-align:center}
+.lbl{background:#f5f5f5;font-weight:700;text-align:center;white-space:nowrap;font-size:11px}
+.lbl-sm{font-size:10px}
+.fixed{color:#333;font-size:11.5px}
+.center{text-align:center}
+
+/* ── INPUTS ── */
+.fi{display:block;width:100%;border:none;outline:none;font-family:inherit;font-size:11.5px;background:transparent;color:#000;min-height:18px;padding:0}
+.fi::placeholder{color:#ccc;font-size:10px}
+.fi-area{display:block;width:100%;border:none;outline:none;font-family:inherit;font-size:11.5px;background:transparent;color:#000;resize:none;padding:0;min-height:28px}
+.fi-area::placeholder{color:#ccc;font-size:10px}
+.fi-lg{min-height:22px}
+
+/* ── CHECKBOX ── */
+.chk-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:11px;padding:4px 0}
+.chk-row label{display:flex;align-items:center;gap:3px;cursor:pointer}
+input[type=checkbox]{width:13px;height:13px;cursor:pointer;accent-color:#1e1047}
+
+/* ── SAVE TOAST ── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1e1047;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+
+/* ── SAVED LIST ── */
+.saved-panel{background:#fff;border-radius:10px;padding:16px;box-shadow:0 2px 12px rgba(0,0,0,.12)}
+.saved-panel-title{font-size:13px;font-weight:800;color:#1e1047;margin-bottom:12px}
+.saved-item{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:8px;gap:8px}
+.saved-item-info{font-size:12px;line-height:1.5}
+.saved-item-name{font-weight:700;color:#111}
+.saved-item-meta{color:#6b7280;font-size:11px}
+.saved-item-btns{display:flex;gap:6px;flex-shrink:0}
+.sbtn{padding:5px 10px;border:none;border-radius:6px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer}
+.sbtn-load{background:#ede9fe;color:#5b21b6}
+.sbtn-del{background:#fee2e2;color:#b91c1c}
+.empty-saved{text-align:center;color:#9ca3af;font-size:12px;padding:20px}
+
+/* ── PRINT ── */
+@media print{
+  body{background:#fff}
+  .no-print{display:none!important}
+  .page-wrap{padding:0}
+  .form-section{display:none!important}
+  .form-section.active{display:flex!important}
+  .sheet{box-shadow:none;padding:10mm 10mm;page-break-after:always;margin:0}
+  .sheet-corner{display:none}
+  .fi,.fi-area{border-bottom:none}
+  td,th{border-color:#333}
+}
+
+@media(max-width:640px){
+  .sheet{padding:10px}
+  .form-title{font-size:16px;letter-spacing:4px}
+  td,th{font-size:10px;padding:2px 4px}
+  .fi,.fi-area{font-size:10px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="app-nav no-print">
+  <div class="app-title">에이치아이 여성의원</div>
+  <button class="nav-tab active" onclick="switchForm('progress',this)">경과기록지</button>
+  <button class="nav-tab" onclick="switchForm('prescription',this)">처방전</button>
+  <button class="nav-tab" onclick="switchForm('labresult',this)">검사결과기록지</button>
+  <div class="nav-right">
+    <button class="btn-save" onclick="saveForm()">💾 저장</button>
+    <button class="btn-print" onclick="window.print()">🖨 인쇄</button>
+  </div>
+</nav>
+
+<div class="page-wrap">
+
+<!-- ══════════════════════════════════════
+     경과기록지
+══════════════════════════════════════ -->
+<div class="form-section active" id="form-progress">
+  <div class="sheet">
+    <div class="form-title">경 과 기 록 지</div>
+    <table style="margin-bottom:0;border-bottom:none">
+      <colgroup><col style="width:52px"><col style="width:76px"><col><col style="width:54px"><col></colgroup>
+      <tr>
+        <td class="lbl" rowspan="3">환 자</td>
+        <td class="lbl">진료번호</td>
+        <td><input class="fi" id="p-chartno" placeholder="진료번호 입력"></td>
+        <td class="lbl">작성일</td>
+        <td><input class="fi" id="p-date" type="date"></td>
+      </tr>
+      <tr>
+        <td class="lbl">성 명</td>
+        <td><input class="fi" id="p-name" placeholder="환자명"></td>
+        <td class="lbl">담당의사</td>
+        <td><input class="fi" id="p-doctor" placeholder="담당의사"></td>
+      </tr>
+      <tr>
+        <td class="lbl">주민등록번호</td>
+        <td><input class="fi" id="p-rrn" placeholder="000000-0000000"></td>
+        <td class="lbl">연락처</td>
+        <td><input class="fi" id="p-tel" placeholder="010-0000-0000"></td>
+      </tr>
+    </table>
+    <table id="progress-table">
+      <colgroup><col style="width:80px"><col></colgroup>
+      <tr><th>DATE</th><th>PROGRESS NOTE</th></tr>
+    </table>
+    <div class="no-print" style="margin-top:8px;text-align:right">
+      <button onclick="addProgressRow()" style="padding:6px 14px;border:1px solid #d1d5db;border-radius:6px;background:#f9fafb;font-family:inherit;font-size:12px;cursor:pointer">+ 행 추가</button>
+    </div>
+  </div>
+
+  <!-- 저장된 기록 -->
+  <div class="saved-panel no-print" id="saved-progress">
+    <div class="saved-panel-title">📋 저장된 경과기록지</div>
+    <div id="saved-progress-list"><div class="empty-saved">저장된 기록이 없습니다</div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     처방전
+══════════════════════════════════════ -->
+<div class="form-section" id="form-prescription">
+  <div class="sheet">
+    <div class="sheet-corner">[약국보관용]</div>
+    <div class="form-title">처 방 전</div>
+
+    <!-- 보험 종류 -->
+    <table style="margin-bottom:0;border-bottom:none">
+      <tr>
+        <td colspan="5" style="padding:6px 10px">
+          <div class="chk-row">
+            <label><input type="checkbox" name="ins"> 의료보험</label>
+            <label><input type="checkbox" name="ins"> 의료급여</label>
+            <label><input type="checkbox" name="ins"> 산재보험</label>
+            <label><input type="checkbox" name="ins"> 자동차보험</label>
+            <label><input type="checkbox" name="ins"> 기타 (<input class="fi" style="width:60px;display:inline-block;border-bottom:1px solid #999" placeholder="">)</label>
+          </div>
+        </td>
+        <td colspan="2" class="lbl lbl-sm">요양기관기호 : <span class="fixed">12384755</span></td>
+      </tr>
+    </table>
+
+    <!-- 교부일 / 의료기관 -->
+    <table style="margin-bottom:0;border-top:none;border-bottom:none">
+      <colgroup><col style="width:70px"><col><col style="width:60px"><col style="width:70px"><col></colgroup>
+      <tr>
+        <td class="lbl">교부 연월일 및 번호</td>
+        <td><input class="fi" id="rx-date" type="date"></td>
+        <td class="lbl" rowspan="4">의료<br>기관</td>
+        <td class="lbl">명 칭</td>
+        <td class="fixed">에이치아이 여성의원</td>
+      </tr>
+      <tr>
+        <td class="lbl" rowspan="3">환 자</td>
+        <td class="lbl" style="padding:0"><span class="lbl" style="display:block;border-bottom:1px solid #999;padding:3px 6px">진료번호</span><input class="fi" id="rx-chartno" placeholder="진료번호" style="padding:3px 6px"></td>
+        <td class="lbl">전화번호</td>
+        <td class="fixed">02-3662-0401</td>
+      </tr>
+      <tr>
+        <td><input class="fi" id="rx-name" placeholder="성 명"></td>
+        <td class="lbl">팩스 번호</td>
+        <td class="fixed">02-3662-0411</td>
+      </tr>
+      <tr>
+        <td><input class="fi" id="rx-rrn" placeholder="주민등록번호 000000-0000000"></td>
+        <td class="lbl">E-mail주소</td>
+        <td><input class="fi" id="rx-email" placeholder=""></td>
+      </tr>
+    </table>
+
+    <!-- 질병 / 처방의 -->
+    <table style="margin-bottom:0;border-top:none;border-bottom:none">
+      <colgroup><col style="width:54px"><col><col style="width:60px"><col></colgroup>
+      <tr>
+        <td class="lbl" rowspan="2">질병 분류<br>기호</td>
+        <td rowspan="2"><input class="fi-area" id="rx-diag" placeholder=""></td>
+        <td class="lbl">처방의료인의<br>성명</td>
+        <td><input class="fi" id="rx-drname" placeholder="담당의사 성명"></td>
+      </tr>
+      <tr>
+        <td class="lbl">면허종별 / 번호</td>
+        <td><span class="fixed">의사</span> &nbsp;<input class="fi" id="rx-licno" placeholder="면허번호" style="width:100px;display:inline-block"></td>
+      </tr>
+      <tr>
+        <td colspan="4" style="font-size:10px;color:#555;text-align:center;padding:3px">
+          ※ 환자의 요구가 있는 때에는 질병분류기호를 기재하지 아니합니다.
+        </td>
+      </tr>
+    </table>
+
+    <!-- 처방약 테이블 -->
+    <table id="rx-drug-table" style="border-top:none">
+      <colgroup><col><col style="width:54px"><col style="width:46px"><col style="width:50px"><col style="width:80px"></colgroup>
+      <tr>
+        <th>처방의약품의 명칭</th>
+        <th>1회 투약량</th>
+        <th>1일 투여횟수</th>
+        <th>총투약 일수</th>
+        <th>용 법</th>
+      </tr>
+    </table>
+    <div class="no-print" style="margin-top:4px;text-align:right">
+      <button onclick="addDrugRow()" style="padding:5px 12px;border:1px solid #d1d5db;border-radius:6px;background:#f9fafb;font-family:inherit;font-size:12px;cursor:pointer">+ 약 추가</button>
+    </div>
+
+    <!-- 주사제 -->
+    <table style="margin-top:8px">
+      <colgroup><col><col style="width:100px"></colgroup>
+      <tr>
+        <td>
+          <div style="margin-bottom:6px">주사제 처방내역
+            <label style="margin-left:10px"><input type="checkbox"> 원내조제</label>
+            <label style="margin-left:10px"><input type="checkbox"> 원외처방</label>
+          </div>
+          <textarea class="fi-area" id="rx-inject" rows="2" placeholder="주사제 내용 기입"></textarea>
+        </td>
+        <td class="lbl" style="vertical-align:top">조제시 참고사항<br><br>
+          <textarea class="fi-area" id="rx-note" rows="2" placeholder=""></textarea>
+        </td>
+      </tr>
+    </table>
+
+    <!-- 사용기간 -->
+    <table style="margin-top:6px">
+      <tr>
+        <td style="font-size:11px">사용기간 &nbsp; 교부일로부터 <strong>(  7  )</strong>일간 &nbsp;&nbsp; 약국제출용은 사용기간내에 약국에 제출하여야 합니다.</td>
+      </tr>
+    </table>
+
+    <!-- 조제내역 -->
+    <table style="margin-top:6px">
+      <tr><th colspan="3">의약품 조제내역</th></tr>
+      <tr>
+        <td class="lbl" rowspan="4" style="width:36px">조제<br><br>내역</td>
+        <td class="lbl" style="width:100px">조제 기관의 명칭</td>
+        <td><input class="fi" placeholder=""></td>
+      </tr>
+      <tr>
+        <td class="lbl">조제 약사 성 명</td>
+        <td><input class="fi" placeholder="(서명 또는 날인)"></td>
+      </tr>
+      <tr>
+        <td class="lbl">조제량(조제일수)</td>
+        <td><input class="fi" placeholder=""></td>
+      </tr>
+      <tr>
+        <td class="lbl">조제 연월일</td>
+        <td><input class="fi" type="date"></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="saved-panel no-print" id="saved-prescription">
+    <div class="saved-panel-title">📋 저장된 처방전</div>
+    <div id="saved-prescription-list"><div class="empty-saved">저장된 기록이 없습니다</div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     검사결과기록지
+══════════════════════════════════════ -->
+<div class="form-section" id="form-labresult">
+  <div class="sheet">
+    <div class="sheet-corner">□ 외래 &nbsp; □ 입원</div>
+    <div class="form-title">검 사 결 과 기 록 지</div>
+    <div class="form-subtitle">본 결과기록지는 담당 의사의 확인 후 유효합니다.</div>
+
+    <!-- 헤더 -->
+    <table style="margin-bottom:0;border-bottom:none">
+      <colgroup><col style="width:70px"><col><col style="width:60px"><col></colgroup>
+      <tr>
+        <td class="lbl">기록번호</td>
+        <td><input class="fi" id="lab-recno" placeholder=""></td>
+        <td class="lbl">요양기관기호</td>
+        <td class="fixed">12384755</td>
+      </tr>
+      <tr>
+        <td class="lbl">검사 일자</td>
+        <td><input class="fi" id="lab-examdate" type="date"></td>
+        <td class="lbl" rowspan="4">의료<br>기관</td>
+        <td class="fixed">에이치아이 여성의원</td>
+      </tr>
+      <tr>
+        <td class="lbl" rowspan="3">환 자</td>
+        <td class="lbl"><span style="font-weight:700">진료번호</span><br><input class="fi" id="lab-chartno" placeholder="진료번호"></td>
+        <td class="fixed" style="font-size:10px">☎ 02-3662-0401 / F 02-3662-0411</td>
+      </tr>
+      <tr>
+        <td><input class="fi" id="lab-name" placeholder="성 명"></td>
+        <td class="fixed"></td>
+      </tr>
+      <tr>
+        <td><input class="fi" id="lab-rrn" placeholder="주민등록번호 000000-0000000"></td>
+        <td></td>
+      </tr>
+    </table>
+    <table style="border-top:none;margin-bottom:0;border-bottom:none">
+      <colgroup><col style="width:60px"><col><col style="width:70px"><col></colgroup>
+      <tr>
+        <td class="lbl">진 단 명</td>
+        <td><input class="fi" id="lab-diag" placeholder="진단명"></td>
+        <td class="lbl">담 당 의 사</td>
+        <td><input class="fi" id="lab-doctor" placeholder="담당의사"></td>
+      </tr>
+    </table>
+
+    <!-- 검사 결과 -->
+    <table id="lab-table" style="border-top:none">
+      <colgroup><col style="width:30px"><col style="width:30%"><col><col style="width:50px"><col style="width:70px"><col style="width:50px"></colgroup>
+      <tr><th colspan="6" style="background:#e8e8e8;font-size:12px">검 사 결 과</th></tr>
+      <tr>
+        <th>No.</th>
+        <th>검 사 항 목</th>
+        <th>검사결과</th>
+        <th>단위</th>
+        <th>참고치</th>
+        <th>판 정</th>
+      </tr>
+    </table>
+    <div class="no-print" style="margin-top:4px;text-align:right">
+      <button onclick="addLabRow()" style="padding:5px 12px;border:1px solid #d1d5db;border-radius:6px;background:#f9fafb;font-family:inherit;font-size:12px;cursor:pointer">+ 항목 추가</button>
+    </div>
+
+    <!-- 특이소견 -->
+    <table style="margin-top:8px">
+      <tr>
+        <td class="lbl" style="width:60px;vertical-align:top">특 이 소 견</td>
+        <td><textarea class="fi-area" id="lab-remark" rows="4" placeholder="특이 소견을 입력하세요"></textarea></td>
+      </tr>
+    </table>
+
+    <!-- 결과보고 / 서명 -->
+    <table style="margin-top:6px">
+      <colgroup><col style="width:70px"><col><col style="width:80px"></colgroup>
+      <tr>
+        <td class="lbl">결과보고일시</td>
+        <td><input class="fi" id="lab-repdate" type="datetime-local"></td>
+        <td class="lbl">검사자 서명<br><br><span style="font-size:10px;color:#666">(서명 또는 날인)</span></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="saved-panel no-print" id="saved-labresult">
+    <div class="saved-panel-title">📋 저장된 검사결과기록지</div>
+    <div id="saved-labresult-list"><div class="empty-saved">저장된 기록이 없습니다</div></div>
+  </div>
+</div>
+
+</div><!-- /page-wrap -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://nbnmvvobehjitophkqmu.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ibm12dm9iZWhqaXRvcGhrcW11Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3Nzk4NzQsImV4cCI6MjA4ODM1NTg3NH0.iZS4JvhHUqv4ZMPxm9STit6xqVp2JA5H55M8Wmd1yjY';
+const SB_HEADERS = {'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json'};
+
+let currentForm = 'progress';
+
+/* ── 탭 전환 ── */
+function switchForm(id, btn) {
+  currentForm = id;
+  document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('form-' + id).classList.add('active');
+  btn.classList.add('active');
+  loadSavedList(id);
+}
+
+/* ── 경과기록지 행 ── */
+function addProgressRow() {
+  const tbody = document.getElementById('progress-table');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td style="height:36px"><input class="fi" placeholder="날짜"></td><td><input class="fi" placeholder=""></td>`;
+  tbody.appendChild(tr);
+}
+function initProgressRows() {
+  for (let i = 0; i < 18; i++) addProgressRow();
+}
+
+/* ── 처방약 행 ── */
+function addDrugRow() {
+  const t = document.getElementById('rx-drug-table');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td style="height:30px"><input class="fi" placeholder="약품명"></td><td><input class="fi" class="center" placeholder=""></td><td><input class="fi" placeholder=""></td><td><input class="fi" placeholder=""></td><td><input class="fi" placeholder=""></td>`;
+  t.appendChild(tr);
+}
+function initDrugRows() {
+  for (let i = 0; i < 8; i++) addDrugRow();
+}
+
+/* ── 검사항목 행 ── */
+let labRowNo = 0;
+function addLabRow() {
+  labRowNo++;
+  const t = document.getElementById('lab-table');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td class="center">${labRowNo}</td><td><input class="fi" placeholder="검사항목"></td><td><input class="fi" placeholder=""></td><td><input class="fi" placeholder=""></td><td><input class="fi" placeholder=""></td><td><input class="fi" placeholder=""></td>`;
+  t.appendChild(tr);
+}
+function initLabRows() {
+  for (let i = 0; i < 12; i++) addLabRow();
+}
+
+/* ── 폼 데이터 수집 ── */
+function collectFormData(formId) {
+  const root = document.getElementById('form-' + formId);
+  const data = {};
+  root.querySelectorAll('input[id], textarea[id]').forEach(el => {
+    if (el.id) data[el.id] = el.type === 'checkbox' ? el.checked : el.value;
+  });
+  // 동적 행 수집
+  if (formId === 'progress') {
+    const rows = [];
+    document.getElementById('progress-table').querySelectorAll('tr:not(:first-child)').forEach(tr => {
+      const ins = tr.querySelectorAll('input');
+      rows.push({ date: ins[0]?.value || '', note: ins[1]?.value || '' });
+    });
+    data.__rows = rows;
+  }
+  if (formId === 'prescription') {
+    const rows = [];
+    document.getElementById('rx-drug-table').querySelectorAll('tr:not(:first-child)').forEach(tr => {
+      const ins = tr.querySelectorAll('input');
+      rows.push({ name: ins[0]?.value || '', dose: ins[1]?.value || '', freq: ins[2]?.value || '', days: ins[3]?.value || '', how: ins[4]?.value || '' });
+    });
+    data.__rows = rows;
+  }
+  if (formId === 'labresult') {
+    const rows = [];
+    document.getElementById('lab-table').querySelectorAll('tr:nth-child(n+3)').forEach(tr => {
+      const ins = tr.querySelectorAll('input');
+      rows.push({ item: ins[0]?.value || '', result: ins[1]?.value || '', unit: ins[2]?.value || '', ref: ins[3]?.value || '', judge: ins[4]?.value || '' });
+    });
+    data.__rows = rows;
+  }
+  return data;
+}
+
+/* ── 폼 데이터 복원 ── */
+function restoreFormData(formId, data) {
+  const root = document.getElementById('form-' + formId);
+  Object.entries(data).forEach(([k, v]) => {
+    if (k.startsWith('__')) return;
+    const el = document.getElementById(k);
+    if (!el) return;
+    if (el.type === 'checkbox') el.checked = v;
+    else el.value = v;
+  });
+  if (formId === 'progress' && data.__rows) {
+    const t = document.getElementById('progress-table');
+    const existing = t.querySelectorAll('tr:not(:first-child)');
+    existing.forEach(r => r.remove());
+    labRowNo = 0;
+    data.__rows.forEach(r => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td style="height:36px"><input class="fi" placeholder="날짜" value="${esc(r.date)}"></td><td><input class="fi" placeholder="" value="${esc(r.note)}"></td>`;
+      t.appendChild(tr);
+    });
+    if (data.__rows.length === 0) initProgressRows();
+  }
+  if (formId === 'prescription' && data.__rows) {
+    const t = document.getElementById('rx-drug-table');
+    t.querySelectorAll('tr:not(:first-child)').forEach(r => r.remove());
+    data.__rows.forEach(r => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td style="height:30px"><input class="fi" placeholder="약품명" value="${esc(r.name)}"></td><td><input class="fi" value="${esc(r.dose)}"></td><td><input class="fi" value="${esc(r.freq)}"></td><td><input class="fi" value="${esc(r.days)}"></td><td><input class="fi" value="${esc(r.how)}"></td>`;
+      t.appendChild(tr);
+    });
+    if (data.__rows.length === 0) initDrugRows();
+  }
+  if (formId === 'labresult' && data.__rows) {
+    const t = document.getElementById('lab-table');
+    t.querySelectorAll('tr:nth-child(n+3)').forEach(r => r.remove());
+    labRowNo = 0;
+    data.__rows.forEach(r => {
+      labRowNo++;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td class="center">${labRowNo}</td><td><input class="fi" placeholder="검사항목" value="${esc(r.item)}"></td><td><input class="fi" value="${esc(r.result)}"></td><td><input class="fi" value="${esc(r.unit)}"></td><td><input class="fi" value="${esc(r.ref)}"></td><td><input class="fi" value="${esc(r.judge)}"></td>`;
+      t.appendChild(tr);
+    });
+    if (data.__rows.length === 0) initLabRows();
+  }
+}
+
+function esc(s) { return String(s || '').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+
+/* ── 저장 ── */
+async function saveForm() {
+  const data = collectFormData(currentForm);
+  // 환자명 추출
+  const nameKey = { progress: 'p-name', prescription: 'rx-name', labresult: 'lab-name' };
+  const dateKey = { progress: 'p-date', prescription: 'rx-date', labresult: 'lab-examdate' };
+  const patientName = data[nameKey[currentForm]] || '(이름없음)';
+  const formDate = data[dateKey[currentForm]] || new Date().toISOString().slice(0, 10);
+
+  const payload = {
+    form_type: currentForm,
+    patient_name: patientName,
+    form_date: formDate,
+    form_data: JSON.stringify(data),
+    created_at: new Date().toISOString()
+  };
+
+  try {
+    const res = await fetch(SUPABASE_URL + '/rest/v1/medical_forms', {
+      method: 'POST',
+      headers: { ...SB_HEADERS, 'Prefer': 'return=representation' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error(await res.text());
+    showToast('저장 완료 ✓');
+    loadSavedList(currentForm);
+  } catch(e) {
+    showToast('저장 실패: ' + e.message, true);
+  }
+}
+
+/* ── 저장 목록 로드 ── */
+async function loadSavedList(formId) {
+  const listEl = document.getElementById('saved-' + formId + '-list');
+  if (!listEl) return;
+  try {
+    const res = await fetch(SUPABASE_URL + '/rest/v1/medical_forms?form_type=eq.' + formId + '&order=created_at.desc&limit=20', { headers: SB_HEADERS });
+    if (!res.ok) throw new Error();
+    const rows = await res.json();
+    if (!rows.length) { listEl.innerHTML = '<div class="empty-saved">저장된 기록이 없습니다</div>'; return; }
+    listEl.innerHTML = rows.map(r => `
+      <div class="saved-item">
+        <div class="saved-item-info">
+          <div class="saved-item-name">${esc(r.patient_name)}</div>
+          <div class="saved-item-meta">${r.form_date || ''} &nbsp;·&nbsp; ${new Date(r.created_at).toLocaleString('ko')}</div>
+        </div>
+        <div class="saved-item-btns">
+          <button class="sbtn sbtn-load" onclick="loadRecord('${r.id}','${formId}')">불러오기</button>
+          <button class="sbtn sbtn-del" onclick="deleteRecord('${r.id}','${formId}')">삭제</button>
+        </div>
+      </div>`).join('');
+  } catch(e) {
+    listEl.innerHTML = '<div class="empty-saved">목록 로드 실패</div>';
+  }
+}
+
+async function loadRecord(id, formId) {
+  try {
+    const res = await fetch(SUPABASE_URL + '/rest/v1/medical_forms?id=eq.' + id, { headers: SB_HEADERS });
+    const rows = await res.json();
+    if (!rows.length) return;
+    const data = JSON.parse(rows[0].form_data || '{}');
+    restoreFormData(formId, data);
+    showToast('불러오기 완료 ✓');
+  } catch(e) { showToast('불러오기 실패', true); }
+}
+
+async function deleteRecord(id, formId) {
+  if (!confirm('이 기록을 삭제할까요?')) return;
+  try {
+    await fetch(SUPABASE_URL + '/rest/v1/medical_forms?id=eq.' + id, { method: 'DELETE', headers: SB_HEADERS });
+    showToast('삭제 완료');
+    loadSavedList(formId);
+  } catch(e) { showToast('삭제 실패', true); }
+}
+
+/* ── 토스트 ── */
+let _toastTimer;
+function showToast(msg, isErr) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = isErr ? '#b91c1c' : '#1e1047';
+  t.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+/* ── 초기화 ── */
+initProgressRows();
+initDrugRows();
+initLabRows();
+// 오늘 날짜 기본값
+const today = new Date().toISOString().slice(0, 10);
+['p-date','rx-date','lab-examdate'].forEach(id => { const el = document.getElementById(id); if (el) el.value = today; });
+loadSavedList('progress');
+</script>
+</body>
+</html>
