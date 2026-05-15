@@ -139,12 +139,45 @@ input[type=checkbox]{width:13px;height:13px;cursor:pointer;accent-color:#1e1047}
   <button class="nav-tab" onclick="switchForm('consent-prp-sedation',this)">마취 진정 동의서</button>
   <button class="nav-tab" onclick="switchForm('consent-general',this)">기타수술 동의서</button>
   <div class="nav-right">
+    <button class="btn-save" onclick="switchForm('saved-list',this)" style="background:rgba(165,180,252,.18);border-color:rgba(165,180,252,.5);color:#c4b5fd">📋 기록</button>
     <button class="btn-save" onclick="saveForm()">💾 저장</button>
     <button class="btn-print" onclick="window.print()">🖨 인쇄</button>
   </div>
 </nav>
 
 <div class="page-wrap">
+
+<!-- ══════════════════════════════════════
+     저장 기록 전체 보기
+══════════════════════════════════════ -->
+<div class="form-section no-print" id="form-saved-list" style="max-width:720px;margin:0 auto;width:100%">
+  <div style="background:#fff;border-radius:12px;padding:16px 18px;box-shadow:0 2px 14px rgba(0,0,0,.1);margin-bottom:12px">
+    <div style="font-size:14px;font-weight:800;color:#1e1047;margin-bottom:12px">최근 저장된 기록</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <input id="sl-search" type="text" placeholder="환자명 또는 진료번호 검색..."
+        style="flex:1;min-width:160px;padding:9px 13px;border:1.5px solid #e5e7eb;border-radius:8px;font-family:inherit;font-size:13px;outline:none;transition:border-color .15s"
+        oninput="slSearchDelay()" onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e5e7eb'">
+      <select id="sl-type" onchange="loadAllSavedForms()"
+        style="padding:9px 10px;border:1.5px solid #e5e7eb;border-radius:8px;font-family:inherit;font-size:12px;background:#fff;cursor:pointer;color:#374151;outline:none">
+        <option value="">전체 유형</option>
+        <option value="progress">경과기록지</option>
+        <option value="prescription">처방전</option>
+        <option value="labresult">검사결과기록지</option>
+        <option value="consent-cautery">전기소작술 동의서</option>
+        <option value="consent-marsup">조대술 동의서</option>
+        <option value="consent-laparoscopy">복강경 수술 동의서</option>
+        <option value="consent-hysteroscopy">자궁내시경 동의서</option>
+        <option value="consent-curettage">소파술 동의서</option>
+        <option value="consent-eggretrieval">난자채취 동의서</option>
+        <option value="consent-fetal-reduction">선택적 유산 동의서</option>
+        <option value="consent-prp-sedation">마취 진정 동의서</option>
+        <option value="consent-general">수술 동의서</option>
+      </select>
+    </div>
+    <div id="sl-count" style="font-size:11px;color:#9ca3af;margin-top:8px"></div>
+  </div>
+  <div id="sl-list"><div class="empty-saved" style="background:#fff;border-radius:12px;padding:28px;box-shadow:0 2px 12px rgba(0,0,0,.08)">불러오는 중...</div></div>
+</div>
 
 <!-- ══════════════════════════════════════
      경과기록지
@@ -794,7 +827,11 @@ function switchForm(id, btn) {
   document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
   document.getElementById('form-' + id).classList.add('active');
   btn.classList.add('active');
-  loadSavedList(id);
+  if (id === 'saved-list') {
+    loadAllSavedForms();
+  } else {
+    loadSavedList(id);
+  }
 }
 
 /* ── 경과기록지 행 ── */
@@ -915,6 +952,25 @@ function restoreFormData(formId, data) {
 
 function esc(s) { return String(s || '').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
 
+/* ── localStorage 헬퍼 ── */
+const LS_KEY = 'hi_medical_forms';
+
+function lsGetAll() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); } catch { return []; }
+}
+function lsUpsert(record) {
+  const all = lsGetAll();
+  const idx = all.findIndex(r => r.id === record.id);
+  if (idx >= 0) all[idx] = record; else all.unshift(record);
+  localStorage.setItem(LS_KEY, JSON.stringify(all));
+}
+function lsRemove(id) {
+  localStorage.setItem(LS_KEY, JSON.stringify(lsGetAll().filter(r => r.id !== id)));
+}
+function lsGenId() {
+  return 'local_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+}
+
 /* ── 저장 ── */
 async function saveForm() {
   const data = collectFormData(currentForm);
@@ -954,14 +1010,36 @@ async function saveForm() {
       body: JSON.stringify(payload)
     });
     if (!res.ok) throw new Error(await res.text());
+    const saved = await res.json();
+    // Supabase 성공 → localStorage에도 동기화
+    const record = Array.isArray(saved) ? saved[0] : saved;
+    if (record?.id) lsUpsert({ ...payload, id: String(record.id) });
     showToast('저장 완료 ✓');
     loadSavedList(currentForm);
   } catch(e) {
-    showToast('저장 실패: ' + e.message, true);
+    // 오프라인 또는 네트워크 오류 → localStorage에만 저장
+    const localRecord = { ...payload, id: lsGenId() };
+    lsUpsert(localRecord);
+    showToast('오프라인 저장 완료 ✓');
+    loadSavedList(currentForm);
   }
 }
 
 /* ── 저장 목록 로드 ── */
+function renderSavedItems(rows, formId) {
+  return rows.map(r => `
+    <div class="saved-item">
+      <div class="saved-item-info">
+        <div class="saved-item-name">${esc(r.patient_name)}</div>
+        <div class="saved-item-meta">저장: ${new Date(r.created_at).toLocaleString('ko')}${String(r.id).startsWith('local_') ? ' · 로컬' : ''}</div>
+      </div>
+      <div class="saved-item-btns">
+        <button class="sbtn sbtn-load" onclick="loadRecord('${r.id}','${formId}')">불러오기</button>
+        <button class="sbtn sbtn-del"  onclick="deleteRecord('${r.id}','${formId}')">삭제</button>
+      </div>
+    </div>`).join('');
+}
+
 async function loadSavedList(formId) {
   const listEl = document.getElementById('saved-' + formId + '-list');
   if (!listEl) return;
@@ -969,41 +1047,146 @@ async function loadSavedList(formId) {
     const res = await fetch(SUPABASE_URL + '/rest/v1/medical_forms?form_type=eq.' + formId + '&order=created_at.desc&limit=20', { headers: SB_HEADERS });
     if (!res.ok) throw new Error();
     const rows = await res.json();
-    if (!rows.length) { listEl.innerHTML = '<div class="empty-saved">저장된 기록이 없습니다</div>'; return; }
-    listEl.innerHTML = rows.map(r => `
-      <div class="saved-item">
-        <div class="saved-item-info">
-          <div class="saved-item-name">${esc(r.patient_name)}</div>
-          <div class="saved-item-meta">저장: ${new Date(r.created_at).toLocaleString('ko')}</div>
-        </div>
-        <div class="saved-item-btns">
-          <button class="sbtn sbtn-load" onclick="loadRecord('${r.id}','${formId}')">불러오기</button>
-          <button class="sbtn sbtn-del" onclick="deleteRecord('${r.id}','${formId}')">삭제</button>
-        </div>
-      </div>`).join('');
+    // Supabase 성공 시 localStorage와 병합 (로컬 전용 항목 추가)
+    const localOnly = lsGetAll().filter(r => r.form_type === formId && String(r.id).startsWith('local_'));
+    const merged = [...localOnly, ...rows].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 20);
+    listEl.innerHTML = merged.length ? renderSavedItems(merged, formId) : '<div class="empty-saved">저장된 기록이 없습니다</div>';
   } catch(e) {
-    listEl.innerHTML = '<div class="empty-saved">목록 로드 실패</div>';
+    // 오프라인 → localStorage만 사용
+    const rows = lsGetAll().filter(r => r.form_type === formId);
+    listEl.innerHTML = rows.length ? renderSavedItems(rows, formId) : '<div class="empty-saved">저장된 기록이 없습니다</div>';
   }
 }
 
 async function loadRecord(id, formId) {
   try {
-    const res = await fetch(SUPABASE_URL + '/rest/v1/medical_forms?id=eq.' + id, { headers: SB_HEADERS });
-    const rows = await res.json();
-    if (!rows.length) return;
-    const data = JSON.parse(rows[0].form_data || '{}');
-    restoreFormData(formId, data);
-    showToast('불러오기 완료 ✓');
-  } catch(e) { showToast('불러오기 실패', true); }
+    if (!String(id).startsWith('local_')) {
+      const res = await fetch(SUPABASE_URL + '/rest/v1/medical_forms?id=eq.' + id, { headers: SB_HEADERS });
+      const rows = await res.json();
+      if (rows.length) {
+        restoreFormData(formId, JSON.parse(rows[0].form_data || '{}'));
+        showToast('불러오기 완료 ✓');
+        return;
+      }
+    }
+    // 로컬 ID이거나 Supabase에 없으면 localStorage에서
+    const local = lsGetAll().find(r => r.id === String(id));
+    if (local) { restoreFormData(formId, JSON.parse(local.form_data || '{}')); showToast('불러오기 완료 ✓'); }
+    else showToast('기록을 찾을 수 없습니다', true);
+  } catch(e) {
+    const local = lsGetAll().find(r => r.id === String(id));
+    if (local) { restoreFormData(formId, JSON.parse(local.form_data || '{}')); showToast('불러오기 완료 ✓'); }
+    else showToast('불러오기 실패', true);
+  }
 }
 
 async function deleteRecord(id, formId) {
   if (!confirm('이 기록을 삭제할까요?')) return;
+  lsRemove(String(id)); // localStorage에서 항상 먼저 삭제
+  if (!String(id).startsWith('local_')) {
+    try {
+      await fetch(SUPABASE_URL + '/rest/v1/medical_forms?id=eq.' + id, { method: 'DELETE', headers: SB_HEADERS });
+    } catch(e) { /* 오프라인이어도 UI는 갱신 */ }
+  }
+  showToast('삭제 완료');
+  if (formId === 'saved-list') loadAllSavedForms();
+  else loadSavedList(formId);
+}
+
+/* ── 저장 기록 전체 보기 ── */
+let _slSearchTimer;
+function slSearchDelay() {
+  clearTimeout(_slSearchTimer);
+  _slSearchTimer = setTimeout(loadAllSavedForms, 300);
+}
+
+function renderAllSavedItems(rows) {
+  return rows.map(r => {
+    const label = FORM_LABELS[r.form_type] || r.form_type;
+    const saved = new Date(r.created_at).toLocaleString('ko', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+    const isLocal = String(r.id).startsWith('local_');
+    return `<div class="saved-item" style="background:#fff;border-radius:10px;box-shadow:0 1px 6px rgba(0,0,0,.08);border:none;margin-bottom:8px">
+      <div class="saved-item-info" style="flex:1;min-width:0">
+        <div class="saved-item-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.patient_name || '(이름없음)')}</div>
+        <div class="saved-item-meta">${esc(label)} · ${saved}${isLocal ? ' · 로컬' : ''}</div>
+      </div>
+      <div class="saved-item-btns">
+        <button class="sbtn sbtn-load" onclick="loadAndOpenRecord('${r.id}','${r.form_type}')">불러오기</button>
+        <button class="sbtn sbtn-del"  onclick="deleteRecord('${r.id}','saved-list')">삭제</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function loadAllSavedForms() {
+  const listEl  = document.getElementById('sl-list');
+  const countEl = document.getElementById('sl-count');
+  const query   = document.getElementById('sl-search')?.value.trim() || '';
+  const type    = document.getElementById('sl-type')?.value || '';
+
+  listEl.innerHTML = '<div class="empty-saved" style="background:#fff;border-radius:12px;padding:28px;box-shadow:0 2px 12px rgba(0,0,0,.08)">불러오는 중…</div>';
+  countEl.textContent = '';
+
+  // localStorage 항목 (검색/필터 적용)
+  const localRows = lsGetAll().filter(r => {
+    if (type && r.form_type !== type) return false;
+    if (query) {
+      const q = query.toLowerCase();
+      if (!(r.patient_name || '').toLowerCase().includes(q)) return false;
+    }
+    return true;
+  });
+
   try {
-    await fetch(SUPABASE_URL + '/rest/v1/medical_forms?id=eq.' + id, { method: 'DELETE', headers: SB_HEADERS });
-    showToast('삭제 완료');
-    loadSavedList(formId);
-  } catch(e) { showToast('삭제 실패', true); }
+    let url = SUPABASE_URL + '/rest/v1/medical_forms?order=created_at.desc&limit=100';
+    if (type)  url += '&form_type=eq.' + encodeURIComponent(type);
+    if (query) url += '&patient_name=ilike.*' + encodeURIComponent(query) + '*';
+
+    const res = await fetch(url, { headers: SB_HEADERS });
+    if (!res.ok) throw new Error(await res.text());
+    const remoteRows = await res.json();
+
+    // 로컬 전용 항목과 병합 (Supabase에 없는 local_ ID만)
+    const remoteIds = new Set(remoteRows.map(r => String(r.id)));
+    const localOnly = localRows.filter(r => !remoteIds.has(r.id));
+    const merged = [...localOnly, ...remoteRows].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    countEl.textContent = merged.length ? `총 ${merged.length}건` : '';
+    listEl.innerHTML = merged.length
+      ? renderAllSavedItems(merged)
+      : '<div class="empty-saved" style="background:#fff;border-radius:12px;padding:28px;box-shadow:0 2px 12px rgba(0,0,0,.08)">저장된 기록이 없습니다</div>';
+  } catch(e) {
+    // 오프라인 → localStorage만
+    countEl.textContent = localRows.length ? `총 ${localRows.length}건 (로컬)` : '';
+    listEl.innerHTML = localRows.length
+      ? renderAllSavedItems(localRows)
+      : '<div class="empty-saved" style="background:#fff;border-radius:12px;padding:28px;box-shadow:0 2px 12px rgba(0,0,0,.08)">저장된 기록이 없습니다</div>';
+  }
+}
+
+async function loadAndOpenRecord(id, formId) {
+  let data = null;
+  try {
+    if (!String(id).startsWith('local_')) {
+      const res = await fetch(SUPABASE_URL + '/rest/v1/medical_forms?id=eq.' + id, { headers: SB_HEADERS });
+      const rows = await res.json();
+      if (rows.length) data = JSON.parse(rows[0].form_data || '{}');
+    }
+    if (!data) {
+      const local = lsGetAll().find(r => r.id === String(id));
+      if (local) data = JSON.parse(local.form_data || '{}');
+    }
+  } catch(e) {
+    const local = lsGetAll().find(r => r.id === String(id));
+    if (local) data = JSON.parse(local.form_data || '{}');
+  }
+
+  if (!data) { showToast('기록을 찾을 수 없습니다', true); return; }
+
+  const btn = document.querySelector(`.nav-tab[onclick="switchForm('${formId}',this)"]`);
+  if (btn) switchForm(formId, btn);
+  restoreFormData(formId, data);
+  showToast('불러오기 완료 ✓');
 }
 
 /* ── 토스트 ── */
@@ -1292,6 +1475,54 @@ function renderConsentCommonSections() {
   initSigPads();
 }
 
+/* ── 자궁 해부도 삽입 ── */
+function insertUterusDiagram() {
+  const SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 310 185" style="width:200px;height:auto;display:block;margin:0 auto">
+    <!-- Corpus uteri -->
+    <path d="M155,38 C182,38 220,56 220,80 C220,105 202,120 185,130 L125,130 C108,120 90,105 90,80 C90,56 128,38 155,38 Z"
+          fill="#fafafa" stroke="#111" stroke-width="2.2" stroke-linejoin="round"/>
+    <!-- Cervix -->
+    <path d="M125,130 C122,142 120,154 121,162 Q122,170 128,172 Q155,175 182,172 Q188,170 189,162 C190,154 188,142 185,130 Z"
+          fill="#fafafa" stroke="#111" stroke-width="2" stroke-linejoin="round"/>
+    <!-- External os -->
+    <ellipse cx="155" cy="172" rx="9" ry="4" fill="none" stroke="#444" stroke-width="1.2"/>
+    <!-- Uterine cavity (dashed) -->
+    <path d="M132,126 C126,112 124,96 126,80 C130,62 141,50 155,50 C169,50 180,62 184,80 C186,96 184,112 178,126 Z"
+          fill="none" stroke="#888" stroke-width="1" stroke-dasharray="3,2"/>
+    <!-- Endocervical canal (dashed) -->
+    <line x1="155" y1="126" x2="155" y2="170" stroke="#888" stroke-width="1" stroke-dasharray="3,2"/>
+    <!-- Left fallopian tube -->
+    <path d="M92,80 C74,66 56,60 42,68 C30,74 26,88 28,100"
+          fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round"/>
+    <!-- Left fimbriae -->
+    <path d="M28,100 C22,104 18,99 16,105" fill="none" stroke="#111" stroke-width="1.3" stroke-linecap="round"/>
+    <path d="M28,100 C26,108 32,111 30,117" fill="none" stroke="#111" stroke-width="1.3" stroke-linecap="round"/>
+    <path d="M28,100 C34,106 38,103 41,109" fill="none" stroke="#111" stroke-width="1.3" stroke-linecap="round"/>
+    <!-- Left ovary -->
+    <ellipse cx="46" cy="68" rx="15" ry="10" fill="#fafafa" stroke="#111" stroke-width="1.8"/>
+    <!-- Right fallopian tube -->
+    <path d="M218,80 C236,66 254,60 268,68 C280,74 284,88 282,100"
+          fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round"/>
+    <!-- Right fimbriae -->
+    <path d="M282,100 C288,104 292,99 294,105" fill="none" stroke="#111" stroke-width="1.3" stroke-linecap="round"/>
+    <path d="M282,100 C284,108 278,111 280,117" fill="none" stroke="#111" stroke-width="1.3" stroke-linecap="round"/>
+    <path d="M282,100 C276,106 272,103 269,109" fill="none" stroke="#111" stroke-width="1.3" stroke-linecap="round"/>
+    <!-- Right ovary -->
+    <ellipse cx="264" cy="68" rx="15" ry="10" fill="#fafafa" stroke="#111" stroke-width="1.8"/>
+  </svg>`;
+
+  const wrapper = `<div style="text-align:center;margin:10px 0 14px;padding:8px 0 4px;border:1px solid #e0e0e0;border-radius:6px;background:#fafafa">
+    ${SVG}
+    <div style="font-size:9px;color:#666;margin-top:3px;letter-spacing:.3px">자궁 및 부속기 해부도</div>
+  </div>`;
+
+  document.querySelectorAll('[id^="form-consent-"] .consent-diag').forEach(el => {
+    const div = document.createElement('div');
+    div.innerHTML = wrapper;
+    el.after(div);
+  });
+}
+
 /* ── 서명 패드 ── */
 function initSigPads() {
   document.querySelectorAll('canvas.sig-pad').forEach(canvas => {
@@ -1337,6 +1568,7 @@ initProgressRows();
 initDrugRows();
 initLabRows();
 renderConsentCommonSections();
+insertUterusDiagram();
 // 오늘 날짜 기본값
 const today = new Date().toISOString().slice(0, 10);
 ['p-date','rx-date','lab-examdate'].forEach(id => { const el = document.getElementById(id); if (el) el.value = today; });
