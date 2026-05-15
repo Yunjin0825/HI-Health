@@ -108,6 +108,7 @@ input[type=checkbox]{width:13px;height:13px;cursor:pointer;accent-color:#1e1047}
 .dr-select{font-size:11px;padding:5px 9px;border:1px solid #d1d5db;border-radius:6px;font-family:inherit;cursor:pointer;background:#fff;color:#374151}
 
 /* ── PRINT ── */
+@page{margin:10mm}
 @media print{
   body{background:#fff}
   .no-print{display:none!important}
@@ -115,7 +116,8 @@ input[type=checkbox]{width:13px;height:13px;cursor:pointer;accent-color:#1e1047}
   .page-wrap{padding:0}
   .form-section{display:none!important}
   .form-section.active{display:flex!important}
-  .sheet{box-shadow:none;padding:10mm 10mm;page-break-after:always;margin:0}
+  .sheet{box-shadow:none;padding:10mm 10mm;page-break-after:always;break-after:page;margin:0}
+  .sheet:last-child{page-break-after:avoid!important;break-after:avoid!important}
   .sheet-corner{display:none}
   .fi,.fi-area{border-bottom:none}
   td,th{border-color:#333}
