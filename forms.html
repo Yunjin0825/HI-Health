@@ -10,7 +10,8 @@ html{-webkit-text-size-adjust:100%}
 body{font-family:'Malgun Gothic','맑은 고딕',AppleSDGothicNeo,sans-serif;font-size:13px;background:#e8e8e8;color:#000}
 
 /* ── NAV ── */
-.app-nav{position:sticky;top:0;z-index:200;background:#1e1047;display:flex;align-items:center;padding:0 12px;gap:2px;min-height:52px}
+.app-nav{position:sticky;top:0;z-index:200;background:#1e1047;display:flex;align-items:center;padding:0 12px;gap:2px;min-height:52px;overflow-x:auto;scrollbar-width:none}
+.app-nav::-webkit-scrollbar{display:none}
 .app-title{color:#fff;font-size:13px;font-weight:800;white-space:nowrap;margin-right:10px;letter-spacing:-.3px}
 .nav-tab{padding:16px 12px;background:none;border:none;border-bottom:2.5px solid transparent;color:rgba(255,255,255,.55);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;margin-bottom:-1px;transition:color .15s}
 .nav-tab:hover{color:rgba(255,255,255,.85)}
@@ -130,6 +131,13 @@ input[type=checkbox]{width:13px;height:13px;cursor:pointer;accent-color:#1e1047}
   <button class="nav-tab" onclick="switchForm('consent-cautery',this)">전기소작술 동의서</button>
   <button class="nav-tab" onclick="switchForm('consent-marsup',this)">조대술 동의서</button>
   <button class="nav-tab" onclick="switchForm('consent-laparoscopy',this)">복강경 수술 동의서</button>
+  <div class="nav-divider"></div>
+  <button class="nav-tab" onclick="switchForm('consent-hysteroscopy',this)">자궁내시경 동의서</button>
+  <button class="nav-tab" onclick="switchForm('consent-curettage',this)">소파술 동의서</button>
+  <button class="nav-tab" onclick="switchForm('consent-eggretrieval',this)">난자채취 동의서</button>
+  <button class="nav-tab" onclick="switchForm('consent-fetal-reduction',this)">선택적 유산 동의서</button>
+  <button class="nav-tab" onclick="switchForm('consent-prp-sedation',this)">마취 진정 동의서</button>
+  <button class="nav-tab" onclick="switchForm('consent-general',this)">기타수술 동의서</button>
   <div class="nav-right">
     <button class="btn-save" onclick="saveForm()">💾 저장</button>
     <button class="btn-print" onclick="window.print()">🖨 인쇄</button>
@@ -551,6 +559,223 @@ input[type=checkbox]{width:13px;height:13px;cursor:pointer;accent-color:#1e1047}
   </div>
 </div>
 
+<!-- ══════════════════════════════════════
+     자궁내시경수술 동의서
+══════════════════════════════════════ -->
+<div class="form-section" id="form-consent-hysteroscopy">
+  <div class="sheet">
+    <div style="font-size:11px;font-weight:700;border-bottom:2px solid #000;padding-bottom:6px;margin-bottom:16px">수술(또는 시술) 및 마취동의서</div>
+    <div class="consent-title">자궁내시경수술 동의서</div>
+    <div class="consent-diag">
+      <div class="consent-diag-label">진단명</div>
+      <div class="chk-row">
+        <label><input type="checkbox"> 자궁내막 유착</label>
+        <label><input type="checkbox"> 자궁내막 폴립</label>
+        <label><input type="checkbox"> 점막하 자궁근종</label>
+        <label><input type="checkbox"> 자궁기형-격막</label>
+        <label><input type="checkbox"> 생리과다</label>
+        <label><input type="checkbox"> 자궁내피임장치</label>
+        <label><input type="checkbox"> 기타 : <input class="fi" style="width:100px;border-bottom:1px solid #999;display:inline-block" placeholder=""></label>
+      </div>
+    </div>
+    <div class="consent-section">
+      <h3>1. 수술과정 및 방법, 수술(시술·검사)부위 및 추정소요시간</h3>
+      <p>자궁내시경수술은 자궁내막이 얇을 때 시행하는 것이 유리하기 때문에 응급수술 이외엔 생리 직후에 시행하게 됩니다. 자궁경부를 헤가라는 기구를 이용하여 넓힌 후 자궁강내로 자궁내시경을 삽입합니다. 자궁 강을 팽창하기 위한 용액을 주입하면서, 자궁강내를 비디오 모니터를 이용하여 관찰한 후 기구 등을 이용하여 폴립이나 유착, 근종 등을 제거합니다. 주 수술이 끝나고나면 전기소작기를 이용하여 지혈을 하거나 자궁내막유착 방지를 위해 자궁내피임장치나 소아용폴리카테터를 삽입합니다. 자궁내시경 수술은 자궁내막에 국한된 병변을 치료하는 수술입니다. 수술시간은 대개 30분 정도 소요되고 환자분의 상태에 따라 수술시간은 달라질 수 있습니다.</p>
+    </div>
+    <div class="consent-section">
+      <h3>2. 발현가능한 합병증(후유증)의 내용, 정도 및 대처방법</h3>
+      <p>수술 중 자궁천공이 발생할 수 있으며, 자궁천공 후 내장기관의 손상을 초래할 수 있습니다. 이 경우 복막염 등의 치명적인 부작용이 발생할 수 있습니다. 이외 자궁경부 손상, 자궁강 확장용액에 의한 색전증 또는 전해질 불균형, 자궁내 감염 등의 합병증이 발생할 수 있습니다. 그러나 이러한 합병증은 2% 미만에서 발생하며, 치명적인 합병증의 발생률은 1% 미만입니다. 수술 중 자궁 천공이나 다른 장기 손상이 발생한 경우에는 추가로 복강경 수술을 시행할 수 있습니다.</p>
+    </div>
+    <div class="consent-section">
+      <h3>3. 수술(시술·검사)관련 주의 사항(수술 후 건강관리에 필요한 사항)</h3>
+      <p>수술 후 1-2주 정도 혈성분비물이 나올 수 있습니다. 수술 시 삽입한 폴리카테터는 주치의가 외래에서 제거할 것입니다. 출혈이 증가하거나 통증이 심해질 경우, 고열이 나타날 경우 외래 예약일 이전이라도 병원에 방문하셔야 합니다. 수술과 관련된 증상은 생리가 재개되면 대부분 소실됩니다.</p>
+    </div>
+    <div id="consent-anesthesia-hysteroscopy"></div>
+    <div id="consent-blood-hysteroscopy"></div>
+    <div id="consent-history-hysteroscopy"></div>
+    <div id="consent-sign-hysteroscopy"></div>
+    <div class="consent-logo">Hi 에이치아이여성의원</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     자궁내막소파술 동의서
+══════════════════════════════════════ -->
+<div class="form-section" id="form-consent-curettage">
+  <div class="sheet">
+    <div style="font-size:11px;font-weight:700;border-bottom:2px solid #000;padding-bottom:6px;margin-bottom:16px">수술(또는 시술) 및 마취동의서</div>
+    <div class="consent-title">자궁내막소파술 동의서</div>
+    <div class="consent-diag">
+      <div class="consent-diag-label">진단명</div>
+      <div class="chk-row">
+        <label><input type="checkbox"> 자연유산</label>
+        <label><input type="checkbox"> 포상기태</label>
+        <label><input type="checkbox"> 비정상 자궁출혈</label>
+        <label><input type="checkbox"> 자궁내막증식증</label>
+        <label><input type="checkbox"> 자궁내막폴립</label>
+        <label><input type="checkbox"> 만성 자궁내막염</label>
+        <label><input type="checkbox"> 기타 : <input class="fi" style="width:100px;border-bottom:1px solid #999;display:inline-block" placeholder=""></label>
+      </div>
+    </div>
+    <div class="consent-section">
+      <h3>1. 수술과정 및 방법, 수술(시술·검사)부위 및 추정소요시간</h3>
+      <ol>
+        <li>마취한 후 초음파를 보면서 안전하게 수술 시행(15-30분 소요)합니다.</li>
+        <li>질축과 길이를 확인하고 수술이 용이하도록 충분히 자궁경관을 개대시킵니다.</li>
+        <li>난자 겸자를 사용하여 내용물을 적출합니다. 큐렛을 이용하여 자궁강을 깨끗이 처리합니다.</li>
+        <li>조직검사는 필요시 시행합니다.</li>
+        <li>회복실에서 30분-1시간 관찰, 수술 후 환자 상태, 출혈 여부 확인 후 귀가합니다.</li>
+      </ol>
+    </div>
+    <div class="consent-section">
+      <h3>2. 발현가능한 합병증(후유증)의 내용, 정도 및 대처방법</h3>
+      <ol>
+        <li>출혈(70%), 자궁천공, 태반잔류 등 내용물의 불완전 적출(10%), 하복통(5%), 요통(5%), 세균감염(1%), 장손상(1%), 방광손상(1%) 등이 발생하기도 합니다.</li>
+        <li>수술이 불임의 1차적 원인이 될 가능성은 적으나 염증이나 자궁내 유착으로 불임의 요인이 될 수 있습니다.</li>
+        <li>임신과 관련된 질병의 경우 출혈 및 감염이 우려되며, 융모 암종이나 자궁 내막암의 경우 출혈 이외에도 타장기로 암세포의 전이 등이 될 수 있습니다.</li>
+      </ol>
+    </div>
+    <div class="consent-section">
+      <h3>3. 수술(시술·검사)관련 주의 사항(수술 후 건강관리에 필요한 사항)</h3>
+      <ol>
+        <li>처방된 약을 4시간 이후부터 복용합니다.</li>
+        <li>수술 후 큰 불편감이 없다면 일주일 후 외래 재방문합니다.</li>
+        <li>1주일 이내 성관계를 갖는 경우 출혈이 발생할 수 있습니다.</li>
+      </ol>
+    </div>
+    <div id="consent-anesthesia-curettage"></div>
+    <div id="consent-blood-curettage"></div>
+    <div id="consent-history-curettage"></div>
+    <div id="consent-sign-curettage"></div>
+    <div class="consent-logo">Hi 에이치아이여성의원</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     난자채취 동의서
+══════════════════════════════════════ -->
+<div class="form-section" id="form-consent-eggretrieval">
+  <div class="sheet">
+    <div style="font-size:11px;font-weight:700;border-bottom:2px solid #000;padding-bottom:6px;margin-bottom:16px">수술(또는 시술) 및 마취동의서</div>
+    <div class="consent-title">난자채취 동의서</div>
+    <div class="consent-diag">
+      <div class="consent-diag-label">진단명</div>
+      <div class="chk-row">
+        <label><input type="checkbox"> 상세불명 여성불임</label>
+        <label><input type="checkbox"> 기타 : <input class="fi" style="width:120px;border-bottom:1px solid #999;display:inline-block" placeholder=""></label>
+      </div>
+    </div>
+    <div class="consent-section">
+      <h3>1. 수술과정 및 방법, 수술(시술·검사)부위 및 추정소요시간</h3>
+      <p>질식초음파를 통하여 난포를 확인하면서 바늘로 난포액을 흡인하여 난자를 채취합니다. 30분 정도 소요되며, 난자채취가 완료된 후 질벽과 복강출혈이 없는지 확인 후 회복실에서 1시간 가량 안정을 취한 후 귀가하시게 됩니다.</p>
+    </div>
+    <div class="consent-section">
+      <h3>2. 발현가능한 합병증(후유증)의 내용, 정도 및 대처방법</h3>
+      <ol>
+        <li>마취에 의한 합병증, 시술에 따른 질출혈, 감염, 드물게는 복강 내 출혈, 비뇨기계 또는 장손상 등이 일어날 수 있습니다.</li>
+        <li>환자의 반응 정도에 따라 배란유도를 위한 주사를 맞았음에도 불구하고 난자채취가 이뤄지지 않을 수도 있으며 난자채취 후에도 배아이식 단계까지 못 미칠 경우가 있습니다.</li>
+        <li>배란 유도 후 난자수가 너무 많을 경우 난소 과자극 증후군이 올 수 있습니다. 난소과자극 증후군은 난소비대, 복수나 흉수, 혈액 과응고로 인한 뇌졸중, 난소염전, 난소파열, 전해질 불균형, 신부전 등의 증상을 초래할 수 있으며 심할 경우 입원이 필요할 수 있습니다.</li>
+        <li>임신이 되었을 경우 다태아 임신 및 자궁 외 임신, 자연 유산 등의 가능성이 있습니다.</li>
+      </ol>
+    </div>
+    <div class="consent-section">
+      <h3>3. 수술(시술·검사)관련 주의 사항(수술 후 건강관리에 필요한 사항)</h3>
+      <p>시술 후 평소와 비슷하게 일상생활을 유지하시면 됩니다. 착상기에 필요한 약이나 주사가 처방된 경우 잘 사용해 주십시오.</p>
+    </div>
+    <div id="consent-anesthesia-eggretrieval"></div>
+    <div id="consent-blood-eggretrieval"></div>
+    <div id="consent-history-eggretrieval"></div>
+    <div id="consent-sign-eggretrieval"></div>
+    <div class="consent-logo">Hi 에이치아이여성의원</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     선택적 유산시술 동의서
+══════════════════════════════════════ -->
+<div class="form-section" id="form-consent-fetal-reduction">
+  <div class="sheet">
+    <div style="font-size:11px;font-weight:700;border-bottom:2px solid #000;padding-bottom:6px;margin-bottom:16px">수술(또는 시술) 및 마취동의서</div>
+    <div class="consent-title">선택적 유산시술 동의서</div>
+    <div class="consent-diag">
+      <div class="consent-diag-label" style="font-size:13px">진단명 : 다태임신</div>
+    </div>
+    <div class="consent-section">
+      <h3>1. 수술과정 및 방법, 수술(시술·검사)부위 및 추정소요시간</h3>
+      <p>질초음파 하에 가는 바늘로 태아의 일부를 흡인함으로써 유산술을 시행합니다. 약 15~30분 정도 소요됩니다.</p>
+    </div>
+    <div class="consent-section">
+      <h3>2. 발현가능한 합병증(후유증)의 내용, 정도 및 대처방법</h3>
+      <p>수술 중 자궁수축에 따른 하복부 통증, 불안 등이 있습니다.<br>수술 후에는 염증유발, 출혈, 생존태아 유산, 자궁수축에 따른 하복부 통증, 심한 고열, 전신 권태, 패혈성 유산, 불안 등이 발생할 수 있으므로 이상증상 발생 시 내원하시기 바랍니다.</p>
+    </div>
+    <div class="consent-section">
+      <h3>3. 치료를 하지 않을 경우의 예후</h3>
+      <p>다태임신을 유지할 경우 임신 중 산모에게 나타날 수 있는 합병증, 즉 임신성 당뇨, 임신 중독증, 조기진통, 조기양막파수 등의 위험률이 증가하며, 이에 따라 조산을 할 경우 신생아에서는 미숙아로 출산했을 때 나타날 수 있는 합병증, 즉 호흡곤란증, 미숙아 망막증을 비롯한 기타 장기의 미성숙으로 인해 신생아 집중치료실에서 입원치료가 필요합니다.</p>
+    </div>
+    <div class="consent-section">
+      <h3>4. 수술(시술·검사)관련 주의 사항(수술 후 건강관리에 필요한 사항)</h3>
+      <p>하복부 통증, 열과 같은 염증관련 증상이 나타나면 외래로 바로 오시고, 특별한 증상이 없으시면 예약된 날짜에 진료를 보도록 하십시오.</p>
+    </div>
+    <div id="consent-anesthesia-fetal-reduction"></div>
+    <div id="consent-blood-fetal-reduction"></div>
+    <div id="consent-history-fetal-reduction"></div>
+    <div id="consent-sign-fetal-reduction"></div>
+    <div class="consent-logo">Hi 에이치아이여성의원</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     마취 진정 동의서 (PRP)
+══════════════════════════════════════ -->
+<div class="form-section" id="form-consent-prp-sedation">
+  <div class="sheet">
+    <div style="font-size:11px;font-weight:700;border-bottom:2px solid #000;padding-bottom:6px;margin-bottom:16px">수술(또는 시술) 및 마취동의서</div>
+    <div class="consent-title">마취 진정 동의서</div>
+    <div class="consent-diag">
+      <div class="consent-diag-label">진단명</div>
+      <div class="chk-row">
+        <label><input type="checkbox"> 상세불명 여성불임</label>
+        <label><input type="checkbox"> 기타 : <input class="fi" style="width:120px;border-bottom:1px solid #999;display:inline-block" placeholder=""></label>
+      </div>
+    </div>
+    <div class="consent-section">
+      <h3>1. 시술과정 및 방법, 시술부위 및 추정소요시간</h3>
+      <p>질식초음파를 통하여 난자 채취용 기구를 사용해 양쪽 또는 한쪽 난소에 혈소판풍부혈장술(PRP)를 주입합니다. 15~30분 정도 소요되며, 완료된 후 회복실에서 1시간 가량 안정을 취한 후 귀가하시게 됩니다.</p>
+    </div>
+    <div class="consent-section">
+      <h3>2. 시술관련 주의 사항(시술 후 건강관리에 필요한 사항)</h3>
+      <p>시술 후 일상생활에 큰 제약은 없으나 출혈이나 복통, 혈뇨 등 부작용 발생여부를 주의 깊게 관찰해 주십시오.</p>
+    </div>
+    <div id="consent-anesthesia-prp-sedation"></div>
+    <div id="consent-blood-prp-sedation"></div>
+    <div id="consent-history-prp-sedation"></div>
+    <div id="consent-sign-prp-sedation"></div>
+    <div class="consent-logo">Hi 에이치아이여성의원</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     기타수술 동의서
+══════════════════════════════════════ -->
+<div class="form-section" id="form-consent-general">
+  <div class="sheet">
+    <div style="font-size:11px;font-weight:700;border-bottom:2px solid #000;padding-bottom:6px;margin-bottom:16px">수술(또는 시술) 및 마취동의서</div>
+    <div class="consent-title">수술 동의서</div>
+    <div class="consent-diag">
+      <div class="consent-diag-label">진단명</div>
+      <input class="fi" style="border-bottom:1px solid #999;width:100%;margin-bottom:10px" placeholder="진단명 기재">
+      <div class="consent-diag-label" style="margin-top:6px">수술명</div>
+      <input class="fi" style="border-bottom:1px solid #999;width:100%" placeholder="수술명 기재">
+    </div>
+    <!-- 기타수술: 수혈 설명이 마취 섹션 앞에 옴 -->
+    <div id="consent-blood-general"></div>
+    <div id="consent-anesthesia-general"></div>
+    <div id="consent-history-general"></div>
+    <div id="consent-sign-general"></div>
+    <div class="consent-logo">Hi 에이치아이여성의원</div>
+  </div>
+</div>
+
 </div><!-- /page-wrap -->
 
 <div class="toast" id="toast"></div>
@@ -778,76 +1003,183 @@ function showToast(msg, isErr) {
 }
 
 /* ── 동의서 공통 섹션 렌더링 ── */
+const CAUTION_NOTES = {
+  cancel: '환자가 감기(상기도 감염), 금식이 안된 경우 수술이 연기(또는 취소)될 수 있습니다.',
+  local:  '환자가 감기(상기도 감염), 금식이 안된 경우 국소마취 또는 진통제 투여 후 시술을 진행합니다.',
+};
+
 const CONSENT_FORMS = [
-  { suffix: 'cautery',     anesthesiaNo: 6, bloodNo: 7, historyNo: 8 },
-  { suffix: 'marsup',      anesthesiaNo: 5, bloodNo: 6, historyNo: 7 },
-  { suffix: 'laparoscopy', anesthesiaNo: 4, bloodNo: 5, historyNo: 6 },
+  // 기존 3종 (간소화 템플릿)
+  { suffix: 'cautery',          anesthesiaNo: 6, bloodNo: 7, historyNo: 8 },
+  { suffix: 'marsup',           anesthesiaNo: 5, bloodNo: 6, historyNo: 7 },
+  { suffix: 'laparoscopy',      anesthesiaNo: 4, bloodNo: 5, historyNo: 6 },
+  // 신규 6종 (PDF 원문 상세 템플릿)
+  { suffix: 'hysteroscopy',    startN: 4, bloodN: 9, detailed: true, cautionNote: 'local',  bloodConsent: 'full' },
+  { suffix: 'curettage',       startN: 4, bloodN: 9, detailed: true, cautionNote: 'cancel', bloodConsent: 'full' },
+  { suffix: 'eggretrieval',    startN: 4, bloodN: 9, detailed: true, cautionNote: 'local',  bloodConsent: 'full' },
+  { suffix: 'fetal-reduction', startN: 5,           detailed: true, cautionNote: 'cancel', bloodConsent: 'abbreviated' },
+  { suffix: 'prp-sedation',    startN: 3,           detailed: true, cautionNote: 'cancel', bloodConsent: 'none' },
+  { suffix: 'general',         startN: 1, bloodN: 0, detailed: true, cautionNote: 'cancel', bloodConsent: 'full', bloodFirst: true },
 ];
 
+/* ── 기존 3종 동의서용 간소화 템플릿 ── */
 function consentAnesthesiaHTML(n) {
   return `
   <div class="consent-section">
-    <h3>${n}. 마취 관련</h3>
-    <p><strong>마취의 목적 및 효과</strong><br>시술 중 통증 및 불안을 줄이고 시술을 원활하게 진행하기 위해 마취를 시행합니다.</p>
-    <p style="margin-top:8px"><strong>마취 방법</strong></p>
-    <div class="chk-row">
-      <label><input type="checkbox"> 정맥마취 (수면마취)</label>
-      <label><input type="checkbox"> 흡입마취 (전신마취)</label>
-      <label><input type="checkbox"> 국소마취</label>
-      <label><input type="checkbox"> 척추마취</label>
+    <h3>${n}. 마취의 목적 및 효과</h3>
+    <p>마취란 의식소실, 감각차단, 운동 차단 및 반사의 차단 등 수술 및 시술에 필요한 최적의 생리 상태를 유지할 수 있도록 약물을 투여하고, 이에 따른 환자의 신체변화를 지속적으로 감시하고 최상의 생리 상태를 유지시키는 진료행위입니다.</p>
+  </div>
+  <div class="consent-section">
+    <h3>${n+1}. 현 환자상태에 적합한 마취방법</h3>
+    <p>전신마취</p>
+    <div class="chk-row" style="margin:6px 0">
+      <label><input type="checkbox"> 기관 내 삽관</label>
+      <label><input type="checkbox"> 마스크</label>
+      <label><input type="checkbox"> 정맥마취</label>
+      <label><input type="checkbox"> 감시하 전신마취</label>
     </div>
-    <p style="margin-top:8px"><strong>마취 관련 부작용 및 합병증</strong></p>
-    <ul>
-      <li>경미한 증상: 두통, 구역/구토, 인후통, 근육통, 졸림, 어지럼증</li>
-      <li>드물지만 심각한 합병증: 기도 폐쇄, 과민 반응(알레르기), 심혈관계 이상, 폐 합병증</li>
-      <li>극히 드물게 영구적 신경 손상 또는 사망에 이를 수 있습니다.</li>
-    </ul>
-    <p style="margin-top:8px"><strong>마취 전 주의사항</strong></p>
-    <ul>
-      <li>시술 6시간 전부터 금식(물 포함)하셔야 합니다.</li>
-      <li>귀중품, 틀니, 콘택트렌즈 등은 미리 제거해 주세요.</li>
-      <li>평소 복용 중인 약이 있으시면 반드시 담당의사에게 알려주세요.</li>
-    </ul>
+    <p>전신 마취는 흡입 마취제를 이용한 마취의 한 방법으로 수술 시간이 길게 필요로 하는 수술에 적합합니다. 마취는 먼저 환자의 정맥로를 통해 약물을 투여하여 의식을 소실시킵니다. 그 후 환자의 호흡관리를 위해 기관지 내에 튜브를 삽입하거나 후두 마스크(안면 마스크)를 이용하여 기도를 확보합니다. 그 후 흡입 마취제(또는 정맥 마취제)를 이용하여 마취가 이루어집니다.</p>
   </div>`;
 }
 
 function consentBloodHTML(n) {
   return `
   <div class="consent-section">
-    <h3>${n}. 수혈 관련 동의</h3>
-    <p>수술(시술) 중 또는 후 출혈이 많아 수혈이 필요한 경우, 수혈에 동의합니다.<br>수혈의 부작용(발열, 오한, 두드러기, 용혈 반응 등)에 대한 설명을 들었으며, 수혈 거부 시 생명에 지장이 있을 수 있음을 이해합니다.</p>
-    <div class="chk-row" style="margin-top:8px">
-      <label><input type="checkbox"> 수혈에 동의합니다</label>
-      <label><input type="checkbox"> 수혈을 거부합니다</label>
-    </div>
-    <p style="margin-top:8px"><strong>마약류 조치 기준</strong></p>
-    <p>마취 과정에서 마약성 진통제가 사용될 수 있으며, 관련 법령에 따라 투여 내역이 기록·보관됩니다.</p>
+    <h3>${n}. 수혈</h3>
+    <p>수술 중 출혈로 인해 심혈관계 혈액량(빈혈, 응고인자, 혈소판 부족 등)이 부족하게 되면 신체 중요 장기(뇌, 심장, 신장 등)에 산소 공급을 할 수 없게 되어 장기 손상, 심정지 등 치명적인 합병증으로 사망에 이를 수도 있습니다. 또한 지혈이 잘 되지 않아 더 많은 출혈이 발생할 수 있습니다.<br>
+    반면 부작용으로 발열, 오한, 오심, 구토, 알레르기, 흉통 등이 발생할 수 있으며, 매우 드물게 급성 폐손상, 간염(B형, C형), 후천성 면역 결핍증(HIV), 인체 T-림프 영양성 바이러스(HTLV) 등 수혈 전파성 감염 및 기타 병원체로 인한 감염 등의 합병증이 발생할 수 있습니다.<br>
+    수혈 이외의 다른 치료 대안으로는 혈액량 보충을 위한 수액치료나 혈액 제제 생성 촉진 약제 투여 등 제한적인 치료법이 있습니다.</p>
+    <p style="margin-top:8px;font-weight:700">&lt;마약류 관리에 관한 법률에 의한 오남용 방지를 위한 조치기준&gt;</p>
+    <p>의료용 마약류의 과다,중복 처방 등을 사전에 예방하기 위해 환자의 처방(투약) 정보를 조회합니다.</p>
   </div>`;
 }
 
 function consentHistoryHTML(n) {
   return `
   <div class="consent-past">
-    <div class="consent-past-title">${n}. 과거력 체크리스트</div>
+    <div class="consent-past-title">★ 과거력이 있으신 분은 해당항목에 체크해주세요</div>
     <div class="consent-past-grid">
-      <label><input type="checkbox"> 고혈압</label>
-      <label><input type="checkbox"> 당뇨</label>
+      <label><input type="checkbox"> 질병·상해전력</label>
       <label><input type="checkbox"> 심장질환</label>
-      <label><input type="checkbox"> 폐질환</label>
+      <label><input type="checkbox"> 복용 중인 약물</label>
+      <label><input type="checkbox"> 혈전증</label>
+      <label><input type="checkbox"> 이전수술력</label>
       <label><input type="checkbox"> 신장질환</label>
-      <label><input type="checkbox"> 간질환</label>
-      <label><input type="checkbox"> 갑상선질환</label>
-      <label><input type="checkbox"> 혈액질환</label>
-      <label><input type="checkbox"> 뇌신경질환</label>
-      <label><input type="checkbox"> 정신질환</label>
       <label><input type="checkbox"> 알레르기</label>
-      <label><input type="checkbox"> 천식</label>
-      <label><input type="checkbox"> 현재 복용약 있음</label>
-      <label><input type="checkbox"> 임신 가능성</label>
-      <label><input type="checkbox"> 흡연</label>
-      <label><input type="checkbox"> 음주</label>
+      <label><input type="checkbox"> 출혈소인</label>
+      <label><input type="checkbox"> 당뇨병</label>
+      <label><input type="checkbox"> 호흡기질환</label>
+      <label><input type="checkbox"> 특이체질</label>
+      <label><input type="checkbox"> 흡연여부</label>
+      <label><input type="checkbox"> 고·저혈압</label>
+      <label><input type="checkbox"> 약물부작용</label>
+      <label><input type="checkbox"> 기도이상·마약사고</label>
+      <label><input type="checkbox"> 해당없음</label>
     </div>
-    <div style="margin-top:8px;font-size:11px">기타 / 복용약 :&nbsp;<input class="fi" style="border-bottom:1px solid #999;width:220px;display:inline-block" placeholder="기타 내용 기재"></div>
+  </div>`;
+}
+
+/* ── 신규 6종용 PDF 원문 상세 템플릿 ── */
+function consentAnesthesiaDetailedHTML(startN, cautionNote) {
+  const n = startN;
+  const caution = CAUTION_NOTES[cautionNote] || CAUTION_NOTES.cancel;
+  return `
+  <div class="consent-section">
+    <h3>${n}. 마취의 목적 및 효과</h3>
+    <p>마취란 의식소실, 감각차단, 운동 차단 및 반사의 차단 등 수술 및 시술에 필요한 최적의 생리 상태를 유지할 수 있도록 약물을 투여하고, 이에 따른 환자의 신체변화를 지속적으로 감시하고 최상의 생리 상태를 유지시키는 진료행위입니다.</p>
+  </div>
+  <div class="consent-section">
+    <h3>${n+1}. 현 환자상태에 적합한 마취방법</h3>
+    <p>전신마취</p>
+    <div class="chk-row" style="margin:6px 0">
+      <label><input type="checkbox"> 기관 내 삽관</label>
+      <label><input type="checkbox"> 마스크</label>
+      <label><input type="checkbox"> 정맥마취</label>
+      <label><input type="checkbox"> 감시하 전신마취</label>
+    </div>
+    <p>전신 마취는 흡입 마취제를 이용한 마취의 한 방법으로 수술 시간이 길게 필요로 하는 수술에 적합합니다. 마취는 먼저 환자의 정맥로를 통해 약물을 투여하여 의식을 소실시킵니다. 그 후 환자의 호흡관리를 위해 기관지 내에 튜브를 삽입하거나 후두 마스크(안면 마스크)를 이용하여 기도를 확보합니다. 그 후 흡입 마취제(또는 정맥 마취제)를 이용하여 마취가 이루어집니다.</p>
+  </div>
+  <div class="consent-section">
+    <h3>${n+2}. 발현가능한 부작용(후유증)의 내용, 정도 및 대처방법</h3>
+    <p>전신마취</p>
+    <div class="chk-row" style="margin:6px 0">
+      <label><input type="checkbox"> 기관 내 삽관</label>
+      <label><input type="checkbox"> 마스크</label>
+      <label><input type="checkbox"> 정맥마취</label>
+      <label><input type="checkbox"> 감시하 전신마취</label>
+    </div>
+    <p>전신 마취의 경우 환자가 수술 시작 전에 의식이 소실되어 있어서 불안감 없이 마취를 받을 수 있다는 장점이 있습니다. 흔한 부작용으로는 기관 삽관에 의한 인후통, 쉰 목소리 및 오심, 구토 등이 발생할 수 있으나 대개 특별한 조치 없이 좋아집니다.<br>
+    드물게 치아손상/발치(1:4,500), 기도경련, 저산소증, 아나필락시스(1:5,000) 등이 발생할 수 있으며, 또한 매우 드물게 흡인성 폐렴, 악성 고열증(1:4,500-1:60,000), 뇌출혈, 심장마비 등의 합병증이 발생할 수 있습니다. 이 경우 응급조치가 필요하고 상급병원에서의 집중관리가 필요할 수 있습니다.</p>
+  </div>
+  <div class="consent-section">
+    <h3>${n+3}. 마취 후 통증관리</h3>
+    <p>수술 후 회복실에서 회복하는 동안 통증 정도를 확인하게 됩니다. 통증 정도에 따라 진통제가 투여되거나 회복실에서 퇴실 시 진통제 처방을 받을 수 있습니다.</p>
+  </div>
+  <div class="consent-section">
+    <h3>${n+4}. 마취 관련 주의 사항</h3>
+    <p>${caution}</p>
+  </div>`;
+}
+
+function consentBloodDetailedHTML(n) {
+  const header = n > 0 ? `<h3>${n}. 수혈</h3>` : '';
+  return `
+  <div class="consent-section">
+    ${header}
+    <p>수술 중 출혈로 인해 심혈관계 혈액량(빈혈, 응고인자, 혈소판 부족 등)이 부족하게 되면 신체 중요 장기(뇌, 심장, 신장 등)에 산소 공급을 할 수 없게 되어 장기 손상, 심정지 등 치명적인 합병증으로 사망에 이를 수도 있습니다. 또한 지혈이 잘 되지 않아 더 많은 출혈이 발생할 수 있습니다.<br>
+    반면 부작용으로 발열, 오한, 오심, 구토, 알레르기, 흉통 등이 발생할 수 있으며, 매우 드물게 급성 폐손상, 간염(B형, C형), 후천성 면역 결핍증(HIV), 인체 T-림프 영양성 바이러스(HTLV) 등 수혈 전파성 감염 및 기타 병원체로 인한 감염 등의 합병증이 발생할 수 있습니다.<br>
+    수혈 이외의 다른 치료 대안으로는 혈액량 보충을 위한 수액치료나 혈액 제제 생성 촉진 약제 투여 등 제한적인 치료법이 있습니다.</p>
+    <p style="margin-top:10px;font-weight:700;font-size:11.5px">&lt;마약류 관리에 관한 법률에 의한 오남용 방지를 위한 조치기준&gt;</p>
+    <p>의료용 마약류의 과다,중복 처방 등을 사전에 예방하기 위해 환자의 처방(투약) 정보를 조회합니다.</p>
+  </div>`;
+}
+
+function consentHistoryDetailedHTML() {
+  return `
+  <div class="consent-past">
+    <div class="consent-past-title">★ 과거력이 있으신 분은 해당항목에 체크해주세요</div>
+    <div class="consent-past-grid">
+      <label><input type="checkbox"> 질병·상해전력</label>
+      <label><input type="checkbox"> 심장질환</label>
+      <label><input type="checkbox"> 복용 중인 약물</label>
+      <label><input type="checkbox"> 혈전증</label>
+      <label><input type="checkbox"> 이전수술력</label>
+      <label><input type="checkbox"> 신장질환</label>
+      <label><input type="checkbox"> 알레르기</label>
+      <label><input type="checkbox"> 출혈소인</label>
+      <label><input type="checkbox"> 당뇨병</label>
+      <label><input type="checkbox"> 호흡기질환</label>
+      <label><input type="checkbox"> 특이체질</label>
+      <label><input type="checkbox"> 흡연여부</label>
+      <label><input type="checkbox"> 고·저혈압</label>
+      <label><input type="checkbox"> 약물부작용</label>
+      <label><input type="checkbox"> 기도이상·마약사고</label>
+      <label><input type="checkbox"> 해당없음</label>
+    </div>
+  </div>`;
+}
+
+function consentSignDetailedHTML(suffix, bloodConsent) {
+  const now = new Date();
+  let bottomCheck = '';
+  if (bloodConsent === 'full' || bloodConsent === 'abbreviated') {
+    bottomCheck = `<p style="margin:14px 0 6px;font-size:12px"><label style="display:flex;align-items:flex-start;gap:6px;cursor:pointer"><input type="checkbox" style="margin-top:2px;flex-shrink:0"><span>본인은 수술 중 수혈 여부를 주치의의 판단에 위임하여 수혈을 받을 것을 동의합니다.</span></label></p>`;
+  } else {
+    bottomCheck = `<p style="margin:14px 0 6px;font-size:12px"><label style="display:flex;align-items:flex-start;gap:6px;cursor:pointer"><input type="checkbox" style="margin-top:2px;flex-shrink:0"><span>본인은 시술 후 합병증에 대한 충분한 설명을 듣고 이해하였습니다.</span></label></p>`;
+  }
+  return `
+  <div class="consent-sign-area">
+    ${bottomCheck}
+    <div class="consent-sign-date" style="margin-top:16px">
+      <input type="number" id="sd2-y-${suffix}" style="width:52px;border:none;border-bottom:1.5px solid #000;text-align:center;font-size:13px;font-family:inherit;outline:none;background:transparent" value="${now.getFullYear()}"> 년 &nbsp;
+      <input type="number" id="sd2-m-${suffix}" style="width:36px;border:none;border-bottom:1.5px solid #000;text-align:center;font-size:13px;font-family:inherit;outline:none;background:transparent" value="${now.getMonth()+1}"> 월 &nbsp;
+      <input type="number" id="sd2-d-${suffix}" style="width:36px;border:none;border-bottom:1.5px solid #000;text-align:center;font-size:13px;font-family:inherit;outline:none;background:transparent" value="${now.getDate()}"> 일
+    </div>
+    <div class="consent-signers">
+      ${sigRow('주 치 의', 'd2-doctor-'+suffix)}
+      ${sigRow('환&nbsp;&nbsp;&nbsp;&nbsp;자', 'd2-patient-'+suffix)}
+      ${sigRow('보호자(법정대리인)', 'd2-guardian-'+suffix)}
+    </div>
   </div>`;
 }
 
@@ -887,15 +1219,33 @@ function consentSignHTML(suffix) {
 }
 
 function renderConsentCommonSections() {
-  CONSENT_FORMS.forEach(({ suffix, anesthesiaNo, bloodNo, historyNo }) => {
-    const a = document.getElementById('consent-anesthesia-' + suffix);
-    const b = document.getElementById('consent-blood-' + suffix);
-    const h = document.getElementById('consent-history-' + suffix);
-    const s = document.getElementById('consent-sign-' + suffix);
-    if (a) a.innerHTML = consentAnesthesiaHTML(anesthesiaNo);
-    if (b) b.innerHTML = consentBloodHTML(bloodNo);
-    if (h) h.innerHTML = consentHistoryHTML(historyNo);
-    if (s) s.innerHTML = consentSignHTML(suffix);
+  CONSENT_FORMS.forEach(form => {
+    const { suffix } = form;
+    const anDiv = document.getElementById('consent-anesthesia-' + suffix);
+    const blDiv = document.getElementById('consent-blood-' + suffix);
+    const hiDiv = document.getElementById('consent-history-' + suffix);
+    const siDiv = document.getElementById('consent-sign-' + suffix);
+
+    if (!form.detailed) {
+      // 기존 3종: 간소화 템플릿
+      if (anDiv) anDiv.innerHTML = consentAnesthesiaHTML(form.anesthesiaNo);
+      if (blDiv) blDiv.innerHTML = consentBloodHTML(form.bloodNo);
+      if (hiDiv) hiDiv.innerHTML = consentHistoryHTML(form.historyNo);
+      if (siDiv) siDiv.innerHTML = consentSignHTML(suffix);
+    } else {
+      // 신규 6종: PDF 원문 상세 템플릿
+      const { startN, bloodN, cautionNote, bloodConsent, bloodFirst } = form;
+      if (bloodFirst) {
+        // 기타수술: 수혈 설명이 마취 앞에 옴
+        if (blDiv) blDiv.innerHTML = consentBloodDetailedHTML(0);
+        if (anDiv) anDiv.innerHTML = consentAnesthesiaDetailedHTML(startN, cautionNote);
+      } else {
+        if (anDiv) anDiv.innerHTML = consentAnesthesiaDetailedHTML(startN, cautionNote);
+        if (blDiv && bloodN != null) blDiv.innerHTML = consentBloodDetailedHTML(bloodN);
+      }
+      if (hiDiv) hiDiv.innerHTML = consentHistoryDetailedHTML();
+      if (siDiv) siDiv.innerHTML = consentSignDetailedHTML(suffix, bloodConsent);
+    }
   });
   initSigPads();
 }
