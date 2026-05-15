@@ -98,6 +98,15 @@ input[type=checkbox]{width:13px;height:13px;cursor:pointer;accent-color:#1e1047}
 .sig-pad{display:block;touch-action:none;cursor:crosshair}
 .sig-clear{position:absolute;top:3px;right:3px;background:rgba(0,0,0,.13);color:#333;border:none;border-radius:4px;font-size:10px;padding:2px 6px;cursor:pointer;font-family:inherit}
 
+/* ── DOCTOR MODAL ── */
+.dr-modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;padding:16px}
+.dr-modal-backdrop.open{display:flex}
+.dr-modal{background:#fff;border-radius:14px;padding:22px 20px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto}
+.dr-slot{border:1px solid #e5e7eb;border-radius:10px;padding:14px;margin-bottom:12px}
+.dr-slot-title{font-size:12px;font-weight:800;color:#1e1047;margin-bottom:10px}
+.dr-selector-bar{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.dr-select{font-size:11px;padding:5px 9px;border:1px solid #d1d5db;border-radius:6px;font-family:inherit;cursor:pointer;background:#fff;color:#374151}
+
 /* ── PRINT ── */
 @media print{
   body{background:#fff}
@@ -140,6 +149,7 @@ input[type=checkbox]{width:13px;height:13px;cursor:pointer;accent-color:#1e1047}
   <button class="nav-tab" onclick="switchForm('consent-general',this)">기타수술 동의서</button>
   <div class="nav-right">
     <button class="btn-save" onclick="switchForm('saved-list',this)" style="background:rgba(165,180,252,.18);border-color:rgba(165,180,252,.5);color:#c4b5fd">📋 기록</button>
+    <button class="btn-save" onclick="openDoctorModal()" style="background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.25);color:#fff">👨‍⚕️ 의사</button>
     <button class="btn-save" onclick="saveForm()">💾 저장</button>
     <button class="btn-print" onclick="window.print()">🖨 인쇄</button>
   </div>
@@ -1391,7 +1401,7 @@ function consentSignDetailedHTML(suffix, bloodConsent) {
       <input type="number" id="sd2-d-${suffix}" style="width:36px;border:none;border-bottom:1.5px solid #000;text-align:center;font-size:13px;font-family:inherit;outline:none;background:transparent" value="${now.getDate()}"> 일
     </div>
     <div class="consent-signers">
-      ${sigRow('주 치 의', 'd2-doctor-'+suffix)}
+      ${doctorSigRow('주 치 의', 'd2-doctor-'+suffix)}
       ${sigRow('환&nbsp;&nbsp;&nbsp;&nbsp;자', 'd2-patient-'+suffix)}
       ${sigRow('보호자(법정대리인)', 'd2-guardian-'+suffix)}
     </div>
@@ -1403,6 +1413,23 @@ function sigRow(label, idSuffix) {
   <div class="signer-row">
     <div class="signer-label">${label}</div>
     <input class="fi" style="width:90px;border-bottom:1px solid #999;text-align:center;flex-shrink:0" placeholder="성명">
+    <div style="font-size:12px;font-weight:700;white-space:nowrap;margin:0 6px">(서명)</div>
+    <div class="sig-pad-wrap">
+      <canvas class="sig-pad" id="sig-${idSuffix}" width="180" height="60"></canvas>
+      <button class="sig-clear" onclick="clearSigPad(this)">지우기</button>
+    </div>
+  </div>`;
+}
+
+function doctorSigRow(label, idSuffix) {
+  return `
+  <div class="dr-selector-bar no-print">
+    <span style="font-size:11px;color:#555;white-space:nowrap">주치의 선택</span>
+    <select class="dr-select" onchange="applyDoctorSig(this,'${idSuffix}')"></select>
+  </div>
+  <div class="signer-row">
+    <div class="signer-label">${label}</div>
+    <input class="fi" id="drname-${idSuffix}" style="width:90px;border-bottom:1px solid #999;text-align:center;flex-shrink:0" placeholder="성명">
     <div style="font-size:12px;font-weight:700;white-space:nowrap;margin:0 6px">(서명)</div>
     <div class="sig-pad-wrap">
       <canvas class="sig-pad" id="sig-${idSuffix}" width="180" height="60"></canvas>
@@ -1438,7 +1465,7 @@ function consentSignHTML(suffix) {
     <div class="consent-signers">
       ${sigRow('환 자', 'patient-'+suffix)}
       ${sigRow('법정대리인<br><span style="font-size:10px;font-weight:400">(미성년자)</span>', 'guardian-'+suffix)}
-      ${sigRow('담당 의사', 'doctor-'+suffix)}
+      ${doctorSigRow('담당 의사', 'doctor-'+suffix)}
     </div>
   </div>`;
 }
@@ -1473,6 +1500,83 @@ function renderConsentCommonSections() {
     }
   });
   initSigPads();
+}
+
+/* ── 주치의 설정 ── */
+const DR_KEY = 'hi_doctors';
+
+function drGetAll() {
+  try { return JSON.parse(localStorage.getItem(DR_KEY) || '[{},{},{}]'); } catch { return [{},{},{}]; }
+}
+function drSave(idx, data) {
+  const all = drGetAll();
+  all[idx] = data;
+  localStorage.setItem(DR_KEY, JSON.stringify(all));
+}
+
+function openDoctorModal() {
+  const modal = document.getElementById('doctor-modal');
+  modal.classList.add('open');
+  const doctors = drGetAll();
+  [0,1,2].forEach(i => {
+    const nameEl = document.getElementById('dr-name-' + i);
+    if (nameEl) nameEl.value = doctors[i]?.name || '';
+    const canvas = document.getElementById('dr-sig-' + i);
+    if (canvas) {
+      canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+      if (doctors[i]?.sig) {
+        const img = new Image();
+        img.onload = () => canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        img.src = doctors[i].sig;
+      }
+    }
+  });
+}
+function closeDoctorModal(e) {
+  if (e && e.target !== e.currentTarget) return;
+  document.getElementById('doctor-modal').classList.remove('open');
+}
+function saveDoctor(i) {
+  const name = document.getElementById('dr-name-' + i)?.value.trim() || '';
+  const canvas = document.getElementById('dr-sig-' + i);
+  const sig = canvas ? canvas.toDataURL('image/png') : '';
+  drSave(i, { name, sig });
+  updateDoctorDropdowns();
+  showToast('저장 완료 ✓');
+}
+function clearDoctorSig(i) {
+  const canvas = document.getElementById('dr-sig-' + i);
+  if (canvas) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function updateDoctorDropdowns() {
+  const doctors = drGetAll();
+  const opts = '<option value="">의사 선택...</option>' +
+    doctors.map((d, i) => d.name ? `<option value="${i}">${d.name}</option>` : '').filter(Boolean).join('');
+  document.querySelectorAll('.dr-select').forEach(sel => {
+    const cur = sel.value;
+    sel.innerHTML = opts;
+    if (cur) sel.value = cur;
+  });
+}
+
+function applyDoctorSig(sel, idSuffix) {
+  const idx = parseInt(sel.value);
+  if (isNaN(idx)) return;
+  const doctor = drGetAll()[idx];
+  if (!doctor) return;
+  const nameEl = document.getElementById('drname-' + idSuffix);
+  if (nameEl) nameEl.value = doctor.name || '';
+  const canvas = document.getElementById('sig-' + idSuffix);
+  if (canvas && doctor.sig) {
+    const img = new Image();
+    img.onload = () => {
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    };
+    img.src = doctor.sig;
+  }
 }
 
 /* ── 자궁 해부도 삽입 ── */
@@ -1536,6 +1640,7 @@ initDrugRows();
 initLabRows();
 renderConsentCommonSections();
 insertUterusDiagram();
+updateDoctorDropdowns();
 // 오늘 날짜 기본값
 const today = new Date().toISOString().slice(0, 10);
 ['p-date','rx-date','lab-examdate'].forEach(id => { const el = document.getElementById(id); if (el) el.value = today; });
@@ -1577,5 +1682,58 @@ async function syncLocalToSupabase() {
 syncLocalToSupabase();
 window.addEventListener('online', syncLocalToSupabase);
 </script>
+<!-- 주치의 설정 모달 -->
+<div id="doctor-modal" class="dr-modal-backdrop no-print" onclick="closeDoctorModal(event)">
+  <div class="dr-modal">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+      <div style="font-size:15px;font-weight:900;color:#1e1047">주치의 서명 설정</div>
+      <button onclick="document.getElementById('doctor-modal').classList.remove('open')"
+              style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280;line-height:1">×</button>
+    </div>
+    <div style="font-size:11px;color:#6b7280;margin-bottom:14px">이름과 서명을 저장하면 동의서 작성 시 드롭다운으로 자동 입력됩니다.</div>
+
+    <div class="dr-slot">
+      <div class="dr-slot-title">의사 1</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <span style="font-size:12px;white-space:nowrap">성명</span>
+        <input id="dr-name-0" class="fi" style="border-bottom:1px solid #999;width:140px" placeholder="이름 입력">
+      </div>
+      <div style="font-size:11px;color:#888;margin-bottom:4px">서명</div>
+      <div class="sig-pad-wrap" style="margin-bottom:8px">
+        <canvas class="sig-pad" id="dr-sig-0" width="300" height="70"></canvas>
+        <button class="sig-clear" onclick="clearDoctorSig(0)">지우기</button>
+      </div>
+      <button onclick="saveDoctor(0)" style="width:100%;padding:8px;background:#1e1047;color:#fff;border:none;border-radius:7px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">저장</button>
+    </div>
+
+    <div class="dr-slot">
+      <div class="dr-slot-title">의사 2</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <span style="font-size:12px;white-space:nowrap">성명</span>
+        <input id="dr-name-1" class="fi" style="border-bottom:1px solid #999;width:140px" placeholder="이름 입력">
+      </div>
+      <div style="font-size:11px;color:#888;margin-bottom:4px">서명</div>
+      <div class="sig-pad-wrap" style="margin-bottom:8px">
+        <canvas class="sig-pad" id="dr-sig-1" width="300" height="70"></canvas>
+        <button class="sig-clear" onclick="clearDoctorSig(1)">지우기</button>
+      </div>
+      <button onclick="saveDoctor(1)" style="width:100%;padding:8px;background:#1e1047;color:#fff;border:none;border-radius:7px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">저장</button>
+    </div>
+
+    <div class="dr-slot">
+      <div class="dr-slot-title">의사 3</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <span style="font-size:12px;white-space:nowrap">성명</span>
+        <input id="dr-name-2" class="fi" style="border-bottom:1px solid #999;width:140px" placeholder="이름 입력">
+      </div>
+      <div style="font-size:11px;color:#888;margin-bottom:4px">서명</div>
+      <div class="sig-pad-wrap" style="margin-bottom:8px">
+        <canvas class="sig-pad" id="dr-sig-2" width="300" height="70"></canvas>
+        <button class="sig-clear" onclick="clearDoctorSig(2)">지우기</button>
+      </div>
+      <button onclick="saveDoctor(2)" style="width:100%;padding:8px;background:#1e1047;color:#fff;border:none;border-radius:7px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">저장</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
