@@ -918,15 +918,30 @@ function esc(s) { return String(s || '').replace(/"/g, '&quot;').replace(/</g, '
 /* ── 저장 ── */
 async function saveForm() {
   const data = collectFormData(currentForm);
-  // 환자명 추출
-  const nameKey = { progress: 'p-name', prescription: 'rx-name', labresult: 'lab-name' };
-  const dateKey = { progress: 'p-date', prescription: 'rx-date', labresult: 'lab-examdate' };
-  const patientName = data[nameKey[currentForm]] || '(이름없음)';
-  const formDate = data[dateKey[currentForm]] || new Date().toISOString().slice(0, 10);
+
+  const nameKey    = { progress: 'p-name',    prescription: 'rx-name',    labresult: 'lab-name' };
+  const chartnoKey = { progress: 'p-chartno', prescription: 'rx-chartno', labresult: 'lab-chartno' };
+  const dateKey    = { progress: 'p-date',    prescription: 'rx-date',    labresult: 'lab-examdate' };
+
+  let patientName, chartno, formDate;
+  if (currentForm.startsWith('consent-')) {
+    const sfx = currentForm.replace('consent-', '');
+    patientName = (document.getElementById('cpt-name-' + sfx)?.value || '').trim();
+    chartno     = (document.getElementById('cpt-chartno-' + sfx)?.value || '').trim();
+    formDate    = new Date().toISOString().slice(0, 10);
+  } else {
+    patientName = (data[nameKey[currentForm]] || '').trim();
+    chartno     = (data[chartnoKey[currentForm]] || '').trim();
+    formDate    = data[dateKey[currentForm]] || new Date().toISOString().slice(0, 10);
+  }
+
+  const formLabel  = FORM_LABELS[currentForm] || currentForm;
+  const nameParts  = [patientName || '(이름없음)', chartno].filter(Boolean);
+  const savedLabel = nameParts.join(' ') + ' · ' + formDate + ' · ' + formLabel;
 
   const payload = {
     form_type: currentForm,
-    patient_name: patientName,
+    patient_name: savedLabel,
     form_date: formDate,
     form_data: JSON.stringify(data),
     created_at: new Date().toISOString()
@@ -959,7 +974,7 @@ async function loadSavedList(formId) {
       <div class="saved-item">
         <div class="saved-item-info">
           <div class="saved-item-name">${esc(r.patient_name)}</div>
-          <div class="saved-item-meta">${r.form_date || ''} &nbsp;·&nbsp; ${new Date(r.created_at).toLocaleString('ko')}</div>
+          <div class="saved-item-meta">저장: ${new Date(r.created_at).toLocaleString('ko')}</div>
         </div>
         <div class="saved-item-btns">
           <button class="sbtn sbtn-load" onclick="loadRecord('${r.id}','${formId}')">불러오기</button>
@@ -1003,6 +1018,21 @@ function showToast(msg, isErr) {
 }
 
 /* ── 동의서 공통 섹션 렌더링 ── */
+const FORM_LABELS = {
+  progress:                '경과기록지',
+  prescription:            '처방전',
+  labresult:               '검사결과기록지',
+  'consent-cautery':       '전기소작술 동의서',
+  'consent-marsup':        '조대술 동의서',
+  'consent-laparoscopy':   '복강경 수술 동의서',
+  'consent-hysteroscopy':  '자궁내시경 동의서',
+  'consent-curettage':     '소파술 동의서',
+  'consent-eggretrieval':  '난자채취 동의서',
+  'consent-fetal-reduction':'선택적 유산 동의서',
+  'consent-prp-sedation':  '마취 진정 동의서',
+  'consent-general':       '수술 동의서',
+};
+
 const CAUTION_NOTES = {
   cancel: '환자가 감기(상기도 감염), 금식이 안된 경우 수술이 연기(또는 취소)될 수 있습니다.',
   local:  '환자가 감기(상기도 감염), 금식이 안된 경우 국소마취 또는 진통제 투여 후 시술을 진행합니다.',
@@ -1162,12 +1192,14 @@ function consentHistoryDetailedHTML() {
 function consentSignDetailedHTML(suffix, bloodConsent) {
   const now = new Date();
   let bottomCheck = '';
+  /* consentSaveInfoBar는 위에서 정의됨 */
   if (bloodConsent === 'full' || bloodConsent === 'abbreviated') {
     bottomCheck = `<p style="margin:14px 0 6px;font-size:12px"><label style="display:flex;align-items:flex-start;gap:6px;cursor:pointer"><input type="checkbox" style="margin-top:2px;flex-shrink:0"><span>본인은 수술 중 수혈 여부를 주치의의 판단에 위임하여 수혈을 받을 것을 동의합니다.</span></label></p>`;
   } else {
     bottomCheck = `<p style="margin:14px 0 6px;font-size:12px"><label style="display:flex;align-items:flex-start;gap:6px;cursor:pointer"><input type="checkbox" style="margin-top:2px;flex-shrink:0"><span>본인은 시술 후 합병증에 대한 충분한 설명을 듣고 이해하였습니다.</span></label></p>`;
   }
   return `
+  ${consentSaveInfoBar(suffix)}
   <div class="consent-sign-area">
     ${bottomCheck}
     <div class="consent-sign-date" style="margin-top:16px">
@@ -1196,9 +1228,19 @@ function sigRow(label, idSuffix) {
   </div>`;
 }
 
+function consentSaveInfoBar(suffix) {
+  return `<div class="no-print" style="display:flex;gap:12px;align-items:center;margin:16px 0 4px;padding:8px 12px;background:#f5f3ff;border-radius:7px;flex-wrap:wrap">
+    <span style="font-size:11px;font-weight:800;color:#5b21b6;white-space:nowrap">저장 정보</span>
+    <label style="font-size:11px;display:flex;align-items:center;gap:4px">환자명&nbsp;<input id="cpt-name-${suffix}" class="fi" style="width:80px;border-bottom:1px solid #7c3aed" placeholder="성명"></label>
+    <label style="font-size:11px;display:flex;align-items:center;gap:4px">진료번호&nbsp;<input id="cpt-chartno-${suffix}" class="fi" style="width:70px;border-bottom:1px solid #7c3aed" placeholder="번호"></label>
+    <span style="font-size:10px;color:#7c3aed">위 정보는 저장 시 파일명에 사용되며 인쇄 시 표시되지 않습니다.</span>
+  </div>`;
+}
+
 function consentSignHTML(suffix) {
   const now = new Date();
   return `
+  ${consentSaveInfoBar(suffix)}
   <div class="consent-sign-area">
     <p style="font-size:11.5px;line-height:1.75;color:#222;margin-bottom:14px">
       본인은 위의 시술(수술)에 대한 목적, 방법, 예상되는 위험성, 합병증 및 마취에 관하여 충분한 설명을 듣고 이해하였으며,
