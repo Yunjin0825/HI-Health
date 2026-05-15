@@ -1599,20 +1599,58 @@ function downloadAsPDF() {
   window.print();
 }
 
-async function shareForm() {
-  document.getElementById('share-popup').classList.remove('open');
-  const title = '에이치아이 여성의원 — ' + (FORM_LABELS[currentForm] || '의무기록');
-  const url   = location.protocol === 'file:' ? 'https://hi-fertility-health.com/forms.html' : location.href;
+async function loadScript(src) {
+  if (window._loadedScripts?.[src]) return;
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = src; s.onload = () => { (window._loadedScripts = window._loadedScripts || {})[src] = true; resolve(); }; s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
 
-  if (navigator.share) {
-    try { await navigator.share({ title, url }); } catch(e) { /* 취소 */ }
-  } else {
-    try {
-      await navigator.clipboard.writeText(url);
-      showToast('링크 복사 완료 ✓');
-    } catch(e) {
-      showToast('공유가 지원되지 않는 환경입니다', true);
+async function shareAsImage() {
+  document.getElementById('share-popup').classList.remove('open');
+  showToast('이미지 생성 중…');
+  try {
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+    const formEl = document.getElementById('form-' + currentForm);
+
+    // 인쇄 제외 요소 임시 숨김
+    const hidden = [...formEl.querySelectorAll('.no-print')];
+    hidden.forEach(el => { el.dataset._display = el.style.display; el.style.display = 'none'; });
+
+    const sheets = [...formEl.querySelectorAll('.sheet')];
+    const canvases = [];
+    for (const sheet of sheets) {
+      canvases.push(await html2canvas(sheet, { scale: 2, useCORS: true, backgroundColor: '#fff', logging: false }));
     }
+
+    // 복원
+    hidden.forEach(el => { el.style.display = el.dataset._display || ''; delete el.dataset._display; });
+
+    // 여러 시트 합치기
+    const totalH = canvases.reduce((h, c) => h + c.height, 0);
+    const maxW   = Math.max(...canvases.map(c => c.width));
+    const merged = Object.assign(document.createElement('canvas'), { width: maxW, height: totalH });
+    const ctx = merged.getContext('2d');
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, maxW, totalH);
+    let y = 0;
+    for (const c of canvases) { ctx.drawImage(c, 0, y); y += c.height; }
+
+    merged.toBlob(async blob => {
+      const fileName = (FORM_LABELS[currentForm] || '의무기록') + '.png';
+      const file = new File([blob], fileName, { type: 'image/png' });
+      if (navigator.canShare?.({ files: [file] })) {
+        try { await navigator.share({ files: [file], title: '에이치아이 여성의원 — ' + (FORM_LABELS[currentForm] || '의무기록') }); }
+        catch(e) { if (e.name !== 'AbortError') showToast('공유 실패', true); }
+      } else {
+        const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: fileName });
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        showToast('이미지 다운로드 완료 ✓');
+      }
+    }, 'image/png');
+  } catch(e) {
+    showToast('이미지 생성 실패: ' + e.message, true);
   }
 }
 
@@ -1832,8 +1870,8 @@ window.addEventListener('online', syncLocalToSupabase);
   <button class="settings-item" onclick="downloadAsPDF()">
     📥&nbsp; PDF로 저장
   </button>
-  <button class="settings-item" onclick="shareForm()">
-    📤&nbsp; 공유하기
+  <button class="settings-item" onclick="shareAsImage()">
+    📤&nbsp; 이미지로 공유 <span style="font-size:10px;color:#9ca3af">(카카오톡 등)</span>
   </button>
 </div>
 
