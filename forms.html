@@ -116,7 +116,6 @@ input[type=checkbox]{width:13px;height:13px;cursor:pointer;accent-color:#1e1047}
 .dr-modal{background:#fff;border-radius:14px;padding:22px 20px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto}
 .dr-slot{border:1px solid #e5e7eb;border-radius:10px;padding:14px;margin-bottom:12px}
 .dr-slot-title{font-size:12px;font-weight:800;color:#1e1047;margin-bottom:10px}
-.dr-selector-bar{display:flex;align-items:center;gap:8px;margin-bottom:4px}
 .dr-select{font-size:11px;padding:5px 9px;border:1px solid #d1d5db;border-radius:6px;font-family:inherit;cursor:pointer;background:#fff;color:#374151}
 
 /* ── PRINT ── */
@@ -1445,13 +1444,13 @@ function sigRow(label, idSuffix) {
 
 function doctorSigRow(label, idSuffix) {
   return `
-  <div class="dr-selector-bar no-print">
-    <span style="font-size:11px;color:#555;white-space:nowrap">주치의 선택</span>
-    <select class="dr-select" onchange="applyDoctorSig(this,'${idSuffix}')"></select>
-  </div>
   <div class="signer-row">
     <div class="signer-label">${label}</div>
-    <input class="fi" id="drname-${idSuffix}" style="width:90px;border-bottom:1px solid #999;text-align:center;flex-shrink:0" placeholder="성명">
+    <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;gap:1px">
+      <input class="fi" id="drname-${idSuffix}" style="width:90px;border-bottom:1px solid #999;text-align:center" placeholder="성명">
+      <select class="dr-select no-print" onchange="applyDoctorSig(this,'${idSuffix}')"
+              style="width:90px;font-size:10px;color:#6366f1;border:none;border-bottom:1px dashed #a5b4fc;background:transparent;cursor:pointer;font-family:inherit;text-align:center;padding:1px 0;outline:none"></select>
+    </div>
     <div style="font-size:12px;font-weight:700;white-space:nowrap;margin:0 6px">(서명)</div>
     <div class="sig-pad-wrap">
       <canvas class="sig-pad" id="sig-${idSuffix}" width="180" height="60"></canvas>
