@@ -1481,7 +1481,9 @@ function insertUterusDiagram() {
     <img src="./images/자궁.png" alt="자궁 및 부속기 해부도" style="width:200px;height:auto;display:block;margin:0 auto">
   </div>`;
 
+  const exclude = new Set(['form-consent-prp-sedation','form-consent-fetal-reduction','form-consent-eggretrieval','form-consent-cautery','form-consent-marsup']);
   document.querySelectorAll('[id^="form-consent-"] .consent-diag').forEach(el => {
+    if (exclude.has(el.closest('[id^="form-consent-"]')?.id)) return;
     const div = document.createElement('div');
     div.innerHTML = wrapper;
     el.after(div);
