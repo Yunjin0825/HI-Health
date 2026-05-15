@@ -1465,7 +1465,8 @@ function consentSaveInfoBar(suffix) {
     <span style="font-size:11px;font-weight:800;color:#5b21b6;white-space:nowrap">저장 정보</span>
     <label style="font-size:11px;display:flex;align-items:center;gap:4px">환자명&nbsp;<input id="cpt-name-${suffix}" class="fi" style="width:80px;border-bottom:1px solid #7c3aed" placeholder="성명"></label>
     <label style="font-size:11px;display:flex;align-items:center;gap:4px">진료번호&nbsp;<input id="cpt-chartno-${suffix}" class="fi" style="width:70px;border-bottom:1px solid #7c3aed" placeholder="번호"></label>
-    <span style="font-size:10px;color:#7c3aed">위 정보는 저장 시 파일명에 사용되며 인쇄 시 표시되지 않습니다.</span>
+    <span style="font-size:10px;color:#7c3aed;flex:1">위 정보는 저장 시 파일명에 사용되며 인쇄 시 표시되지 않습니다.</span>
+    <button onclick="resetConsentForm('${suffix}')" style="padding:4px 10px;background:#ede9fe;color:#5b21b6;border:none;border-radius:5px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">🔄 초기화</button>
   </div>`;
 }
 
@@ -1746,6 +1747,35 @@ function insertUterusDiagram() {
     div.innerHTML = wrapper;
     el.after(div);
   });
+}
+
+/* ── 동의서 초기화 ── */
+function resetConsentForm(suffix) {
+  if (!confirm('작성한 내용을 모두 초기화할까요?')) return;
+  const formEl = document.getElementById('form-consent-' + suffix);
+  if (!formEl) return;
+
+  // 텍스트 입력 초기화
+  formEl.querySelectorAll('input[type="text"],input[type="number"],input:not([type])').forEach(el => {
+    el.value = '';
+  });
+
+  // 체크박스 해제
+  formEl.querySelectorAll('input[type="checkbox"]').forEach(el => { el.checked = false; });
+
+  // 서명 캔버스 초기화
+  formEl.querySelectorAll('canvas.sig-pad').forEach(c => {
+    c.getContext('2d').clearRect(0, 0, c.width, c.height);
+  });
+
+  // 날짜 필드 오늘로 재설정
+  const now = new Date();
+  const y = now.getFullYear(), m = now.getMonth() + 1, d = now.getDate();
+  formEl.querySelectorAll('[id^="sd-y-"],[id^="sd2-y-"]').forEach(el => el.value = y);
+  formEl.querySelectorAll('[id^="sd-m-"],[id^="sd2-m-"]').forEach(el => el.value = m);
+  formEl.querySelectorAll('[id^="sd-d-"],[id^="sd2-d-"]').forEach(el => el.value = d);
+
+  showToast('초기화 완료 ✓');
 }
 
 /* ── 서명 패드 ── */
