@@ -11616,12 +11616,13 @@ function navigate(page) {
     nb.addEventListener('animationend', () => nb.classList.remove('nav-anim'), { once: true });
   }
   // Render the page
-  if (page === 'home')      { renderHome(); fetchLeagueData({ needWeekly: false }); }
+  // 리그 미운영 중: 화면 진입 시 리그 자동 조회 안 함 (Disk IO 절감). 리그 탭을 열 때만 조회
+  if (page === 'home')      { renderHome(); }
   if (page === 'exercise')  {
     renderExercise();
     refreshCurrentFamilyCertLatest({ silent: true }).then(() => renderExerciseFamilyCertCard()).catch(err => console.warn('[family-cert/exercise-sync]', err));
   }
-  if (page === 'community') { setCommunityTab('feed'); renderCommunity(); _adminPostsFetched = false; fetchAdminPosts(); fetchCommunityPosts(); markCommunityAsSeen(); fetchLeagueData({ needWeekly: false }); }
+  if (page === 'community') { setCommunityTab('feed'); renderCommunity(); _adminPostsFetched = false; fetchAdminPosts(); fetchCommunityPosts(); markCommunityAsSeen(); }
   if (page === 'rewards')   {
     setRewardsTab('rewards');
     renderRewards();
@@ -11809,7 +11810,7 @@ function renderHome() {
     document.getElementById('my-rank-quick').textContent = '운동/혈당 기록 후 참여';
   } else if (!_leagueReady) {
     document.getElementById('rank-quick-label').textContent = '';
-    document.getElementById('my-rank-quick').textContent = '확인 중…';
+    document.getElementById('my-rank-quick').textContent = _leagueFetching ? '확인 중…' : '순위 확인';
   } else {
     const lgRank = myLeagueRank('alltime');
     const lgTotal = _base.length + 1;
