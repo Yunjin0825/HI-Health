@@ -15576,7 +15576,8 @@ async function fetchLeagueData(opts = {}) {
             _db.from('users').select('*'),
             _db.from('registrations').select('id,"empId","deviceId",status'),
           ]),
-      needWeekly && !canReuseWeekly
+      // 누적 조회(alltimeBundle)와 같은 쿼리이므로, 함께 조회할 때는 중복 요청하지 않음
+      needWeekly && !canReuseWeekly && canReuseUsers
         ? Promise.all([
             _db.from('workouts').select('deviceId,points,ts').limit(10000),
             _db.from('glucose').select('deviceId,points,ts').limit(10000),
@@ -15642,7 +15643,7 @@ async function fetchLeagueData(opts = {}) {
     }
 
     if (needWeekly && !canReuseWeekly) {
-      const [weeklyWRes, weeklyGRes] = weeklyBundle || [];
+      const [weeklyWRes, weeklyGRes] = weeklyBundle || alltimeBundle || [];
       if (weeklyWRes?.error) throw weeklyWRes.error;
       if (weeklyGRes?.error) throw weeklyGRes.error;
       wPtsByDevice = {};

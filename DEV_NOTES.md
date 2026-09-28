@@ -7,6 +7,24 @@
 
 ## 🐛 오류 / 이슈
 
+### [2026-09-28] 관리자페이지 로그인 불가 ("확인 중..." 고착)
+**증상**: 관리자 비밀번호를 입력해도 로그인되지 않고 버튼이 "확인 중..." 상태로 멈춤
+**원인**: Supabase DB(PostgREST) 무응답. API 게이트웨이·Edge Function은 정상이나 `rest/v1/*` 요청이 전부 타임아웃. 로그인 시 `app_config`의 `admin_password_hash`를 조회하는데 타임아웃이 없어 무한 대기
+**해결**:
+1. 서버: Supabase 대시보드에서 프로젝트 상태 확인 및 재시작 필요 (Settings → General → Restart project)
+2. 코드: `matchesSharedAdminPassword` 조회에 `withAdminLoadTimeout`(8초) 적용, 조회 실패/타임아웃 시 "서버 응답이 없습니다" 안내 표시
+**근본 원인**: Supabase **Disk IO Budget 소진** → 디스크 처리량이 기본값 5MB/s로 제한돼 쿼리가 멈춤. 주 원인은 관리자 페이지:
+- 실시간 이벤트(8개 테이블, 모든 유저의 운동/포스트 등) 1건마다 `loadAll()` → 8개 테이블 전체 `select('*')`
+- 30초마다 폴링으로 또 전체 조회
+- 12초 안전 타이머가 `_loadInFlight`를 풀어버려, DB가 느리면 전체 조회가 중복으로 쌓임
+- 앱 리그 조회(`fetchLeagueData`)는 주간/누적 쿼리가 동일한데 같이 조회할 때 두 번 요청
+**IO 절감 조치**:
+- `scheduleRealtimeReload()` — 실시간 이벤트를 묶어 전체 재조회는 최소 60초 간격
+- 폴링 30초 → 5분
+- 안전 타이머는 안내만 하고 `_loadInFlight` 유지 (개별 쿼리 8초 타임아웃으로 반드시 종료)
+- `index.html` `fetchLeagueData` — 누적 조회와 함께 할 때 주간 조회는 누적 결과 재사용
+**관련 파일**: `user-admin.html` — `matchesSharedAdminPassword()`, `doLogin()`, `loadAll()`, `setupRealtime()`; `index.html` — `fetchLeagueData()`
+
 ### [2026-04-27] 리그 탭 "불러오는 중이에요" 고착
 **증상**: 커뮤니티 > 리그 탭을 열면 "불러오는 중이에요" 메시지가 사라지지 않고 유지됨
 **원인**: `setCommunityTab('league')` 호출 시 `fetchLeagueData`가 이미 진행 중이거나 db 미준비로 조기 반환될 때 `renderLeague()`가 한 번도 호출되지 않음. 또한 `finally` 블록 내 `renderLeague()` 오류가 조용히 삼켜지면 로딩 상태가 영구 유지됨

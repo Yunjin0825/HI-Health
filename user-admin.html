@@ -1735,7 +1735,12 @@ let _adminVisibilityBound = false;
 let _adminLoginBusy = false;
 const ADMIN_LOAD_QUERY_TIMEOUT_MS = 8000;
 const ADMIN_LOAD_SAFETY_TIMEOUT_MS = 12000;
-const ADMIN_POLL_INTERVAL_MS = 30000;
+// 폴링은 실시간 누락 대비 백업용. 전체 테이블을 읽으므로 Disk IO 절약을 위해 길게 유지
+const ADMIN_POLL_INTERVAL_MS = 5 * 60 * 1000;
+// 실시간 이벤트가 몰려도 전체 재조회는 이 간격에 최대 1회
+const ADMIN_RT_RELOAD_MIN_GAP_MS = 60 * 1000;
+let _rtReloadTimer = null;
+let _lastLoadStartedAt = 0;
 
 function withAdminLoadTimeout(promise, label, ms = ADMIN_LOAD_QUERY_TIMEOUT_MS) {
   return Promise.race([
@@ -1780,13 +1785,14 @@ async function matchesSharedAdminPassword(raw) {
     console.warn('[admin-login/client]', error);
     return false;
   }
-  const { data, error } = await client
+  // 서버가 응답하지 않으면 무한 대기 대신 에러를 던져 호출부에서 안내
+  const { data, error } = await withAdminLoadTimeout(client
     .from('app_config')
     .select('key,value')
-    .in('key', [ADMIN_PASSWORD_HASH_CONFIG_KEY, ADMIN_PASSWORD_LEGACY_CONFIG_KEY]);
+    .in('key', [ADMIN_PASSWORD_HASH_CONFIG_KEY, ADMIN_PASSWORD_LEGACY_CONFIG_KEY]), '비밀번호 확인');
   if (error) {
     console.warn('[admin-login/config]', error);
-    return false;
+    throw new Error(error.message || '비밀번호 설정을 불러오지 못했습니다');
   }
   const rows = Array.isArray(data) ? data : [];
   const passwordHash = await hashAdminPassword(raw);
@@ -1839,6 +1845,9 @@ async function doLogin() {
     inp.value = '';
     err.textContent = '비밀번호가 올바르지 않습니다';
     setTimeout(() => { inp.classList.remove('err'); err.textContent = ''; }, 2500);
+  } catch (e) {
+    console.warn('[admin-login]', e);
+    showLoginError('서버 응답이 없습니다. 잠시 후 다시 시도해주세요');
   } finally {
     _adminLoginBusy = false;
     if (btn) { btn.disabled = false; btn.textContent = '로그인'; }
@@ -1856,6 +1865,7 @@ function doLogout() {
   _rtChannels.forEach(ch => { try { db?.removeChannel(ch); } catch(e) {} });
   _rtChannels = [];
   _lastDataSignature = '';
+  if (_rtReloadTimer) { clearTimeout(_rtReloadTimer); _rtReloadTimer = null; }
   _queuedLoadOpts = null;
   _loadInFlight = null;
   _userDetailDirty = false;
@@ -1941,6 +1951,17 @@ function initSupabase() {
   }, ADMIN_POLL_INTERVAL_MS);
 }
 
+// 이벤트마다 전체 재조회하면 사용자 활동량만큼 DB 전체 스캔이 발생하므로 묶어서 처리
+function scheduleRealtimeReload() {
+  if (_rtReloadTimer) return;
+  const wait = Math.max(0, ADMIN_RT_RELOAD_MIN_GAP_MS - (Date.now() - _lastLoadStartedAt));
+  _rtReloadTimer = setTimeout(() => {
+    _rtReloadTimer = null;
+    if (document.hidden || !db) return;
+    loadAll({ silent: true });
+  }, wait);
+}
+
 let _rtChannels = [];
 function setupRealtime() {
   // 기존 채널 정리
@@ -1953,9 +1974,7 @@ function setupRealtime() {
   // 모든 테이블을 하나의 채널로 통합 (연결 안정성 향상)
   const ch = db.channel('adm_all');
   tables.forEach(tbl => {
-    ch.on('postgres_changes', { event: '*', schema: 'public', table: tbl }, () => {
-      loadAll({ silent: true });
-    });
+    ch.on('postgres_changes', { event: '*', schema: 'public', table: tbl }, scheduleRealtimeReload);
   });
   ch.subscribe(status => {
     if (status === 'SUBSCRIBED') {
@@ -2480,18 +2499,20 @@ async function loadAll(opts = {}) {
     return _loadInFlight;
   }
   const client = db;
+  _lastLoadStartedAt = Date.now();
   if (!req.silent) showLoading(true);
   // 안전 타임아웃: _loadInFlight가 영구 차단되는 상황 방지
   if (_loadSafetyTimer) clearTimeout(_loadSafetyTimer);
+  // 지연 시 안내만 표시. _loadInFlight를 풀면 느린 DB에 전체 조회가 중복으로 쌓이므로 유지
+  // (각 쿼리에 개별 타임아웃이 있어 로드는 반드시 종료됨)
   _loadSafetyTimer = setTimeout(() => {
+    _loadSafetyTimer = null;
     if (_loadInFlight) {
-      console.warn('[loadAll] safety timeout — resetting');
+      console.warn('[loadAll] slow load');
       if (!req.silent) {
         showLoading(false);
         setStatus('서버 응답이 지연되고 있습니다. 잠시 후 다시 시도해주세요', false);
       }
-      _loadInFlight = null;
-      _loadSafetyTimer = null;
     }
   }, ADMIN_LOAD_SAFETY_TIMEOUT_MS);
   _loadInFlight = (async () => {
