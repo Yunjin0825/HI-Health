@@ -11559,6 +11559,39 @@ function quickNav(btn, fn) {
   }, 110);
 }
 
+// 커뮤니티 실시간 구독은 커뮤니티 화면에 있을 때만 유지.
+// postgres_changes는 변경 1건마다 구독자 수만큼 권한 확인 쿼리가 돌아 Disk IO 부담이 큼
+let _communityRtChannel = null;
+function setCommunityRealtime(on) {
+  if (!_db) return;
+  if (!on) {
+    if (_communityRtChannel) {
+      try { _db.removeChannel(_communityRtChannel); } catch (e) {}
+      _communityRtChannel = null;
+    }
+    return;
+  }
+  if (_communityRtChannel) return;
+  const isCommunityActive = () => document.querySelector('.page.active')?.id === 'page-community';
+  _communityRtChannel = _db.channel('community_ch')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'admin_posts' }, async () => {
+      if (!isCommunityActive()) return;
+      const { data } = await _db.from('admin_posts').select('*').order('createdAt', { ascending: false });
+      if (data) {
+        S.adminPosts = data;
+        _adminPostsFetched = true;
+        renderCommunity();
+      }
+    })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, () => {
+      if (!isCommunityActive()) return;
+      _adminPostsFetched = false;
+      fetchAdminPosts();
+      fetchCommunityPosts();
+    })
+    .subscribe();
+}
+
 function navigate(page) {
   if (page !== 'home') closeHomePushPrompt({ rememberSession: false });
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -11623,6 +11656,7 @@ function navigate(page) {
     refreshCurrentFamilyCertLatest({ silent: true }).then(() => renderExerciseFamilyCertCard()).catch(err => console.warn('[family-cert/exercise-sync]', err));
   }
   if (page === 'community') { setCommunityTab('feed'); renderCommunity(); _adminPostsFetched = false; fetchAdminPosts(); fetchCommunityPosts(); markCommunityAsSeen(); }
+  setCommunityRealtime(page === 'community');
   if (page === 'rewards')   {
     setRewardsTab('rewards');
     renderRewards();
@@ -22266,8 +22300,8 @@ async function init() {
   }, 1800));
   window.addEventListener('focus', () => {
     if (!(S.user?.empId || ACTIVE_EMPID)) return;
-    syncFamilyCertRewardStatus().catch(err => console.warn('[family-cert/reward-focus-sync]', err));
-    refreshCurrentFamilyCertLatest({ force: true, silent: true }).catch(err => console.warn('[family-cert/latest-focus-sync]', err));
+    // 카메라/앨범 왕복 등 focus가 잦으므로 강제 조회 대신 30초 캐시 사용
+    refreshCurrentFamilyCertLatest({ silent: true }).catch(err => console.warn('[family-cert/latest-focus-sync]', err));
   });
 
   if ('serviceWorker' in navigator) {
@@ -22294,26 +22328,8 @@ async function init() {
       // 앱 설정 로드 (구매 기능 ON/OFF 등)
       loadAppConfig().then(() => { renderShop(); saveCart(); });
 
-      // admin_posts 실시간 리스너 (커뮤니티 탭 자동 갱신)
-      _db.channel('admin_posts_ch')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'admin_posts' }, async () => {
-          const { data } = await _db.from('admin_posts').select('*').order('createdAt', { ascending: false });
-          if (data) {
-            S.adminPosts = data;
-            _adminPostsFetched = true;
-            const page = document.querySelector('.page.active');
-            if (page && page.id === 'page-community') renderCommunity();
-          }
-        })
-        .subscribe();
-      // posts 실시간 리스너 (게시글 추가/수정/삭제 자동 반영)
-      _db.channel('posts_ch')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, async () => {
-          _adminPostsFetched = false;
-          const page = document.querySelector('.page.active');
-          if (page && page.id === 'page-community') { fetchAdminPosts(); fetchCommunityPosts(); }
-        })
-        .subscribe();
+      // admin_posts/posts 실시간 구독은 커뮤니티 화면 진입 시에만 (setCommunityRealtime)
+      if (document.querySelector('.page.active')?.id === 'page-community') setCommunityRealtime(true);
       // orders 실시간 리스너 (관리자 승인 상태 자동 반영)
       _db.channel('orders_ch')
         .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders' }, async (payload) => {
@@ -22329,31 +22345,8 @@ async function init() {
           }
         })
         .subscribe();
-      _db.channel('family_certifications_ch')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'family_certifications' }, async (payload) => {
-          const nextRow = normalizeFamilyCertRow(payload.new);
-          const prevRow = normalizeFamilyCertRow(payload.old);
-          const changed = nextRow || prevRow;
-          if (!changed) return;
-
-          if (payload.eventType === 'DELETE') {
-            if (isCurrentFamilyCertRow(changed)) applyFamilyCertRowsAfterDelete(changed.id);
-            return;
-          }
-
-          if (isCurrentFamilyCertRow(changed)) {
-            applyFamilyCertRowsAfterCancel(changed);
-          }
-
-          if (String(changed.status || '').trim().toLowerCase() !== 'approved') return;
-          if (!isCurrentFamilyCertRow(changed)) return;
-          try {
-            await consumeFamilyCertReward(changed);
-          } catch (err) {
-            console.warn('[family-cert/realtime]', err);
-          }
-        })
-        .subscribe();
+      // family_certifications 실시간 구독 제거: 보상 연출(consumeFamilyCertReward)이 비활성 상태라
+      // 삭제/취소 반영만 하고 있었음. 운동 탭 진입·앱 복귀 시 refreshCurrentFamilyCertLatest로 동기화
     }
   } catch(e) {
     console.warn('Supabase 초기화 실패:', e);

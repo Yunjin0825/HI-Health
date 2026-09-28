@@ -284,6 +284,14 @@
 
 <!-- 왜 이렇게 만들었는지 기록. 나중에 "왜 이렇게 했지?" 방지용 -->
 
+### [2026-09-28] 앱 실시간 구독 최소화 (Disk IO 절감)
+**결정**:
+- `posts`/`admin_posts` 실시간 구독은 커뮤니티 화면에 있을 때만 유지 (`setCommunityRealtime()`, `navigate()`에서 on/off)
+- `family_certifications` 실시간 구독 제거 — 보상 연출(`consumeFamilyCertReward`)이 비활성 상태라 삭제/취소 반영만 하고 있었음. 운동 탭 진입·앱 복귀 시 `refreshCurrentFamilyCertLatest()`로 동기화
+- 앱 복귀(focus) 시 운동인증 조회는 `force` 없이 30초 캐시 사용 (카메라/앨범 왕복마다 재조회 방지)
+**이유**: postgres_changes는 변경 1건마다 구독자 수만큼 권한 확인 쿼리가 실행됨. 전 사용자가 상시 구독하면 사용자 수에 비례해 DB 부하 증가
+**재활성화 시**: 운동인증 승인 실시간 알림이 다시 필요하면 채널을 `emp_id=eq.{내 사번}` filter로 구독할 것
+
 ### [2026-09-28] 리그 미운영 — 자동 조회 중단, UI는 유지
 **결정**: 홈/커뮤니티 진입 시 호출하던 `fetchLeagueData()` 제거. 리그 탭 또는 홈 '내 순위'를 눌렀을 때만 조회
 **이유**: 현재 리그를 사용하지 않는데, 모든 사용자가 화면 진입할 때마다 users 전체 + workouts/glucose 최대 1만 행씩 조회해 Disk IO 예산 소진에 기여
